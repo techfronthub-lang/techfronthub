@@ -102,7 +102,7 @@ export default function AdminLayout({ children }) {
       })
       .catch(() => router.replace('/admin/login'))
       .finally(() => setLoading(false))
-  }, [path])
+  }, [path, router])
 
   const handleLogout = async () => {
     await logout().catch(() => {})

@@ -38,7 +38,7 @@ export default function InstructorLayout({ children }) {
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => { setInstructor(data.user ?? data); setLoading(false) })
       .catch(() => { localStorage.removeItem('instructor-token'); router.replace('/instructor/login') })
-  }, [pathname])
+  }, [pathname, router])
 
   if (pathname === '/instructor/login') return <>{children}</>
 
