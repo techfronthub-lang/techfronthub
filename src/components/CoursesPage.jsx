@@ -1,40 +1,10 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import { I } from './Icons'
 
-function flyerBg(hue) {
-  return {
-    background: `linear-gradient(135deg, oklch(0.96 0.03 ${hue}), oklch(0.88 0.08 ${hue}))`,
-  }
-}
-
-function CourseCard({ c }) {
-  return (
-    <a href={`/courses/${c.id}`} className="course-card" style={{textDecoration: "none", color: "inherit"}}>
-      <div className="course-flyer" style={flyerBg(c.hue || 210)}>
-        {c.featured && <span className="flyer-tag hot">Featured</span>}
-      </div>
-      <div className="course-body">
-        <h3>{c.title}</h3>
-        <p>{c.description}</p>
-        <div className="course-meta">
-          <span>{c.duration || '8 weeks'}</span><span className="sep"/>
-          <span>{c.level || 'All levels'}</span>
-        </div>
-      </div>
-      <div className="course-foot">
-        <div className="course-price">
-          ₦{c.price?.toLocaleString?.() || '0'}
-        </div>
-        <button className="btn btn-dark btn-sm">Enroll Now <I.Arrow size={12}/></button>
-      </div>
-    </a>
-  )
-}
-
-function CategoryCard({ cat, courses = [] }) {
+function CategoryCard({ cat }) {
   return (
     <Link href={`/categories/${cat.id}`} style={{textDecoration: 'none'}}>
       <div className="cat-card" style={{cursor: 'pointer', transition: 'all 0.2s'}}>

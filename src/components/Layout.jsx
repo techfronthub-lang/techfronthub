@@ -35,18 +35,11 @@ const NAV_LINKS = [
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-  const [userEmail, setUserEmail] = React.useState('');
   const pathname = usePathname();
 
   const checkAuth = React.useCallback(() => {
     const token = localStorage.getItem('payload-token');
     setIsAuthenticated(!!token);
-    if (token) {
-      const email = localStorage.getItem('user-email');
-      setUserEmail(email || '');
-    } else {
-      setUserEmail('');
-    }
   }, []);
 
   React.useEffect(() => {

@@ -37,21 +37,6 @@ async function fetchCount(url) {
   }
 }
 
-/* ── Status badge ─────────────────────────────────────────────────────────── */
-function StatusBadge({ status }) {
-  const map = {
-    submitted: 'i-badge-blue',
-    graded:    'i-badge-green',
-    late:      'i-badge-orange',
-    draft:     'i-badge-gray',
-  }
-  return (
-    <span className={`i-badge ${map[status] ?? 'i-badge-gray'}`}>
-      {status ?? 'unknown'}
-    </span>
-  )
-}
-
 /* ── Course tag badge ─────────────────────────────────────────────────────── */
 function TagBadge({ tag }) {
   if (!tag || typeof tag !== 'string') return null
@@ -76,30 +61,11 @@ function IconBook() {
     </svg>
   )
 }
-function IconClipboard() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22" aria-hidden="true">
-      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-    </svg>
-  )
-}
 function IconBell() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22" aria-hidden="true">
       <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
       <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
-  )
-}
-function IconAssignment() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22" aria-hidden="true">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="16" y1="13" x2="8" y2="13" />
-      <line x1="16" y1="17" x2="8" y2="17" />
-      <polyline points="10 9 9 9 8 9" />
     </svg>
   )
 }

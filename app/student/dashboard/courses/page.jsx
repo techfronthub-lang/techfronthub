@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { pageBg, shell, card, primaryButton, errorAlert } from '../_components/ui'
+import { pageBg, shell, card, errorAlert } from '../_components/ui'
 
 function authHeaders() {
   const token = typeof window !== 'undefined' ? localStorage.getItem('payload-token') : ''

@@ -68,7 +68,7 @@ export async function POST(req) {
         collection: 'enrollments',
         data: {
           student: studentId,
-          course: courseId,
+          course: Number(courseId) as any,
           status: 'paid',
           amount: Number(tx?.amount || 0) / 100,
           reference: String(reference),

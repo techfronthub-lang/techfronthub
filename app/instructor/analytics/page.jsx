@@ -125,7 +125,7 @@ export default function AnalyticsPage() {
   const [courses,       setCourses]       = useState([])
   const [assignments,   setAssignments]   = useState([])
   const [submissions,   setSubmissions]   = useState([])
-  const [announcements, setAnnouncements] = useState([])
+  const [_announcements, setAnnouncements] = useState([])
   const [loading,       setLoading]       = useState(true)
   const [error,         setError]         = useState(null)
 

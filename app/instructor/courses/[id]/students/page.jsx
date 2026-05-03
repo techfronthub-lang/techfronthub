@@ -99,7 +99,7 @@ function deriveStudents(submissions) {
 /* ── Page ─────────────────────────────────────────────────────────────────── */
 export default function CourseStudentsPage() {
   const { id }     = useParams()
-  const ctx        = useInstructor()
+  useInstructor()
 
   const [course,      setCourse]      = useState(null)
   const [submissions, setSubmissions] = useState([])

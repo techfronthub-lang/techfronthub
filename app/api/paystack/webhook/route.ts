@@ -53,8 +53,8 @@ export async function POST(req) {
       await payload.create({
         collection: 'enrollments',
         data: {
-          student: studentId,
-          course: courseId,
+          student: Number(studentId) as any,
+          course: Number(courseId) as any,
           status: 'paid',
           amount: Number(data?.amount || 0) / 100,
           reference,
