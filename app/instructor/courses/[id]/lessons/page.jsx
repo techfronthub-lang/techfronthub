@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { createDoc } from '@/src/lib/payload-api'
 
 function authHeaders() {
   const token = typeof window !== 'undefined' ? localStorage.getItem('instructor-token') : ''
@@ -13,6 +14,10 @@ function makeLesson() {
   return { title: '', duration: '', summary: '', content: '', videoUrls: [{ url: '' }], resources: [{ url: '' }] }
 }
 
+function makeDraftKey(id) {
+  return `instructor-course-draft:${id}`
+}
+
 export default function LessonBuilderPage() {
   const { id } = useParams()
   const [courseTitle, setCourseTitle] = useState('Course')
@@ -21,6 +26,7 @@ export default function LessonBuilderPage() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [draftSavedAt, setDraftSavedAt] = useState('')
 
   const loadCourse = useCallback(() => {
     if (!id) return
@@ -29,8 +35,22 @@ export default function LessonBuilderPage() {
       .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
       .then(data => {
         const doc = data?.doc ?? data
-        const list = Array.isArray(doc?.courseContent) && doc.courseContent.length > 0
-          ? doc.courseContent.map(item => ({
+        let draft = null
+        if (typeof window !== 'undefined') {
+          try {
+            const draftRaw = localStorage.getItem(makeDraftKey(id))
+            draft = draftRaw ? JSON.parse(draftRaw) : null
+          } catch {
+            draft = null
+          }
+        }
+        const source = Array.isArray(draft?.lessons) && draft.lessons.length > 0
+          ? draft.lessons
+          : Array.isArray(doc?.courseContent) && doc.courseContent.length > 0
+            ? doc.courseContent
+            : []
+        const list = source.length > 0
+          ? source.map(item => ({
               title: item?.title ?? '',
               duration: item?.duration ?? '',
               summary: item?.summary ?? '',
@@ -46,6 +66,7 @@ export default function LessonBuilderPage() {
 
         setCourseTitle(doc?.title ?? 'Course')
         setLessons(list)
+        if (draft?.savedAt) setDraftSavedAt(draft.savedAt)
         setLoading(false)
       })
       .catch(err => {
@@ -71,6 +92,18 @@ export default function LessonBuilderPage() {
     setMessage('')
   }
 
+  function moveLesson(index, direction) {
+    setLessons(prev => {
+      const next = [...prev]
+      const target = index + direction
+      if (target < 0 || target >= next.length) return prev
+      const [item] = next.splice(index, 1)
+      next.splice(target, 0, item)
+      return next
+    })
+    setMessage('')
+  }
+
   function updateResource(lessonIndex, resourceIndex, value) {
     setLessons(prev => prev.map((lesson, i) => {
       if (i !== lessonIndex) return lesson
@@ -87,6 +120,33 @@ export default function LessonBuilderPage() {
       ? { ...lesson, resources: [...lesson.resources, { url: '' }] }
       : lesson))
     setMessage('')
+  }
+
+  async function uploadResourceFile(lessonIndex, file) {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('folder', `courses/${id}/lessons`)
+    const res = await fetch('/api/storage/upload', { method: 'POST', body: formData })
+    const json = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(json.message || 'Upload failed')
+    const url = json.url || ''
+    setLessons(prev => prev.map((lesson, i) => {
+      if (i !== lessonIndex) return lesson
+      const hasEmpty = lesson.resources.some(r => !String(r.url || '').trim())
+      const nextResources = hasEmpty
+        ? lesson.resources.map(r => String(r.url || '').trim() ? r : { url })
+        : [...lesson.resources, { url }]
+      return { ...lesson, resources: nextResources }
+    }))
+    return createDoc('media-assets', {
+      name: file.name,
+      url,
+      key: json.key || '',
+      bucket: json.bucket || '',
+      folder: 'lesson-resource',
+      mimeType: file.type,
+      size: file.size,
+    }).catch(() => {})
   }
 
   function removeResource(lessonIndex, resourceIndex) {
@@ -167,11 +227,25 @@ export default function LessonBuilderPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data?.errors?.[0]?.message ?? data?.message ?? 'Failed to save')
       setMessage('Lessons saved successfully.')
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(makeDraftKey(id))
+        setDraftSavedAt('')
+      }
     } catch (err) {
       setError(err.message)
     } finally {
       setSaving(false)
     }
+  }
+
+  function saveDraft() {
+    if (typeof window === 'undefined') return
+    localStorage.setItem(makeDraftKey(id), JSON.stringify({
+      lessons,
+      savedAt: new Date().toISOString(),
+    }))
+    setDraftSavedAt(new Date().toISOString())
+    setMessage('Draft saved locally in your browser.')
   }
 
   if (loading) {
@@ -192,6 +266,9 @@ export default function LessonBuilderPage() {
         <div className="i-page-header-left">
           <h1>Lesson Builder</h1>
           <p>Create full lesson content for {courseTitle}.</p>
+          {draftSavedAt ? (
+            <p className="i-form-hint">Draft saved locally at {new Date(draftSavedAt).toLocaleString()}</p>
+          ) : null}
         </div>
       </div>
 
@@ -202,7 +279,13 @@ export default function LessonBuilderPage() {
         {lessons.map((lesson, i) => (
           <section key={i} className="i-form-section">
             <div className="i-form-section-header">
-              <h2 className="i-form-section-title">Lesson {i + 1}</h2>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, width: '100%' }}>
+                <h2 className="i-form-section-title">Lesson {i + 1}</h2>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button type="button" className="i-btn i-btn-secondary i-btn-sm" onClick={() => moveLesson(i, -1)} disabled={i === 0}>↑ Up</button>
+                  <button type="button" className="i-btn i-btn-secondary i-btn-sm" onClick={() => moveLesson(i, 1)} disabled={i === lessons.length - 1}>↓ Down</button>
+                </div>
+              </div>
             </div>
             <div className="i-form-section-body">
               <div className="i-form-grid">
@@ -248,6 +331,24 @@ export default function LessonBuilderPage() {
                       <button type="button" className="i-btn i-btn-ghost i-btn-sm" onClick={() => removeResource(i, ri)} disabled={lesson.resources.length === 1}>Remove</button>
                     </div>
                   ))}
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf,.doc,.docx,.ppt,.pptx,.zip"
+                    className="i-input"
+                    onChange={async e => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      try {
+                        setError('')
+                        await uploadResourceFile(i, file)
+                        setMessage('Resource uploaded and added to the lesson.')
+                      } catch (err) {
+                        setError(err.message)
+                      } finally {
+                        e.target.value = ''
+                      }
+                    }}
+                  />
                   <button type="button" className="i-btn i-btn-secondary i-btn-sm" onClick={() => addResource(i)}>Add Resource</button>
                 </div>
               </div>
@@ -261,6 +362,7 @@ export default function LessonBuilderPage() {
       </div>
 
       <div className="i-form-actions" style={{ marginTop: 16 }}>
+        <button type="button" className="i-btn i-btn-secondary" onClick={saveDraft}>Save Draft</button>
         <button type="button" className="i-btn i-btn-secondary" onClick={addLesson}>+ Add Lesson</button>
         <button type="button" className="i-btn i-btn-primary" onClick={saveLessons} disabled={saving}>{saving ? 'Saving...' : 'Save Lessons'}</button>
       </div>

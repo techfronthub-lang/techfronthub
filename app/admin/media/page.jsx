@@ -23,8 +23,28 @@ export default function MediaLibraryPage() {
     setLoading(true)
     setError('')
     try {
-      const res = await getCollection('media-assets', { limit: 250, page: 1 })
-      setItems(res.docs || [])
+      const [recordsRes, bucketRes] = await Promise.all([
+        getCollection('media-assets', { limit: 250, page: 1 }),
+        fetch('/api/storage/list').then((r) => r.json()),
+      ])
+      const records = recordsRes.docs || []
+      const objects = bucketRes.items || []
+      const byKey = new Map(records.filter((item) => item.key).map((item) => [item.key, item]))
+      const merged = [
+        ...records,
+        ...objects.filter((obj) => !byKey.has(obj.key)).map((obj) => ({
+          id: `storage:${obj.key}`,
+          name: obj.key.split('/').pop() || obj.key,
+          url: obj.url,
+          key: obj.key,
+          bucket: obj.bucket,
+          folder: obj.key.includes('/') ? obj.key.split('/').slice(0, -1).join('/') : '',
+          mimeType: '',
+          size: obj.size,
+          lastModified: obj.lastModified,
+        })),
+      ]
+      setItems(merged)
     } catch (e) {
       setError(e.message)
     } finally {
@@ -90,7 +110,9 @@ export default function MediaLibraryPage() {
           body: JSON.stringify({ key: item.key, bucket: item.bucket }),
         })
       }
-      await deleteDoc('media-assets', item.id)
+      if (!String(item.id).startsWith('storage:')) {
+        await deleteDoc('media-assets', item.id)
+      }
       await load()
     } catch (e) {
       setError(e.message)
@@ -134,7 +156,7 @@ export default function MediaLibraryPage() {
 
         <div className="stats-grid" style={{ marginBottom: 16 }}>
           <div className="stat-card"><div className="stat-label">Assets</div><div className="stat-value">{items.length}</div></div>
-          <div className="stat-card"><div className="stat-label">Images</div><div className="stat-value">{items.filter((item) => (item.mimeType || '').startsWith('image/')).length}</div></div>
+          <div className="stat-card"><div className="stat-label">Images</div><div className="stat-value">{items.filter((item) => (item.mimeType || '').startsWith('image/') || item.url).length}</div></div>
           <div className="stat-card"><div className="stat-label">Filtered</div><div className="stat-value">{filtered.length}</div></div>
         </div>
 
@@ -166,6 +188,9 @@ export default function MediaLibraryPage() {
                 <div className="media-meta">
                   <div className="media-title">{item.name}</div>
                   <div className="media-sub">{formatSize(item.size)} {item.folder ? `- ${item.folder}` : ''}</div>
+                  {String(item.id).startsWith('storage:') ? (
+                    <div className="media-sub" style={{ marginTop: 4, color: 'var(--a-warn)' }}>Bucket object only</div>
+                  ) : null}
                 </div>
                 <div className="media-actions">
                   <button type="button" className="btn btn-ghost btn-sm" onClick={() => copyUrl(item.url)}>

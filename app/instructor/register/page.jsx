@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
 
 export default function InstructorRegisterRedirectPage() {
-  redirect('/instructor/login')
+  redirect('/login')
 }

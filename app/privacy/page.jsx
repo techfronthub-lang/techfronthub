@@ -10,13 +10,13 @@ export default function PrivacyPage() {
           fontSize: 48,
           fontWeight: 700,
           margin: '0 0 40px',
-          color: 'var(--ink-50)',
+          color: '#000000',
         }}>
           Privacy Policy
         </h1>
 
-        <div style={{ color: 'var(--ink-500)', lineHeight: 1.8, fontSize: 16 }}>
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+        <div style={{ color: '#000000', lineHeight: 1.8, fontSize: 16 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             1. Introduction
           </h2>
           <p>
@@ -25,7 +25,7 @@ export default function PrivacyPage() {
             and safeguard your information.
           </p>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             2. Information We Collect
           </h2>
           <p>
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
             <li>Feedback and communication preferences</li>
           </ul>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             3. How We Use Your Information
           </h2>
           <p>
@@ -52,7 +52,7 @@ export default function PrivacyPage() {
             <li>Ensure platform security and prevent fraud</li>
           </ul>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             4. Data Security
           </h2>
           <p>
@@ -61,7 +61,7 @@ export default function PrivacyPage() {
             internet is 100% secure.
           </p>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             5. Sharing Your Information
           </h2>
           <p>
@@ -69,7 +69,7 @@ export default function PrivacyPage() {
             service providers who assist us in operating our website and conducting our business.
           </p>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             6. Your Rights
           </h2>
           <p>
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
             contact us at hello@techfronthub.ng.
           </p>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             7. Changes to This Policy
           </h2>
           <p>
@@ -85,7 +85,7 @@ export default function PrivacyPage() {
             policy on this page and updating the "Last Updated" date.
           </p>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             8. Contact Us
           </h2>
           <p>
@@ -97,7 +97,7 @@ export default function PrivacyPage() {
             <li>Address: Bodija, Ibadan · Lekki, Lagos</li>
           </ul>
 
-          <p style={{ marginTop: 40, color: 'var(--ink-400)', fontSize: 14 }}>
+          <p style={{ marginTop: 40, color: '#000000', fontSize: 14 }}>
             Last Updated: April 2026
           </p>
         </div>

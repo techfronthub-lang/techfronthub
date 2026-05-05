@@ -1,120 +1,23 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { I } from '@/src/components/Icons'
 
-function UdemyCourseCard({ c }) {
-  return (
-    <a href={c.udemyUrl} target="_blank" rel="noopener noreferrer" className="udemy-card" style={{
-      textDecoration: 'none',
-      color: 'inherit',
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'var(--canvas)',
-      border: '1px solid var(--ink-100)',
-      borderRadius: 14,
-      overflow: 'hidden',
-      transition: 'all 0.2s ease',
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.borderColor = 'var(--brand-300)'
-      e.currentTarget.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.12)'
-      e.currentTarget.style.transform = 'translateY(-4px)'
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.borderColor = 'var(--ink-100)'
-      e.currentTarget.style.boxShadow = 'none'
-      e.currentTarget.style.transform = 'translateY(0)'
-    }}>
-      {/* Course Flyer */}
-      <div style={{
-        background: `linear-gradient(135deg, oklch(0.96 0.03 ${c.hue || 210}), oklch(0.88 0.08 ${c.hue || 210}))`,
-        height: 180,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 48,
-        fontWeight: 700,
-        color: 'var(--ink-400)',
-      }}>
-        {c.title.charAt(0)}
-      </div>
+const fadeUp = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+}
 
-      {/* Course Info */}
-      <div style={{ padding: 20, flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <h3 style={{
-          fontSize: 16,
-          fontWeight: 700,
-          margin: '0 0 12px',
-          color: 'var(--ink-900)',
-          lineHeight: 1.4,
-        }}>
-          {c.title}
-        </h3>
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.04 } },
+}
 
-        <p style={{
-          fontSize: 13,
-          color: 'var(--ink-500)',
-          margin: '0 0 16px',
-        }}>
-          by {c.author}
-        </p>
-
-        {/* Rating */}
-        <div style={{
-          display: 'flex',
-          gap: 12,
-          alignItems: 'center',
-          marginBottom: 16,
-          fontSize: 13,
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-            color: 'var(--ink-600)',
-          }}>
-            <span style={{ color: '#f59e0b' }}>★</span>
-            <span style={{ fontWeight: 600 }}>{c.rating}</span>
-            <span style={{ color: 'var(--ink-400)' }}>({c.count} reviews)</span>
-          </div>
-        </div>
-
-        {/* Meta */}
-        <div style={{
-          display: 'flex',
-          gap: 12,
-          marginBottom: 16,
-          fontSize: 13,
-          color: 'var(--ink-500)',
-          flexWrap: 'wrap',
-        }}>
-          <span>{c.hours}</span>
-          <span>•</span>
-          <span>Self-paced</span>
-        </div>
-
-        {/* Price */}
-        <div style={{
-          marginTop: 'auto',
-          paddingTop: 16,
-          borderTop: '1px solid var(--ink-100)',
-        }}>
-          <div style={{
-            fontSize: 20,
-            fontWeight: 700,
-            color: 'var(--ink-900)',
-            marginBottom: 12,
-          }}>
-            {c.price}
-          </div>
-          <button className="btn btn-primary btn-sm" style={{ width: '100%' }}>
-            View on Udemy <I.Arrow size={12} />
-          </button>
-        </div>
-      </div>
-    </a>
-  )
+function flyerBg(hue) {
+  return {
+    background: `linear-gradient(135deg, oklch(0.96 0.03 ${hue}), oklch(0.88 0.08 ${hue}))`,
+  }
 }
 
 export default function UdemyPage() {
@@ -122,8 +25,7 @@ export default function UdemyPage() {
   const [courses, setCourses] = useState([])
 
   useEffect(() => {
-    const BASE = '/api'
-    fetch(`${BASE}/udemy-courses?limit=100`)
+    fetch('/api/udemy-courses?limit=100')
       .then(r => r.json())
       .then(data => {
         const sorted = (data.docs || []).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
@@ -133,182 +35,128 @@ export default function UdemyPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) {
-    return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        color: 'var(--ink-500)',
-      }}>
-        Loading courses...
-      </div>
-    )
-  }
-
   return (
-    <div>
-      {/* Hero Section */}
-      <section style={{ padding: '120px 0 80px', background: 'linear-gradient(135deg, var(--brand-50), rgba(37, 99, 235, 0.05))' }}>
-        <div className="container" style={{ maxWidth: '900px' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              fontSize: 12,
-              fontWeight: 700,
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              color: 'var(--brand-600)',
-              marginBottom: 16,
-            }}>
-              Self-Paced Courses
-            </div>
-            <h1 style={{
-              fontSize: 56,
-              margin: '0 0 20px',
-              color: 'var(--ink-900)',
-              fontWeight: 700,
-              lineHeight: 1.1,
-            }}>
-              Learn at Your Own Pace
-            </h1>
-            <p style={{
-              fontSize: 17,
-              color: 'var(--ink-600)',
-              margin: '0 auto',
-              maxWidth: 600,
-              lineHeight: 1.6,
-            }}>
-              Access our collection of comprehensive courses on Udemy. Learn from industry experts with lifetime access to course materials and updates.
-            </p>
+    <div style={{ background: 'var(--paper)', minHeight: '100vh' }}>
+
+      {/* Hero */}
+      <section style={{ padding: '110px 0 80px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: 'radial-gradient(800px 500px at 70% -10%, rgba(37,99,235,0.18), transparent 65%), radial-gradient(600px 400px at 5% 80%, rgba(37,99,235,0.10), transparent 60%)',
+        }} />
+        <div className="container" style={{ maxWidth: 860, position: 'relative', textAlign: 'center' }}>
+          <div className="eyebrow anim-fade-up" style={{ marginBottom: 16 }}>Also on Udemy</div>
+          <h1 className="anim-fade-up d1" style={{
+            fontSize: 'clamp(36px, 5vw, 58px)',
+            fontWeight: 700,
+            letterSpacing: '-0.03em',
+            lineHeight: 1.08,
+            margin: '0 0 20px',
+            color: '#fff',
+          }}>
+            Self-Paced Courses,<br />Globally
+          </h1>
+          <p className="anim-fade-up d2" style={{
+            fontSize: 17,
+            color: 'var(--ink-400)',
+            maxWidth: 560,
+            margin: '0 auto 36px',
+            lineHeight: 1.65,
+          }}>
+            Prefer learning on your own time? Our instructors also publish on Udemy — grab a course and keep lifetime access.
+          </p>
+          <div className="anim-fade-up d3" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="#courses" className="btn btn-primary btn-lg">Browse Courses <I.Arrow size={16} /></a>
+            <a href="/programs" className="btn btn-ghost btn-lg">View Programs</a>
           </div>
         </div>
       </section>
 
       {/* Courses Grid */}
-      <section style={{ padding: '96px 0' }}>
+      <section id="courses" style={{ paddingBottom: 100 }}>
         <div className="container">
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: 24,
-          }}>
-            {courses.map((c) => (
-              <UdemyCourseCard key={c.id} c={c} />
-            ))}
-          </div>
-
-          {courses.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--ink-500)' }}>
-              <p>No courses available yet.</p>
+          {loading ? (
+            <div className="udemy-grid">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="skel-card" style={{ minHeight: 260 }} />
+              ))}
             </div>
+          ) : courses.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '80px 20px', color: 'var(--ink-500)' }}>
+              <p style={{ fontSize: 16 }}>No Udemy courses published yet — check back soon.</p>
+            </div>
+          ) : (
+            <motion.div
+              className="udemy-grid"
+              variants={stagger}
+              initial="hidden"
+              animate="visible"
+            >
+              {courses.map((u, i) => (
+                <motion.a
+                  key={u.id ?? i}
+                  className="u-card"
+                  variants={fadeUp}
+                  href={u.udemyUrl ?? '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
+                >
+                  <div
+                    className="u-thumb"
+                    style={
+                      u.thumbnail
+                        ? {
+                            backgroundImage: `linear-gradient(rgba(7,10,20,0.18), rgba(7,10,20,0.18)), url(${u.thumbnail})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                          }
+                        : flyerBg(u.hue ?? 214)
+                    }
+                  >
+                    <div className="play" />
+                    <span className="lbl">{u.hours}</span>
+                  </div>
+                  <div className="u-body">
+                    <h4 style={{ color: '#111827' }}>{u.title}</h4>
+                    <div className="u-author">{u.author}</div>
+                    <div className="u-rating">
+                      <b>{u.rating}</b>
+                      <span className="u-stars">★★★★★</span>
+                      <span className="count">({u.count})</span>
+                    </div>
+                    <div className="u-foot">
+                      <span className="u-price">{u.price}</span>
+                    </div>
+                  </div>
+                </motion.a>
+              ))}
+            </motion.div>
           )}
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section style={{ background: 'var(--ink-50)', padding: '80px 0' }}>
-        <div className="container">
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: 40,
-            textAlign: 'center',
-          }}>
-            <div>
-              <div style={{
-                fontSize: 36,
-                fontWeight: 700,
-                color: 'var(--brand-600)',
-                marginBottom: 8,
-              }}>
-                {courses.length}+
-              </div>
-              <div style={{
-                fontSize: 15,
-                color: 'var(--ink-600)',
-              }}>
-                Quality Courses
-              </div>
-            </div>
-            <div>
-              <div style={{
-                fontSize: 36,
-                fontWeight: 700,
-                color: 'var(--brand-600)',
-                marginBottom: 8,
-              }}>
-                Lifetime
-              </div>
-              <div style={{
-                fontSize: 15,
-                color: 'var(--ink-600)',
-              }}>
-                Access & Updates
-              </div>
-            </div>
-            <div>
-              <div style={{
-                fontSize: 36,
-                fontWeight: 700,
-                color: 'var(--brand-600)',
-                marginBottom: 8,
-              }}>
-                $7.50+
-              </div>
-              <div style={{
-                fontSize: 15,
-                color: 'var(--ink-600)',
-              }}>
-                Affordable Learning
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section style={{ background: '#020617', color: '#fff', padding: '96px 0', position: 'relative', overflow: 'hidden' }}>
+      {/* CTA */}
+      <section style={{ background: '#020617', padding: '96px 0', position: 'relative', overflow: 'hidden' }}>
         <div style={{
-          position: 'absolute',
-          inset: 0,
+          position: 'absolute', inset: 0, pointerEvents: 'none',
           background: 'radial-gradient(700px 400px at 20% 100%, rgba(37,99,235,0.35), transparent 60%), radial-gradient(600px 400px at 90% -10%, rgba(37,99,235,0.2), transparent 60%)',
-          pointerEvents: 'none',
         }} />
         <div className="container" style={{ position: 'relative', textAlign: 'center' }}>
-          <div style={{
-            fontSize: 12,
-            fontWeight: 700,
-            letterSpacing: '0.14em',
-            textTransform: 'uppercase',
-            color: 'var(--brand-200)',
-            marginBottom: 12,
-          }}>
-            Start Learning Today
-          </div>
-          <h2 style={{
-            fontSize: 48,
-            letterSpacing: '-0.025em',
-            lineHeight: 1.05,
-            margin: '12px auto 14px',
-            maxWidth: 800,
-          }}>
+          <div className="eyebrow" style={{ color: 'var(--brand-200)', marginBottom: 12 }}>Start learning today</div>
+          <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', letterSpacing: '-0.025em', lineHeight: 1.05, margin: '0 auto 16px', maxWidth: 700, color: '#fff' }}>
             Flexible Learning Options
           </h2>
-          <p style={{
-            color: 'rgba(255,255,255,0.72)',
-            fontSize: 17,
-            maxWidth: 560,
-            margin: '0 auto 28px',
-          }}>
+          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 17, maxWidth: 520, margin: '0 auto 32px', lineHeight: 1.6 }}>
             Choose between structured bootcamps or self-paced Udemy courses — both paths lead to the same quality education.
           </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <a href="/programs" className="btn btn-primary btn-lg">Explore Programs <I.Arrow size={16} /></a>
             <a href="/courses" className="btn btn-lg" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>View Courses</a>
           </div>
         </div>
       </section>
+
     </div>
   )
 }

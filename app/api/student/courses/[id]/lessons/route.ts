@@ -14,7 +14,7 @@ function decodeToken(token) {
   }
 }
 
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   try {
     const token = getToken(req)
     if (!token) return Response.json({ message: 'Unauthorized.' }, { status: 401 })
@@ -23,6 +23,7 @@ export async function GET(req, { params }) {
     const studentId = decoded?.id
     if (!studentId) return Response.json({ message: 'Invalid token.' }, { status: 401 })
 
+    const params = await context?.params
     const courseId = String(params?.id || '')
     if (!courseId) return Response.json({ message: 'Course ID is required.' }, { status: 400 })
 

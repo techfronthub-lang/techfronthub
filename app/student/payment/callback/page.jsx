@@ -18,11 +18,18 @@ export default function PaymentCallbackPage() {
   useEffect(() => {
     const token = localStorage.getItem('payload-token')
     if (!token) {
-      router.replace('/student/login')
+      router.replace('/login')
       return
     }
 
-    const reference = params.get('reference')
+    const statusParam = params.get('status')
+    if (statusParam === 'cancelled' || statusParam === 'failed') {
+      setError('Your payment was not completed. You can try again from My Courses.')
+      setStatus('Payment not completed.')
+      return
+    }
+
+    const reference = params.get('reference') || params.get('trxref')
     if (!reference) {
       setError('Missing payment reference.')
       setStatus('Could not verify payment.')

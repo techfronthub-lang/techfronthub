@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useInstructor } from '../context'
+import { createDoc } from '@/src/lib/payload-api'
 
 /* ── Helpers ──────────────────────────────────────────────────────────────── */
 
@@ -85,8 +86,13 @@ export default function ProfilePage() {
   const [twitter,   setTwitter]   = useState('')
   const [github,    setGithub]    = useState('')
   const [website,   setWebsite]   = useState('')
+  const [headline,   setHeadline]  = useState('')
+  const [location,   setLocation]  = useState('')
+  const [websiteLabel, setWebsiteLabel] = useState('')
+  const [photo,     setPhoto]     = useState('')
 
   const [profileSaving,  setProfileSaving]  = useState(false)
+  const [photoUploading, setPhotoUploading] = useState(false)
   const [profileAlert,   setProfileAlert]   = useState({ type: '', message: '' })
 
   /* ── Section 2: Account / Password ── */
@@ -105,7 +111,45 @@ export default function ProfilePage() {
     setTwitter(instructor.twitter   ?? '')
     setGithub(instructor.github    ?? '')
     setWebsite(instructor.website   ?? '')
+    setHeadline(instructor.headline ?? '')
+    setLocation(instructor.location ?? '')
+    setWebsiteLabel(instructor.websiteLabel ?? '')
+    setPhoto(instructor.photo      ?? '')
   }, [instructor])
+
+  async function uploadPhoto(file) {
+    setPhotoUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'instructors')
+      const res = await fetch('/api/storage/upload', { method: 'POST', body: formData })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data?.message || 'Photo upload failed')
+      const url = data.url || ''
+      setPhoto(url)
+      if (setInstructor) setInstructor(prev => ({ ...prev, photo: url }))
+      await createDoc('media-assets', {
+        name: file.name,
+        url,
+        key: data.key || '',
+        bucket: data.bucket || '',
+        folder: 'instructor-photo',
+        mimeType: file.type,
+        size: file.size,
+      }).catch(() => {})
+      await fetch(`/api/instructors/${instructor.id}`, {
+        method: 'PATCH',
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ photo: url }),
+      }).catch(() => {})
+      setProfileAlert({ type: 'success', message: 'Profile photo updated.' })
+    } catch (error) {
+      setProfileAlert({ type: 'error', message: error.message || 'Failed to upload photo.' })
+    } finally {
+      setPhotoUploading(false)
+    }
+  }
 
   /* ── Save public profile ── */
   async function handleProfileSave(e) {
@@ -117,7 +161,7 @@ export default function ProfilePage() {
       const res = await fetch(`/api/instructors/${instructor.id}`, {
         method:  'PUT',
         headers: authHeaders({ 'Content-Type': 'application/json' }),
-        body:    JSON.stringify({ name, bio, expertise, linkedin, twitter, github, website }),
+        body:    JSON.stringify({ name, bio, expertise, linkedin, twitter, github, website, photo, headline, location, websiteLabel }),
       })
       const data = await res.json()
 
@@ -131,7 +175,7 @@ export default function ProfilePage() {
 
       /* Update context so sidebar/avatar refresh immediately */
       if (setInstructor) {
-        setInstructor(prev => ({ ...prev, name, bio, expertise, linkedin, twitter, github, website }))
+        setInstructor(prev => ({ ...prev, name, bio, expertise, linkedin, twitter, github, website, photo, headline, location, websiteLabel }))
       }
       setProfileAlert({ type: 'success', message: 'Profile saved successfully.' })
     } catch {
@@ -226,13 +270,35 @@ export default function ProfilePage() {
           {/* Avatar */}
           <div className="i-avatar-row">
             <div className="i-avatar-circle" aria-hidden="true">
-              {initials}
+              {photo ? <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
             </div>
             <div className="i-avatar-info">
-              <p className="i-avatar-note">Photo URL coming soon</p>
-              <p className="i-avatar-hint">
-                Profile photo upload will be available in a future update.
-              </p>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                <label className="i-btn i-btn-secondary i-btn-sm" style={{ cursor: 'pointer' }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (file) uploadPhoto(file)
+                      e.target.value = ''
+                    }}
+                    disabled={photoUploading}
+                  />
+                  {photoUploading ? 'Uploading...' : 'Upload Photo'}
+                </label>
+                <input
+                  type="text"
+                  className="i-form-input"
+                  style={{ minWidth: 260 }}
+                  placeholder="Or paste a photo URL..."
+                  value={photo}
+                  onChange={e => setPhoto(e.target.value)}
+                  disabled={profileSaving}
+                />
+              </div>
+              <p className="i-avatar-hint">Photo uploads are stored in Supabase and also saved on your instructor profile.</p>
             </div>
           </div>
 
@@ -279,6 +345,46 @@ export default function ProfilePage() {
               disabled={profileSaving}
             />
             <p className="i-form-hint">Comma-separated e.g. Python, SQL, Data Analysis</p>
+          </div>
+
+          <div className="i-form-field">
+            <label htmlFor="profile-headline" className="i-form-label">Public headline</label>
+            <input
+              id="profile-headline"
+              type="text"
+              className="i-form-input"
+              placeholder="Senior Data Analyst and Instructor"
+              value={headline}
+              onChange={e => setHeadline(e.target.value)}
+              disabled={profileSaving}
+            />
+          </div>
+
+          <div className="i-form-grid">
+            <div className="i-form-field">
+              <label htmlFor="profile-location" className="i-form-label">Location</label>
+              <input
+                id="profile-location"
+                type="text"
+                className="i-form-input"
+                placeholder="Lagos, Nigeria"
+                value={location}
+                onChange={e => setLocation(e.target.value)}
+                disabled={profileSaving}
+              />
+            </div>
+            <div className="i-form-field">
+              <label htmlFor="profile-website-label" className="i-form-label">Website label</label>
+              <input
+                id="profile-website-label"
+                type="text"
+                className="i-form-input"
+                placeholder="Portfolio"
+                value={websiteLabel}
+                onChange={e => setWebsiteLabel(e.target.value)}
+                disabled={profileSaving}
+              />
+            </div>
           </div>
 
           {/* Social links — 2-col grid */}

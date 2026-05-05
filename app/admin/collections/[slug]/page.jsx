@@ -1,9 +1,29 @@
 'use client'
 
 import React, { useEffect, useMemo, useState, useCallback } from 'react'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { getCollection, deleteDoc } from '@/src/lib/payload-api'
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.3, ease: 'easeOut' },
+  },
+};
+
+const stagger = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.04,
+      delayChildren: 0.04,
+    },
+  },
+};
 
 const COLLECTION_META = {
   courses: { title: 'Courses', titleField: 'title', cols: ['title', 'level', 'tag', 'price', 'lessons'] },
@@ -109,7 +129,7 @@ export default function CollectionListPage() {
 
   return (
     <>
-      <div className="admin-topbar">
+      <motion.div className="admin-topbar" initial="hidden" animate="visible" variants={fadeUp}>
         <div className="topbar-title">{meta.title}</div>
         <div className="topbar-actions">
           {isUsers && (
@@ -122,12 +142,12 @@ export default function CollectionListPage() {
             {isUsers ? '+ New User' : '+ New'}
           </Link>
         </div>
-      </div>
+      </motion.div>
 
       <div className="admin-content">
         {error && <div className="a-error" style={{ marginBottom: 16 }}>{error}</div>}
 
-        <div className="a-card" style={{ marginBottom: 16, padding: 16 }}>
+        <motion.div className="a-card" style={{ marginBottom: 16, padding: 16 }} initial="hidden" animate="visible" variants={fadeUp}>
           <div className="users-toolbar">
             <input
               className="a-input"
@@ -144,7 +164,7 @@ export default function CollectionListPage() {
               </button>
             ) : null}
           </div>
-        </div>
+        </motion.div>
 
         {isUsers && (
           <div className="stats-grid" style={{ marginBottom: 16 }}>
@@ -154,7 +174,7 @@ export default function CollectionListPage() {
           </div>
         )}
 
-        <div className="a-card" style={{ padding: 0 }}>
+        <motion.div className="a-card" style={{ padding: 0 }} initial="hidden" animate="visible" variants={fadeUp}>
           {loading ? (
             <div className="a-spinner" />
           ) : visibleDocs.length === 0 ? (
@@ -163,7 +183,7 @@ export default function CollectionListPage() {
               <Link href={`/admin/collections/${slug}/create`} style={{ color: 'var(--a-brand)' }}>Create one â†’</Link>
             </div>
           ) : (
-            <div className="a-table-wrap">
+            <motion.div className="a-table-wrap" variants={stagger} initial="hidden" animate="visible">
               <table className="a-table">
                 <thead>
                   <tr>
@@ -173,7 +193,7 @@ export default function CollectionListPage() {
                 </thead>
                 <tbody>
                   {visibleDocs.map(doc => (
-                    <tr key={doc.id} style={{ cursor: 'pointer' }} onClick={() => router.push(`/admin/collections/${slug}/${doc.id}`)}>
+                    <motion.tr key={doc.id} style={{ cursor: 'pointer' }} onClick={() => router.push(`/admin/collections/${slug}/${doc.id}`)} variants={fadeUp}>
                       {meta.cols.map(c => (
                         <td key={c}><CellValue value={c === 'name' && !doc[c] ? doc.email : doc[c]} col={c} /></td>
                       ))}
@@ -188,13 +208,13 @@ export default function CollectionListPage() {
                           {deleting === doc.id ? 'â€¦' : 'âœ•'}
                         </button>
                       </td>
-                    </tr>
+                    </motion.tr>
                   ))}
                 </tbody>
               </table>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
 
         {pages > 1 && (
           <div className="a-pagination">

@@ -1,36 +1,16 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-
-function parseAmountToNaira(value) {
-  if (value == null) return null
-  const cleaned = String(value).replace(/[^0-9.]/g, '')
-  if (!cleaned) return null
-  const num = Number(cleaned)
-  return Number.isFinite(num) ? num : null
-}
-
-function getToken(req) {
-  const auth = req.headers.get('authorization') || ''
-  return auth.startsWith('JWT ') ? auth.slice(4) : ''
-}
-
-function decodeToken(token) {
-  try {
-    return JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString())
-  } catch {
-    return null
-  }
-}
+import { decodeJwtPayload, getJwtToken, getPaystackBaseUrl, logPaystack, parseAmountToNaira } from '@/src/lib/paystack'
 
 export async function POST(req) {
   try {
     const paystackKey = process.env.PAYSTACK_SECRET_KEY
     if (!paystackKey) return Response.json({ message: 'PAYSTACK_SECRET_KEY is missing.' }, { status: 500 })
 
-    const token = getToken(req)
+    const token = getJwtToken(req)
     if (!token) return Response.json({ message: 'Unauthorized.' }, { status: 401 })
 
-    const decoded = decodeToken(token)
+    const decoded = decodeJwtPayload(token)
     const studentId = decoded?.id
     if (!studentId) return Response.json({ message: 'Invalid token.' }, { status: 401 })
 
@@ -41,6 +21,9 @@ export async function POST(req) {
     const payload = await getPayload({ config })
     const student = await payload.findByID({ collection: 'users', id: studentId })
     const course = await payload.findByID({ collection: 'courses', id: String(courseId) })
+    if (!student?.email) {
+      return Response.json({ message: 'Your account is missing an email address.' }, { status: 400 })
+    }
 
     const amountKobo = Number(course?.priceKobo) > 0
       ? Number(course.priceKobo)
@@ -66,10 +49,9 @@ export async function POST(req) {
       return Response.json({ enrolled: true, message: 'Already enrolled.' })
     }
 
-    const origin = new URL(req.url).origin
-    const callbackUrl = `${origin}/student/payment/callback`
+    const callbackUrl = new URL('/student/payment/callback', req.url).toString()
 
-    const paystackRes = await fetch('https://api.paystack.co/transaction/initialize', {
+    const paystackRes = await fetch(`${getPaystackBaseUrl()}/transaction/initialize`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${paystackKey}`,
@@ -88,8 +70,20 @@ export async function POST(req) {
 
     const paystackData = await paystackRes.json()
     if (!paystackRes.ok || !paystackData?.status) {
+      logPaystack('initialize_failed', {
+        studentId: String(studentId),
+        courseId: String(courseId),
+        status: paystackRes.status,
+        message: paystackData?.message,
+      })
       return Response.json({ message: paystackData?.message || 'Failed to initialize payment.' }, { status: 400 })
     }
+
+    logPaystack('initialize_success', {
+      studentId: String(studentId),
+      courseId: String(courseId),
+      reference: paystackData?.data?.reference,
+    })
 
     return Response.json({
       status: true,

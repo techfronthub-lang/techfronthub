@@ -1,5 +1,4 @@
-import { S3Client } from '@aws-sdk/client-s3'
-import { DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { DeleteObjectCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3'
 
 const endpoint = process.env.SUPABASE_STORAGE_S3_ENDPOINT || ''
 const region = process.env.SUPABASE_STORAGE_S3_REGION || 'eu-west-1'
@@ -47,4 +46,22 @@ export async function deleteStorageObject(key: string, bucketName = bucket) {
       Key: key,
     })
   )
+}
+
+export async function listStorageObjects(prefix = '') {
+  const client = getStorageClient()
+  const result = await client.send(
+    new ListObjectsV2Command({
+      Bucket: bucket,
+      Prefix: prefix || undefined,
+    })
+  )
+
+  return (result.Contents || []).map((item) => ({
+    key: item.Key || '',
+    size: item.Size || 0,
+    lastModified: item.LastModified ? item.LastModified.toISOString() : '',
+    bucket,
+    url: item.Key ? getPublicObjectUrl(item.Key) : '',
+  })).filter((item) => item.key)
 }

@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { AnimatePresence, motion } from 'framer-motion'
 import './instructor.css'
 import { InstructorContext } from './context'
 
@@ -29,18 +30,48 @@ export default function InstructorLayout({ children }) {
   const router    = useRouter()
   const [instructor, setInstructor] = useState(null)
   const [loading, setLoading]       = useState(true)
+  const [menuOpen, setMenuOpen]     = useState(false)
+  const authChecked = useRef(false)
 
   useEffect(() => {
     if (pathname === '/instructor/login') { setLoading(false); return }
+    if (authChecked.current) return
+    authChecked.current = true
     const token = localStorage.getItem('instructor-token')
-    if (!token) { router.replace('/instructor/login'); return }
+    if (!token) { router.replace('/login'); return }
     fetch('/api/instructors/me', { headers: { Authorization: `JWT ${token}` } })
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => {
+        if (r.status === 401) {
+          throw new Error('unauthorized')
+        }
+        return r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))
+      })
       .then(data => { setInstructor(data.user ?? data); setLoading(false) })
-      .catch(() => { localStorage.removeItem('instructor-token'); router.replace('/instructor/login') })
+      .catch(() => {
+        localStorage.removeItem('instructor-token')
+        router.replace('/login')
+      })
   }, [pathname, router])
 
-  if (pathname === '/instructor/login') return <>{children}</>
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [pathname])
+
+  if (pathname === '/instructor/login') {
+    return (
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={pathname}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.24, ease: 'easeOut' }}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
+    )
+  }
 
   if (loading) return (
     <div className="i-loading">
@@ -55,14 +86,15 @@ export default function InstructorLayout({ children }) {
 
   const logout = () => {
     localStorage.removeItem('instructor-token')
-    router.push('/instructor/login')
+    router.push('/login')
   }
 
   return (
     <InstructorContext.Provider value={{ instructor, setInstructor }}>
       <div className="instructor-root">
+        {menuOpen ? <button type="button" className="i-mobile-overlay" aria-label="Close navigation" onClick={() => setMenuOpen(false)} /> : null}
         {/* Sidebar */}
-        <aside className="i-sidebar">
+        <aside className={`i-sidebar${menuOpen ? ' open' : ''}`}>
           <Link href="/instructor/dashboard" className="i-sidebar-logo">
             <span className="mark">TF</span>
             <span className="name">TECHFRONT<span style={{color:'#3b82f6'}}>.</span>HUB <small>Instructor Portal</small></span>
@@ -104,6 +136,11 @@ export default function InstructorLayout({ children }) {
         <main className="i-main">
           <header className="i-topbar">
             <div className="i-topbar-left">
+              <button type="button" className="i-mobile-menu-btn" aria-label="Open navigation" onClick={() => setMenuOpen(true)}>
+                <span />
+                <span />
+                <span />
+              </button>
               <div className="i-topbar-title">Instructor Portal</div>
               <div className="i-topbar-sub">TECHFRONT HUB</div>
             </div>
@@ -114,7 +151,19 @@ export default function InstructorLayout({ children }) {
               </div>
             </div>
           </header>
-          <div className="i-content">{children}</div>
+          <div className="i-content">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.24, ease: 'easeOut' }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </main>
       </div>
     </InstructorContext.Provider>

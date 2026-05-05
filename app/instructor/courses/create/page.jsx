@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useInstructor } from '../../context'
+import { createDoc } from '@/src/lib/payload-api'
 
 /* ── Auth helper ──────────────────────────────────────────────────────────── */
 function authHeaders() {
@@ -39,7 +40,6 @@ function defaultForm() {
     lessons:         '',
     price:           '',
     old:             '',
-    hue:             214,
     format:          '',
     certificate:     '',
     guarantee:       '',
@@ -167,6 +167,7 @@ export default function CreateCoursePage() {
   const [form, setForm]           = useState(defaultForm())
   const [categories, setCategories] = useState([])
   const [submitting, setSubmitting] = useState(false)
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false)
   const [error, setError]           = useState(null)
 
   useEffect(() => {
@@ -180,13 +181,36 @@ export default function CreateCoursePage() {
     setForm(prev => ({ ...prev, [field]: value }))
   }
 
+  async function uploadThumbnail(file) {
+    setUploadingThumbnail(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'courses')
+      const res = await fetch('/api/storage/upload', { method: 'POST', body: formData })
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(json.message || 'Upload failed')
+      set('thumbnail', json.url || '')
+      await createDoc('media-assets', {
+        name: file.name,
+        url: json.url || '',
+        key: json.key || '',
+        bucket: json.bucket || '',
+        folder: 'thumbnail',
+        mimeType: file.type,
+        size: file.size,
+      }).catch(() => {})
+    } finally {
+      setUploadingThumbnail(false)
+    }
+  }
+
   function buildPayload() {
     return {
       ...form,
       instructor:      instructor?.id,
       category:        form.category ? Number(form.category) : undefined,
       lessons:         form.lessons !== '' ? Number(form.lessons) : undefined,
-      hue:             form.hue !== '' ? Number(form.hue) : 214,
       price:           form.price !== '' ? form.price : undefined,
       priceKobo:       toKobo(form.price),
       whatYouLearn:    form.whatYouLearn.filter(i => i.benefit.trim()),
@@ -300,13 +324,37 @@ export default function CreateCoursePage() {
               <input id="old" type="text" className="i-input" placeholder="60000" value={form.old} onChange={e => set('old', e.target.value)} />
             </div>
             <div className="i-field">
-              <label className="i-label" htmlFor="thumbnail">Thumbnail URL</label>
-              <input id="thumbnail" type="text" className="i-input" placeholder="Supabase image link..." value={form.thumbnail} onChange={e => set('thumbnail', e.target.value)} />
+              <label className="i-label" htmlFor="thumbnail-upload">Thumbnail</label>
+              <input
+                id="thumbnail-upload"
+                type="file"
+                className="i-input"
+                accept="image/*"
+                disabled={uploadingThumbnail}
+                onChange={e => {
+                  const file = e.target.files?.[0]
+                  if (file) uploadThumbnail(file)
+                  e.target.value = ''
+                }}
+              />
+              <input
+                type="text"
+                className="i-input"
+                placeholder="Or paste a thumbnail URL..."
+                value={form.thumbnail}
+                onChange={e => set('thumbnail', e.target.value)}
+                style={{ marginTop: 10 }}
+              />
+              {uploadingThumbnail ? (
+                <p className="i-hint-block" style={{ marginTop: 8 }}>Uploading thumbnail...</p>
+              ) : form.thumbnail ? (
+                <img
+                  src={form.thumbnail}
+                  alt="Thumbnail preview"
+                  style={{ marginTop: 12, width: '100%', maxWidth: 320, aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: 12, border: '1px solid rgba(15, 23, 42, 0.12)' }}
+                />
+              ) : null}
             </div>
-          </div>
-          <div className="i-field">
-            <label className="i-label">Brand Accent Hue ({form.hue})</label>
-            <input type="range" min="0" max="360" value={form.hue} onChange={e => set('hue', e.target.value)} style={{ width: '100%' }} />
           </div>
         </FormSection>
 

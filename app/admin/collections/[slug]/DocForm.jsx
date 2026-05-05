@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { createDoc } from '@/src/lib/payload-api'
 
 const SCHEMA = {
   courses: [
@@ -28,6 +29,7 @@ const SCHEMA = {
     { name: 'n', type: 'text', label: 'Short Name' },
     { name: 'desc', type: 'text' },
     { name: 'count', type: 'text' },
+    { name: 'thumbnail', type: 'file', label: 'Thumbnail' },
     { name: 'icon', type: 'select', options: ['Code', 'Brain', 'Zap', 'Target', 'Rocket', 'Users', 'Shield', 'TrendingUp'] },
   ],
   packages: [
@@ -54,7 +56,10 @@ const SCHEMA = {
     { name: 'count', type: 'text', label: 'Review Count' },
     { name: 'hours', type: 'text' },
     { name: 'price', type: 'text' },
+    { name: 'udemyUrl', type: 'text', label: 'Udemy URL' },
+    { name: 'thumbnail', type: 'text', label: 'Thumbnail URL' },
     { name: 'hue', type: 'number', label: 'Card Hue (0-360)' },
+    { name: 'sortOrder', type: 'number' },
   ],
   users: [
     { name: 'name', type: 'text', label: 'Full Name' },
@@ -133,6 +138,8 @@ function ProgramOverviewField({ label, value = [], onChange }) {
 export default function DocForm({ slug, initialData = {}, onSubmit, submitting, submitLabel = 'Save' }) {
   const fields = SCHEMA[slug] || []
   const [uploadingField, setUploadingField] = useState('')
+  const [previewLoading, setPreviewLoading] = useState(false)
+  const [previewError, setPreviewError] = useState('')
   const [data, setData] = useState(() => {
     const d = { ...initialData }
     const arrayTypes = new Set(['array', 'array-simple', 'array-overview'])
@@ -146,8 +153,77 @@ export default function DocForm({ slug, initialData = {}, onSubmit, submitting, 
 
   const set = (name, value) => setData(prev => ({ ...prev, [name]: value }))
 
+  useEffect(() => {
+    if (slug !== 'udemy-courses') return
+    const url = String(data.udemyUrl || '').trim()
+    if (!url) return
+
+    let cancelled = false
+    setPreviewError('')
+    const timer = setTimeout(async () => {
+      setPreviewLoading(true)
+      try {
+        const res = await fetch(`/api/udemy/preview?url=${encodeURIComponent(url)}`)
+        const json = await res.json().catch(() => ({}))
+        if (!res.ok || cancelled) {
+          setPreviewError(json?.message || 'Could not load Udemy preview')
+          return
+        }
+        let filled = false
+        setData((prev) => {
+          const next = { ...prev }
+          const autoFill = (key, value) => {
+            if (value === undefined || value === null || value === '') return
+            if (String(prev[key] ?? '').trim()) return
+            next[key] = key === 'rating' ? Number(value) : value
+            filled = true
+          }
+
+          autoFill('title', json.title)
+          autoFill('author', json.author)
+          autoFill('rating', json.rating)
+          autoFill('count', json.count)
+          autoFill('hours', json.hours)
+          autoFill('thumbnail', json.thumbnail)
+          return next
+        })
+        if (!filled && !String(json.title || '').trim() && !String(json.thumbnail || '').trim()) {
+          setPreviewError('No preview metadata was returned from Udemy.')
+        }
+      } catch {
+        setPreviewError('Could not load Udemy preview.')
+      } finally {
+        if (!cancelled) setPreviewLoading(false)
+      }
+    }, 350)
+
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [slug, data.udemyUrl])
+
   const handleSubmit = (e) => {
     e.preventDefault()
+
+    if (slug === 'udemy-courses') {
+      const url = String(data.udemyUrl || '').trim()
+      const title = String(data.title || '').trim()
+      const thumbnail = String(data.thumbnail || '').trim()
+      if (!url) {
+        setPreviewError('Add a Udemy URL first.')
+        return
+      }
+      if (previewLoading) {
+        setPreviewError('Wait for the Udemy preview to finish loading.')
+        return
+      }
+      if (!title || !thumbnail) {
+        setPreviewError('Udemy preview did not populate title and thumbnail. Paste a valid Udemy course URL or fill them manually.')
+        return
+      }
+    }
+
     const payload = { ...data }
     if (slug === 'users' && !payload.password) delete payload.password
     onSubmit(payload)
@@ -192,6 +268,15 @@ export default function DocForm({ slug, initialData = {}, onSubmit, submitting, 
               const json = await res.json().catch(() => ({}))
               if (!res.ok) throw new Error(json.message || 'Upload failed')
               set(f.name, json.url || '')
+              await createDoc('media-assets', {
+                name: file.name,
+                url: json.url || '',
+                key: json.key || '',
+                bucket: json.bucket || '',
+                folder: f.name,
+                mimeType: file.type,
+                size: file.size,
+              }).catch(() => {})
             } finally {
               setUploadingField('')
               e.target.value = ''
@@ -224,6 +309,33 @@ export default function DocForm({ slug, initialData = {}, onSubmit, submitting, 
         <textarea className="a-textarea" value={data[f.name] || ''} onChange={e => set(f.name, e.target.value)} required={f.required} />
       </div>
     )
+
+    if (f.name === 'thumbnail' && slug === 'udemy-courses') {
+      return (
+        <div key={f.name} className="a-field" style={{ gridColumn: '1 / -1' }}>
+          <label className="a-label">{label}</label>
+          <input
+            className="a-input"
+            value={data[f.name] || ''}
+            onChange={e => set(f.name, e.target.value)}
+            placeholder="Auto-filled from the Udemy URL, or paste a thumbnail URL"
+          />
+          {previewLoading ? (
+            <div style={{ marginTop: 8, fontSize: 12, color: 'var(--a-muted)' }}>Fetching preview...</div>
+          ) : null}
+          {previewError ? (
+            <div style={{ marginTop: 8, fontSize: 12, color: 'var(--a-danger)' }}>{previewError}</div>
+          ) : null}
+          {data[f.name] ? (
+            <img
+              src={data[f.name]}
+              alt="Udemy thumbnail preview"
+              style={{ marginTop: 12, width: 320, maxWidth: '100%', aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: 12, border: '1px solid var(--a-border)' }}
+            />
+          ) : null}
+        </div>
+      )
+    }
 
     if (f.type === 'select') return (
       <div key={f.name} className="a-field">
@@ -261,8 +373,8 @@ export default function DocForm({ slug, initialData = {}, onSubmit, submitting, 
       </div>
       {fullFields.map(renderField)}
       <div style={{ marginTop: 4 }}>
-        <button className="btn btn-primary" type="submit" disabled={submitting}>
-          {submitting ? 'Saving...' : submitLabel}
+        <button className="btn btn-primary" type="submit" disabled={submitting || (slug === 'udemy-courses' && previewLoading)}>
+          {submitting ? 'Saving...' : previewLoading && slug === 'udemy-courses' ? 'Loading preview...' : submitLabel}
         </button>
       </div>
     </form>

@@ -4,6 +4,10 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { deleteStorageObject } from './src/lib/supabase-storage'
 
 const ACTIVITY_COLLECTION = 'admin-activity'
+const payloadConnectionString =
+  process.env.NODE_ENV === 'production'
+    ? process.env.DIRECT_URL || process.env.DATABASE_URL
+    : process.env.DATABASE_URL || process.env.DIRECT_URL
 
 function getActorLabel(req: any) {
   const user = req?.user
@@ -243,6 +247,7 @@ export default buildConfig({
         { name: 'title', type: 'text', required: true },
         { name: 'desc', type: 'text' },
         { name: 'count', type: 'text' },
+        { name: 'thumbnail', type: 'text', admin: { description: 'Optional thumbnail image URL for category cards' } },
         {
           name: 'icon',
           type: 'select',
@@ -284,6 +289,7 @@ export default buildConfig({
         { name: 'hours', type: 'text' },
         { name: 'price', type: 'text' },
         { name: 'udemyUrl', type: 'text', admin: { description: 'Full Udemy course URL (e.g. https://www.udemy.com/course/...)' } },
+        { name: 'thumbnail', type: 'text', admin: { description: 'Udemy preview image URL' } },
         { name: 'hue', type: 'number' },
         { name: 'sortOrder', type: 'number' },
       ],
@@ -329,17 +335,291 @@ export default buildConfig({
     {
       slug: 'site-config',
       fields: [
+        {
+          name: 'topbarLocation',
+          type: 'text',
+          defaultValue: 'Bodija, Ibadan | Lekki, Lagos',
+        },
+        {
+          name: 'topbarAnnouncement',
+          type: 'text',
+          defaultValue: 'New AI cohort starts June 3 - limited seats',
+        },
+        {
+          name: 'topbarPhoneLabel',
+          type: 'text',
+          defaultValue: '+234 810 000 0000',
+        },
+        {
+          name: 'topbarPhoneHref',
+          type: 'text',
+          defaultValue: 'tel:+2348100000000',
+        },
+        {
+          name: 'topbarSupportLabel',
+          type: 'text',
+          defaultValue: 'Support',
+        },
+        {
+          name: 'topbarSupportHref',
+          type: 'text',
+          defaultValue: '/help-center',
+        },
+        {
+          name: 'topbarPartnersLabel',
+          type: 'text',
+          defaultValue: 'Partners',
+        },
+        {
+          name: 'topbarPartnersHref',
+          type: 'text',
+          defaultValue: '/partner-with-us',
+        },
+        {
+          name: 'headerLinks',
+          type: 'array',
+          fields: [
+            { name: 'label', type: 'text', required: true },
+            { name: 'href', type: 'text', required: true },
+          ],
+        },
         { name: 'heroBadge', type: 'text' },
         { name: 'heroHeadline', type: 'text' },
         { name: 'heroLede', type: 'textarea' },
-        { name: 'statLearners', type: 'text' },
-        { name: 'statCourses', type: 'text' },
+        { name: 'statLearners', type: 'text', admin: { description: 'e.g. 12,400+' } },
+        { name: 'statCourses', type: 'text', admin: { description: 'e.g. 125+' } },
+        { name: 'statCareerTracks', type: 'text', admin: { description: 'e.g. 12' } },
         { name: 'statPlacement', type: 'text' },
         { name: 'statRating', type: 'text' },
+        {
+          name: 'trustedLabel',
+          type: 'text',
+          defaultValue: 'Trusted by teams and learners from',
+        },
         {
           name: 'trustedCompanies',
           type: 'array',
           fields: [{ name: 'name', type: 'text' }],
+        },
+        {
+          name: 'featuredCoursesEyebrow',
+          type: 'text',
+          defaultValue: 'Featured courses',
+        },
+        {
+          name: 'featuredCoursesHeadline',
+          type: 'text',
+          defaultValue: 'Cohorts shipping this quarter',
+        },
+        {
+          name: 'featuredCoursesBody',
+          type: 'textarea',
+          defaultValue:
+            'Hand-picked programs starting in the next 8 weeks. Each cohort is capped at 30 learners to keep instruction tight.',
+        },
+        {
+          name: 'udemyEyebrow',
+          type: 'text',
+          defaultValue: 'Also on Udemy',
+        },
+        {
+          name: 'udemyHeadline',
+          type: 'text',
+          defaultValue: 'Self-paced courses, globally',
+        },
+        {
+          name: 'udemyBody',
+          type: 'textarea',
+          defaultValue:
+            'Prefer learning on your own time? Our instructors also publish on Udemy - grab a course and keep lifetime access.',
+        },
+        {
+          name: 'whyUsEyebrow',
+          type: 'text',
+          defaultValue: 'Why TECHFRONT HUB',
+        },
+        {
+          name: 'whyUsHeadline',
+          type: 'text',
+          defaultValue: 'Built for outcomes, not just completion.',
+        },
+        {
+          name: 'whyUsBody',
+          type: 'textarea',
+          defaultValue:
+            "We're measured by what our learners go on to do - promotions, placements, and products shipped.",
+        },
+        {
+          name: 'categoriesEyebrow',
+          type: 'text',
+          defaultValue: 'Course categories',
+        },
+        {
+          name: 'categoriesHeadline',
+          type: 'text',
+          defaultValue: 'Pick a track, ship real work.',
+        },
+        {
+          name: 'categoriesBody',
+          type: 'textarea',
+          defaultValue: 'Each category maps to a career outcome, not just a topic list.',
+        },
+        {
+          name: 'packagesEyebrow',
+          type: 'text',
+          defaultValue: 'Training packages',
+        },
+        {
+          name: 'packagesHeadline',
+          type: 'text',
+          defaultValue: 'Ways to learn with us.',
+        },
+        {
+          name: 'packagesBody',
+          type: 'textarea',
+          defaultValue:
+            'From cohort-based bootcamps to full-team corporate programs - pick the format that fits your goal.',
+        },
+        {
+          name: 'testimonialsEyebrow',
+          type: 'text',
+          defaultValue: 'Student stories',
+        },
+        {
+          name: 'testimonialsHeadline',
+          type: 'text',
+          defaultValue: 'Careers built in months, not years.',
+        },
+        {
+          name: 'testimonialsBody',
+          type: 'textarea',
+          defaultValue: 'A few alumni, in their own words.',
+        },
+        {
+          name: 'footerHeadline',
+          type: 'textarea',
+          defaultValue:
+            "Nigeria's career-focused tech academy - cohort bootcamps, 1-on-1 coaching and corporate training for the next wave of builders.",
+        },
+        {
+          name: 'footerAddress',
+          type: 'text',
+          defaultValue: 'Bodija, Ibadan | Lekki, Lagos',
+        },
+        {
+          name: 'footerEmail',
+          type: 'text',
+          defaultValue: 'hello@techfronthub.ng',
+        },
+        {
+          name: 'footerPhone',
+          type: 'text',
+          defaultValue: '+234 810 000 0000',
+        },
+        {
+          name: 'footerLearnTitle',
+          type: 'text',
+          defaultValue: 'Learn',
+        },
+        {
+          name: 'footerLearnLinks',
+          type: 'array',
+          fields: [
+            { name: 'label', type: 'text', required: true },
+            { name: 'href', type: 'text', required: true },
+          ],
+        },
+        {
+          name: 'footerBusinessTitle',
+          type: 'text',
+          defaultValue: 'Business',
+        },
+        {
+          name: 'footerBusinessLinks',
+          type: 'array',
+          fields: [
+            { name: 'label', type: 'text', required: true },
+            { name: 'href', type: 'text', required: true },
+          ],
+        },
+        {
+          name: 'footerResourcesTitle',
+          type: 'text',
+          defaultValue: 'Resources',
+        },
+        {
+          name: 'footerResourcesLinks',
+          type: 'array',
+          fields: [
+            { name: 'label', type: 'text', required: true },
+            { name: 'href', type: 'text', required: true },
+          ],
+        },
+        {
+          name: 'footerSocialLinks',
+          type: 'array',
+          fields: [
+            {
+              name: 'platform',
+              type: 'select',
+              options: ['Facebook', 'X', 'Instagram', 'LinkedIn', 'YouTube'],
+              required: true,
+            },
+            { name: 'href', type: 'text', required: true },
+          ],
+        },
+        {
+          name: 'footerNewsletterTitle',
+          type: 'text',
+          defaultValue: 'Newsletter',
+        },
+        {
+          name: 'footerNewsletterBody',
+          type: 'textarea',
+          defaultValue: 'Monthly digest of new cohorts, free workshops and scholarship slots.',
+        },
+        {
+          name: 'footerNewsletterPlaceholder',
+          type: 'text',
+          defaultValue: 'you@work.com',
+        },
+        {
+          name: 'footerNewsletterButton',
+          type: 'text',
+          defaultValue: 'Join',
+        },
+        {
+          name: 'footerNewsletterNote',
+          type: 'text',
+          defaultValue: 'We never share your email. Unsubscribe anytime.',
+        },
+        {
+          name: 'footerCopyright',
+          type: 'text',
+          defaultValue: '(c) 2026 TECHFRONT HUB. RC 1234567. All rights reserved.',
+        },
+        {
+          name: 'footerLegalLinks',
+          type: 'array',
+          fields: [
+            { name: 'label', type: 'text', required: true },
+            { name: 'href', type: 'text', required: true },
+          ],
+        },
+        {
+          name: 'finalCtaEyebrow',
+          type: 'text',
+          defaultValue: 'Ready when you are',
+        },
+        {
+          name: 'finalCtaSecondaryLabel',
+          type: 'text',
+          defaultValue: 'Contact Us',
+        },
+        {
+          name: 'finalCtaSecondaryHref',
+          type: 'text',
+          defaultValue: '/contact',
         },
         { name: 'ctaHeadline', type: 'text' },
         { name: 'ctaBody', type: 'textarea' },
@@ -349,10 +629,10 @@ export default buildConfig({
   editor: lexicalEditor(),
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL,
+      connectionString: payloadConnectionString,
       max: 10,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 5000,
+      connectionTimeoutMillis: 15000,
     },
   }),
   secret: process.env.PAYLOAD_SECRET,

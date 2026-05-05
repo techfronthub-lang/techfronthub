@@ -109,10 +109,10 @@ export default async function CoursePage({ params }) {
       ]
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--paper)', color: 'var(--ink-700)' }}>
+    <div className="course-detail-page" style={{ minHeight: '100vh', background: 'var(--paper)', color: 'var(--ink-700)' }}>
       {/* Back nav */}
       <div style={{ borderBottom: '1px solid var(--ink-100)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '14px 24px' }}>
+        <div className="course-detail-container course-detail-backinner" style={{ maxWidth: 1100, margin: '0 auto', padding: '14px 24px' }}>
           <Link href="/#courses" style={{ fontSize: 13, color: 'var(--ink-400)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             ← Back to courses
           </Link>
@@ -120,7 +120,7 @@ export default async function CoursePage({ params }) {
       </div>
 
       {/* Hero banner */}
-      <div style={{ ...flyerBg(c.hue), padding: '64px 24px 56px', position: 'relative', overflow: 'hidden' }}>
+      <div className="course-detail-hero" style={{ ...flyerBg(c.hue), padding: '64px 24px 56px', position: 'relative', overflow: 'hidden' }}>
         {/* Supabase Thumbnail Background */}
         {c.thumbnail && (
           <div style={{
@@ -135,18 +135,18 @@ export default async function CoursePage({ params }) {
         {/* Subtle grid pattern for hero */}
         <div style={{ position: 'absolute', inset: 0, opacity: 0.1, pointerEvents: 'none', backgroundImage: 'radial-gradient(circle at 2px 2px, #fff 1px, transparent 0)', backgroundSize: '32px 32px' }} />
         
-        <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        <div className="course-detail-container" style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
+          <div className="course-detail-badges" style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
             <Badge hot={c.tagHot}>{c.tag}</Badge>
             <Badge>{c.code}</Badge>
           </div>
-          <h1 style={{ fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: '#fff', lineHeight: 1.1, marginBottom: 18, maxWidth: 750, letterSpacing: '-0.02em' }}>
+          <h1 className="course-detail-title" style={{ fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: '#fff', lineHeight: 1.1, marginBottom: 18, maxWidth: 750, letterSpacing: '-0.02em' }}>
             {c.title}
           </h1>
-          <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)', maxWidth: 640, lineHeight: 1.6, marginBottom: 36 }}>
+          <p className="course-detail-desc" style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)', maxWidth: 640, lineHeight: 1.6, marginBottom: 36 }}>
             {c.desc}
           </p>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <div className="course-detail-meta-row" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <MetaPill label="Duration"  value={c.duration ?? '—'} />
             <MetaPill label="Lessons"   value={c.lessons ? `${c.lessons} lessons` : '—'} />
             <MetaPill label="Level"     value={c.level ?? '—'} />
@@ -155,14 +155,14 @@ export default async function CoursePage({ params }) {
       </div>
 
       {/* Main content */}
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '56px 24px', display: 'grid', gridTemplateColumns: '1fr 340px', gap: 48, alignItems: 'start' }}>
+      <div className="course-detail-container course-detail-layout" style={{ maxWidth: 1100, margin: '0 auto', padding: '56px 24px', display: 'grid', gridTemplateColumns: '1fr 340px', gap: 48, alignItems: 'start' }}>
 
         {/* Left: course body */}
         <div>
           {/* What you'll learn */}
           <section style={{ marginBottom: 56 }}>
             <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, color: '#fff', letterSpacing: '-0.01em' }}>What you'll learn</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div className="course-detail-learn-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               {whatYouLearn.map((item, i) => (
                 <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '16px', background: 'var(--ink-100)', borderRadius: 12, border: '1px solid var(--ink-200)', transition: 'transform 0.2s ease' }}>
                   <span style={{ color: 'var(--success)', fontWeight: 700, fontSize: 16, flexShrink: 0 }}>✓</span>
@@ -175,9 +175,9 @@ export default async function CoursePage({ params }) {
           {/* Program overview */}
           <section style={{ marginBottom: 56 }}>
             <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, color: '#fff', letterSpacing: '-0.01em' }}>Program overview</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <div className="course-detail-overview-list" style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               {programOverview.map((m, i) => (
-                <div key={i} style={{
+                <div key={i} className="course-detail-overview-item" style={{
                   display: 'grid', gridTemplateColumns: '120px 1fr',
                   padding: '20px 24px', gap: 20,
                   background: i % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'transparent',
@@ -215,7 +215,7 @@ export default async function CoursePage({ params }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {related.docs.map(r => (
                   <Link key={r.id} href={`/courses/${r.id}`} style={{ textDecoration: 'none' }}>
-                    <div style={{ display: 'flex', gap: 18, padding: '18px 24px', background: 'var(--canvas)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, alignItems: 'center', transition: 'all 0.2s ease' }}>
+                    <div className="course-detail-related-item" style={{ display: 'flex', gap: 18, padding: '18px 24px', background: 'var(--canvas)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, alignItems: 'center', transition: 'all 0.2s ease' }}>
                       <div style={{ width: 52, height: 52, borderRadius: 10, flexShrink: 0, ...flyerBg(r.hue), backgroundSize: 'cover' }} />
                       <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 600, fontSize: 15, color: '#fff', marginBottom: 2 }}>{r.title}</div>
@@ -231,11 +231,11 @@ export default async function CoursePage({ params }) {
         </div>
 
         {/* Right: enrolment card */}
-        <div style={{ position: 'sticky', top: 96 }}>
-          <div style={{ border: '1px solid var(--ink-200)', borderRadius: 20, overflow: 'hidden', boxShadow: 'var(--shadow-lg)', background: 'var(--ink-100)' }}>
+        <div className="course-detail-sidebar" style={{ position: 'sticky', top: 96 }}>
+          <div className="course-detail-enrol-card" style={{ border: '1px solid var(--ink-200)', borderRadius: 20, overflow: 'hidden', boxShadow: 'var(--shadow-lg)', background: 'var(--ink-100)' }}>
             {/* Price header */}
-            <div style={{ ...flyerBg(c.hue), padding: '32px 28px 28px' }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+            <div className="course-detail-price-head" style={{ ...flyerBg(c.hue), padding: '32px 28px 28px' }}>
+              <div className="course-detail-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
                 {c.old && (
                   <span style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through', fontWeight: 500 }}>{c.old}</span>
                 )}
@@ -248,10 +248,10 @@ export default async function CoursePage({ params }) {
               )}
             </div>
 
-            <div style={{ padding: '28px' }}>
+            <div className="course-detail-card-body" style={{ padding: '28px' }}>
               <a
                 href="#"
-                className="btn btn-primary"
+                className="btn btn-primary course-detail-primary-btn"
                 style={{
                   display: 'flex', width: '100%', padding: '16px 0', textAlign: 'center',
                   justifyContent: 'center', borderRadius: 12,
@@ -262,6 +262,7 @@ export default async function CoursePage({ params }) {
               </a>
               <a
                 href="#"
+                className="course-detail-secondary-btn"
                 style={{
                   display: 'block', width: '100%', padding: '14px 0', textAlign: 'center',
                   background: 'transparent', color: '#fff',
@@ -273,7 +274,7 @@ export default async function CoursePage({ params }) {
                 Talk to an advisor →
               </a>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className="course-detail-info-list" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
                   ['Duration',    c.duration    || '—'],
                   ['Lessons',     c.lessons     ? `${c.lessons} lessons` : '—'],
@@ -282,7 +283,7 @@ export default async function CoursePage({ params }) {
                   ['Certificate', c.certificate || 'Professional Certificate'],
                   ['Support',     c.support     || 'Slack + weekly office hours'],
                 ].map(([label, value]) => (
-                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13.5 }}>
+                  <div key={label} className="course-detail-info-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13.5 }}>
                     <span style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</span>
                     <span style={{ fontWeight: 600, color: '#fff', textAlign: 'right', marginLeft: 20 }}>{value}</span>
                   </div>

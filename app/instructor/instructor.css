@@ -181,6 +181,31 @@
   overflow-x: clip;
 }
 
+.i-mobile-menu-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--i-border);
+  background: var(--i-surface);
+  border-radius: 12px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
+  cursor: pointer;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.i-mobile-menu-btn span {
+  width: 16px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--i-text);
+}
+.i-mobile-overlay {
+  display: none;
+}
+
 .i-topbar {
   height: var(--i-topbar-h);
   background: var(--i-surface);
@@ -968,11 +993,17 @@
   .i-main { margin-left: 0; }
 }
 @media (max-width: 768px) {
-  .i-sidebar { transform: translateX(-100%); }
+  .i-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.24s ease;
+    width: min(84vw, 320px);
+    box-shadow: 24px 0 48px rgba(15, 23, 42, 0.22);
+  }
+  .i-sidebar.open { transform: translateX(0); }
   .i-main { margin-left: 0; }
   .i-stats-grid { grid-template-columns: 1fr 1fr; }
   .i-course-grid { grid-template-columns: 1fr; }
-  .i-content { padding: 16px; }
+  .i-content { padding: 14px; }
   .i-page { padding: 4px; }
   .i-topbar {
     height: auto;
@@ -984,6 +1015,9 @@
   .i-topbar-left {
     min-width: 0;
     flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   .i-topbar-right {
     min-width: 0;
@@ -1007,9 +1041,18 @@
     font-size: 11px;
   }
   .i-page-title {
-    font-size: 36px;
+    font-size: 28px;
     line-height: 1.15;
     overflow-wrap: anywhere;
+  }
+  .i-page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .i-page-header-right {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
   .i-card-header {
     padding: 16px 16px 0;
@@ -1059,5 +1102,60 @@
   .i-course-card-actions {
     width: 100%;
     justify-content: flex-start;
+  }
+  .i-form-section-header,
+  .i-form-section-body,
+  .i-card-pad {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .i-form-grid,
+  .i-form-grid-3 {
+    grid-template-columns: 1fr;
+  }
+  .i-array-item,
+  .i-array-row,
+  .i-course-panel-links,
+  .i-quick-actions {
+    gap: 10px;
+  }
+  .i-form-actions {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .i-form-actions .i-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .i-form-section-body {
+    gap: 18px;
+  }
+  .i-mobile-menu-btn { display: inline-flex; }
+  .i-mobile-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.42);
+    border: 0;
+    padding: 0;
+    z-index: 45;
+  }
+  .i-sidebar { z-index: 50; }
+}
+
+@media (max-width: 640px) {
+  .i-stats-grid { grid-template-columns: 1fr; }
+  .i-card-header {
+    grid-template-columns: 1fr;
+  }
+  .i-link-sm {
+    max-width: none;
+  }
+  .i-table th, .i-table td {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .i-topbar-user-name {
+    max-width: 96px;
   }
 }

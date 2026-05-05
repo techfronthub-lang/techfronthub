@@ -1,8 +1,29 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { I } from './Icons';
+import { DEFAULT_SITE_CONFIG } from './Layout';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 18 },
+  visible: (delay = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: 'easeOut', delay },
+  }),
+};
+
+const stagger = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.04,
+    },
+  },
+};
 
 function flyerBg(hue) {
   return {
@@ -75,7 +96,7 @@ function CourseCardSkeleton() {
   );
 }
 
-export function CourseSlider({ courses, loading }) {
+export function CourseSlider({ courses, loading, siteConfig }) {
   const items = Array.isArray(courses) ? courses : [];
   const hasItems = items.length > 0;
   const [idx, setIdx] = useState(0);
@@ -83,6 +104,9 @@ export function CourseSlider({ courses, loading }) {
   const total = items.length;
   const visible = 3.4;
   const maxIdx = Math.max(0, total - Math.floor(visible));
+  const eyebrow = siteConfig?.featuredCoursesEyebrow || DEFAULT_SITE_CONFIG.featuredCoursesEyebrow;
+  const headline = siteConfig?.featuredCoursesHeadline || DEFAULT_SITE_CONFIG.featuredCoursesHeadline;
+  const body = siteConfig?.featuredCoursesBody || DEFAULT_SITE_CONFIG.featuredCoursesBody;
 
   useEffect(() => {
     if (paused || !hasItems) return;
@@ -97,30 +121,30 @@ export function CourseSlider({ courses, loading }) {
   };
 
   return (
-    <section id="courses">
+    <motion.section id="courses" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeUp}>
       <div className="container">
-        <div className="section-head">
+        <motion.div className="section-head" variants={fadeUp}>
           <div>
             <div className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              Featured courses
+              {eyebrow}
               {hasItems && (
                 <span style={{ fontSize: 10, fontWeight: 700, background: '#22c55e', color: '#fff', borderRadius: 4, padding: '2px 6px', letterSpacing: '0.06em' }}>
                   LIVE
                 </span>
               )}
             </div>
-            <h2>Cohorts shipping this quarter</h2>
-            <p>Hand-picked programs starting in the next 8 weeks. Each cohort is capped at 30 learners to keep instruction tight.</p>
+            <h2>{headline}</h2>
+            <p>{body}</p>
           </div>
-          <a href="#" className="btn btn-ghost">View all courses <I.Arrow size={14}/></a>
-        </div>
+          <Link href="/courses" className="btn btn-ghost">View all courses <I.Arrow size={14}/></Link>
+        </motion.div>
         {!loading && !hasItems ? (
           <div style={{ padding: '28px 0', color: 'var(--ink-500)' }}>
             No courses are published yet.
           </div>
         ) : null}
         {hasItems ? (
-          <div className="slider-wrap" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+          <motion.div className="slider-wrap" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} variants={fadeUp}>
             <div className="slider-nav">
               <button onClick={() => step(-1)} aria-label="Previous"><I.Chev dir="left"/></button>
               <button onClick={() => step(1)} aria-label="Next"><I.Chev dir="right"/></button>
@@ -138,22 +162,37 @@ export function CourseSlider({ courses, loading }) {
                 <button key={i} className={i === idx ? "active" : ""} onClick={() => setIdx(i)} aria-label={`Slide ${i+1}`}/>
               ))}
             </div>
-          </div>
+          </motion.div>
         ) : null}
       </div>
-    </section>
+    </motion.section>
   );
 }
 
-export function Catalog() {
+export function Catalog({ courses = [], categories = [] }) {
+  const countByCategory = React.useMemo(() => {
+    const map = {}
+    const crs = Array.isArray(courses) ? courses : []
+    crs.forEach(c => {
+      const id = c.category?.id ?? c.category
+      if (id != null) map[id] = (map[id] || 0) + 1
+    })
+    return map
+  }, [courses])
+
+  const cats = Array.isArray(categories) ? categories : []
+  const crs  = Array.isArray(courses) ? courses : []
+
+  const displayCats = cats.slice(0, 5)
+
   return (
-    <section className="catalog">
+    <motion.section className="catalog" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={fadeUp}>
       <div className="container">
-        <div className="catalog-card">
+        <motion.div className="catalog-card" variants={stagger}>
           <div>
             <div className="eyebrow" style={{color: "var(--brand-200)"}}>Course catalog 2026</div>
             <h2>Every course, syllabus and price in one PDF.</h2>
-            <p>48 active courses across 8 tracks, with outcomes, project lists, duration and pricing. Share it with your team or HR for approval.</p>
+            <p>{crs.length} active courses across {cats.length} tracks, with outcomes, project lists, duration and pricing. Share it with your team or HR for approval.</p>
             <div style={{display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap"}}>
               <a href="#" className="btn btn-primary btn-lg"><I.Download size={16}/> Download Full Brochure (PDF)</a>
               <a href="#" className="btn btn-ghost btn-lg" style={{background: "transparent", borderColor: "rgba(255,255,255,0.18)", color: "#fff"}}>Email it to me</a>
@@ -164,52 +203,75 @@ export function Catalog() {
               <span>Updated April 2026</span>
             </div>
           </div>
-          <div className="catalog-pdf">
+          <motion.div className="catalog-pdf" variants={fadeUp}>
             <span className="tag">PDF · 42 pages</span>
             <h4>TECHFRONT HUB - Course Catalog 2026</h4>
             <div style={{fontSize: 12, color: "var(--ink-400)"}}>Outcomes · Schedules · Pricing</div>
             <div className="rows">
-              <div className="pdf-row"><span>01 · AI & Automation</span><b>12 courses</b></div>
-              <div className="pdf-row"><span>02 · Data Analytics</span><b>18 courses</b></div>
-              <div className="pdf-row"><span>03 · DevOps</span><b>9 courses</b></div>
-              <div className="pdf-row"><span>04 · Web Development</span><b>16 courses</b></div>
-              <div className="pdf-row"><span>05 · Digital Marketing</span><b>11 courses</b></div>
+              {displayCats.map((cat, i) => (
+                <div key={cat.id ?? i} className="pdf-row">
+                  <span>{String(i + 1).padStart(2, '0')} · {cat.title}</span>
+                  <b>{countByCategory[cat.id] || 0} {countByCategory[cat.id] === 1 ? 'course' : 'courses'}</b>
+                </div>
+              ))}
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }
 
-export function UdemyGrid({ udemy }) {
+export function UdemyGrid({ udemy, siteConfig }) {
   const items = [...(Array.isArray(udemy) ? udemy : [])].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+  const eyebrow = siteConfig?.udemyEyebrow || DEFAULT_SITE_CONFIG.udemyEyebrow;
+  const headline = siteConfig?.udemyHeadline || DEFAULT_SITE_CONFIG.udemyHeadline;
+  const body = siteConfig?.udemyBody || DEFAULT_SITE_CONFIG.udemyBody;
 
   return (
-    <section id="udemy">
+    <motion.section id="udemy" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={fadeUp}>
       <div className="container">
-        <div className="section-head">
+        <motion.div className="section-head" variants={fadeUp}>
           <div>
-            <div className="eyebrow">Also on Udemy</div>
-            <h2>Self-paced courses, globally</h2>
-            <p>Prefer learning on your own time? Our instructors also publish on Udemy - grab a course and keep lifetime access.</p>
+            <div className="eyebrow">{eyebrow}</div>
+            <h2>{headline}</h2>
+            <p>{body}</p>
           </div>
-          <a href="#" className="btn btn-ghost">Our Udemy profile <I.ArrowUpRight size={14}/></a>
-        </div>
+          <a href="https://www.udemy.com" className="btn btn-ghost" target="_blank" rel="noopener noreferrer">Our Udemy profile <I.ArrowUpRight size={14}/></a>
+        </motion.div>
         {!items.length ? (
           <div style={{ padding: '28px 0', color: 'var(--ink-500)' }}>
             No Udemy courses are published yet.
           </div>
         ) : (
-          <div className="udemy-grid">
+          <motion.div className="udemy-grid" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }}>
             {items.map((u, i) => (
-              <div key={u.id ?? i} className="u-card">
-                <div className="u-thumb" style={flyerBg(u.hue ?? 214)}>
+              <motion.a
+                key={u.id ?? i}
+                className="u-card"
+                variants={fadeUp}
+                href={u.udemyUrl ?? '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'none', display: 'block', cursor: 'pointer' }}
+              >
+                <div
+                  className="u-thumb"
+                  style={
+                    u.thumbnail
+                      ? {
+                          backgroundImage: `linear-gradient(rgba(7, 10, 20, 0.18), rgba(7, 10, 20, 0.18)), url(${u.thumbnail})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }
+                      : flyerBg(u.hue ?? 214)
+                  }
+                >
                   <div className="play"></div>
                   <span className="lbl">{u.hours}</span>
                 </div>
                 <div className="u-body">
-                  <h4>{u.title}</h4>
+                  <h4 style={{ color: '#111827' }}>{u.title}</h4>
                   <div className="u-author">{u.author}</div>
                   <div className="u-rating">
                     <b>{u.rating}</b>
@@ -218,78 +280,115 @@ export function UdemyGrid({ udemy }) {
                   </div>
                   <div className="u-foot">
                     <span className="u-price">{u.price}</span>
-                    <a href={u.udemyUrl ?? '#'} target="_blank" rel="noopener noreferrer" className="btn-link" style={{fontSize: 13, fontWeight: 600}}>View on Udemy <I.ArrowUpRight size={12}/></a>
                   </div>
                 </div>
-              </div>
+              </motion.a>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
-    </section>
+    </motion.section>
   );
 }
 
-export function WhyUs() {
+export function WhyUs({ siteConfig }) {
   const items = [
     { icon: 'Target', title: 'Outcome-first curriculum', desc: 'We map each track to a practical career outcome and a real project portfolio.' },
     { icon: 'Users', title: 'Live instruction', desc: 'Small cohorts, direct feedback, and hands-on support from instructors.' },
     { icon: 'Briefcase', title: 'Career support', desc: 'Learners get guidance on placement, interviews, and business use cases.' },
   ];
+  const eyebrow = siteConfig?.whyUsEyebrow || DEFAULT_SITE_CONFIG.whyUsEyebrow;
+  const headline = siteConfig?.whyUsHeadline || DEFAULT_SITE_CONFIG.whyUsHeadline;
+  const body = siteConfig?.whyUsBody || DEFAULT_SITE_CONFIG.whyUsBody;
 
   return (
-    <section className="why">
+    <motion.section className="why" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={fadeUp}>
       <div className="container">
-        <div className="section-head" style={{textAlign: "center", flexDirection: "column", alignItems: "center"}}>
+        <motion.div className="section-head" style={{textAlign: "center", flexDirection: "column", alignItems: "center"}} variants={fadeUp}>
           <div>
-            <div className="eyebrow">Why TECHFRONT HUB</div>
-            <h2 style={{textAlign: "center"}}>Built for outcomes, not just completion.</h2>
-            <p style={{margin: "0 auto"}}>We're measured by what our learners go on to do - promotions, placements, products shipped.</p>
+            <div className="eyebrow">{eyebrow}</div>
+            <h2 style={{textAlign: "center"}}>{headline}</h2>
+            <p style={{margin: "0 auto"}}>{body}</p>
           </div>
-        </div>
-        <div className="why-grid">
+        </motion.div>
+        <motion.div className="why-grid" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }}>
           {items.map((w, i) => {
             const Ic = I[w.icon];
             return (
-              <div key={i} className="why-card">
+              <motion.div key={i} className="why-card" variants={fadeUp}>
                 <div className="why-icn">{Ic ? <Ic size={22}/> : null}</div>
                 <h4>{w.title}</h4>
                 <p>{w.desc}</p>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }
 
-export function Categories({ categories }) {
+export function Categories({ categories, courses = [], siteConfig }) {
+  const countByCategory = React.useMemo(() => {
+    const map = {}
+    const crs = Array.isArray(courses) ? courses : []
+    crs.forEach(c => {
+      const id = c.category?.id ?? c.category
+      if (id != null) map[id] = (map[id] || 0) + 1
+    })
+    return map
+  }, [courses])
+
   const items = Array.isArray(categories) ? categories : [];
+  const eyebrow = siteConfig?.categoriesEyebrow || DEFAULT_SITE_CONFIG.categoriesEyebrow;
+  const headline = siteConfig?.categoriesHeadline || DEFAULT_SITE_CONFIG.categoriesHeadline;
+  const body = siteConfig?.categoriesBody || DEFAULT_SITE_CONFIG.categoriesBody;
 
   return (
-    <section id="categories">
+    <motion.section id="categories" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={fadeUp}>
       <div className="container">
-        <div className="section-head">
+        <motion.div className="section-head" variants={fadeUp}>
           <div>
-            <div className="eyebrow">Course categories</div>
-            <h2>Pick a track, ship real work.</h2>
-            <p>Each category maps to a career outcome, not just a topic list.</p>
+            <div className="eyebrow">{eyebrow}</div>
+            <h2>{headline}</h2>
+            <p>{body}</p>
           </div>
-          <a href="#" className="btn btn-ghost">See all tracks <I.Arrow size={14}/></a>
-        </div>
+          <a href="/courses" className="btn btn-ghost">See all tracks <I.Arrow size={14}/></a>
+        </motion.div>
         {!items.length ? (
           <div style={{ padding: '28px 0', color: 'var(--ink-500)' }}>
             No course categories yet.
           </div>
         ) : (
-          <div className="cats-grid">
+          <motion.div className="cats-grid" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }}>
             {items.map((c, i) => {
               const Ic = I[c.icon];
+              const count = countByCategory[c.id] || 0
+              const cardStyle = c.thumbnail
+                ? {
+                    backgroundImage: `linear-gradient(rgba(7, 10, 20, 0.18), rgba(7, 10, 20, 0.18)), url(${c.thumbnail})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }
+                : {};
               return (
-                <a key={c.id ?? i} href="#" className="cat-card" style={{textDecoration: "none", color: "inherit"}}>
+                <motion.a key={c.id ?? i} href={`/categories/${c.id}`} className="cat-card" style={{textDecoration: "none", color: "inherit"}} variants={fadeUp}>
                   <div className="top">
-                    <div style={{width: 40, height: 40, borderRadius: 10, background: "var(--brand-50)", color: "var(--brand-600)", display: "grid", placeItems: "center", border: "1px solid var(--brand-100)"}}>
+                    <div
+                      style={{
+                        width: 52,
+                        height: 52,
+                        borderRadius: 12,
+                        background: c.thumbnail ? 'rgba(7, 10, 20, 0.18)' : 'var(--brand-50)',
+                        color: c.thumbnail ? '#fff' : 'var(--brand-600)',
+                        display: 'grid',
+                        placeItems: 'center',
+                        border: '1px solid var(--brand-100)',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        ...cardStyle,
+                      }}
+                    >
                       {Ic ? <Ic size={20}/> : null}
                     </div>
                     <span className="num">{c.n}</span>
@@ -299,43 +398,46 @@ export function Categories({ categories }) {
                     <p>{c.desc}</p>
                   </div>
                   <div className="bar">
-                    <span>{c.count}</span>
+                    <span>{count} {count === 1 ? 'course' : 'courses'}</span>
                     <span className="arrow"><I.Arrow size={14}/></span>
                   </div>
-                </a>
+                </motion.a>
               );
             })}
-          </div>
+          </motion.div>
         )}
       </div>
-    </section>
+    </motion.section>
   );
 }
 
-export function Packages({ packages }) {
+export function Packages({ packages, siteConfig }) {
   const items = Array.isArray(packages) ? packages : [];
   const sorted = [...items].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+  const eyebrow = siteConfig?.packagesEyebrow || DEFAULT_SITE_CONFIG.packagesEyebrow;
+  const headline = siteConfig?.packagesHeadline || DEFAULT_SITE_CONFIG.packagesHeadline;
+  const body = siteConfig?.packagesBody || DEFAULT_SITE_CONFIG.packagesBody;
 
   return (
-    <section className="packages" id="enroll">
+    <motion.section className="packages" id="enroll" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={fadeUp}>
       <div className="container">
-        <div className="section-head" style={{flexDirection: "column", textAlign: "center", alignItems: "center"}}>
+        <motion.div className="section-head" style={{flexDirection: "column", textAlign: "center", alignItems: "center"}} variants={fadeUp}>
           <div>
-            <div className="eyebrow">Training packages</div>
-            <h2 style={{textAlign: "center"}}>Ways to learn with us.</h2>
-            <p style={{margin: "0 auto"}}>From cohort-based bootcamps to full-team corporate programs - pick the format that fits your goal.</p>
+            <div className="eyebrow">{eyebrow}</div>
+            <h2 style={{textAlign: "center"}}>{headline}</h2>
+            <p style={{margin: "0 auto"}}>{body}</p>
           </div>
-        </div>
+        </motion.div>
         {!sorted.length ? (
           <div style={{ padding: '28px 0', color: 'var(--ink-500)', textAlign: 'center' }}>
             No training packages yet.
           </div>
         ) : (
-          <div className="pkg-grid">
+          <motion.div className="pkg-grid" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }}>
             {sorted.map((p, i) => {
               const Ic = I[p.icon];
               return (
-                <div key={p.id ?? i} className={"pkg" + (p.featured ? " featured" : "")}>
+                <motion.div key={p.id ?? i} className={"pkg" + (p.featured ? " featured" : "")} variants={fadeUp}>
                   {p.badge && <span className="pkg-badge">{p.badge}</span>}
                   <div className="pkg-ic">{Ic ? <Ic size={22}/> : null}</div>
                   <h3>{p.name}</h3>
@@ -350,68 +452,74 @@ export function Packages({ packages }) {
                   <a href="#" className={"btn " + (p.featured ? "btn-primary" : "btn-ghost")} style={{marginTop: "auto", justifyContent: "center"}}>
                     {p.featured ? "Book a session" : "Learn more"} <I.Arrow size={14}/>
                   </a>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
       </div>
-    </section>
+    </motion.section>
   );
 }
 
-export function Testimonials({ testimonials }) {
+export function Testimonials({ testimonials, siteConfig }) {
   const items = Array.isArray(testimonials) ? testimonials : [];
+  const eyebrow = siteConfig?.testimonialsEyebrow || DEFAULT_SITE_CONFIG.testimonialsEyebrow;
+  const headline = siteConfig?.testimonialsHeadline || DEFAULT_SITE_CONFIG.testimonialsHeadline;
+  const body = siteConfig?.testimonialsBody || DEFAULT_SITE_CONFIG.testimonialsBody;
 
   return (
-    <section className="testimonials" id="testimonials">
+    <motion.section className="testimonials" id="testimonials" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={fadeUp}>
       <div className="container">
-        <div className="section-head">
+        <motion.div className="section-head" variants={fadeUp}>
           <div>
-            <div className="eyebrow">Student stories</div>
-            <h2>Careers built in months, not years.</h2>
-            <p>A few alumni, in their own words.</p>
+            <div className="eyebrow">{eyebrow}</div>
+            <h2>{headline}</h2>
+            <p>{body}</p>
           </div>
-          <a href="#" className="btn btn-ghost">Read all stories <I.Arrow size={14}/></a>
-        </div>
+          <Link href="/reviews" className="btn btn-ghost">Read all stories <I.Arrow size={14}/></Link>
+        </motion.div>
         {!items.length ? (
           <div style={{ padding: '28px 0', color: 'var(--ink-500)' }}>
             No testimonials yet.
           </div>
         ) : (
-          <div className="t-grid">
+          <motion.div className="t-grid" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }}>
             {items.map((t, i) => (
-              <div key={t.id ?? i} className="t-card">
+              <motion.div key={t.id ?? i} className="t-card" variants={fadeUp}>
                 <div className="t-stars">***</div>
                 <div className="quote">"{t.quote}"</div>
                 <div className="person">
                   <div className="avatar">{t.initials}</div>
                   <div><b>{t.name}</b><span>{t.role}</span></div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
-    </section>
+    </motion.section>
   );
 }
 
 export function FinalCTA({ siteConfig }) {
   const headline = siteConfig?.ctaHeadline ?? '';
   const body = siteConfig?.ctaBody ?? '';
+  const eyebrow = siteConfig?.finalCtaEyebrow || DEFAULT_SITE_CONFIG.finalCtaEyebrow;
+  const secondaryLabel = siteConfig?.finalCtaSecondaryLabel || DEFAULT_SITE_CONFIG.finalCtaSecondaryLabel;
+  const secondaryHref = siteConfig?.finalCtaSecondaryHref || DEFAULT_SITE_CONFIG.finalCtaSecondaryHref;
 
   return (
-    <section className="final-cta">
+    <motion.section className="final-cta" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.4 }} variants={fadeUp}>
       <div className="container">
-        <div className="eyebrow" style={{color: "var(--brand-200)"}}>Ready when you are</div>
+        <div className="eyebrow" style={{color: "var(--brand-200)"}}>{eyebrow}</div>
         <h2>{headline}</h2>
         <p>{body}</p>
         <div className="btns">
           <a href="#courses" className="btn btn-primary btn-lg">Enroll Now <I.Arrow size={16}/></a>
-          <a href="#" className="btn btn-lg" style={{background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff"}}>Contact Us</a>
+          <Link href={secondaryHref} className="btn btn-lg" style={{background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff"}}>{secondaryLabel}</Link>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

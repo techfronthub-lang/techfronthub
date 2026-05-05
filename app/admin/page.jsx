@@ -32,7 +32,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     TILES.forEach(({ slug }) => {
-      getCollection(slug, { limit: 0 })
+      getCollection(slug, { limit: 1 })
         .then(d => setCounts(prev => ({ ...prev, [slug]: d.totalDocs ?? d.docs?.length ?? '?' })))
         .catch(() => setCounts(prev => ({ ...prev, [slug]: '?' })))
     })

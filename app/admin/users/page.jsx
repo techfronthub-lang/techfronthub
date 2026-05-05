@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { createDoc, getCollection, updateDoc } from '@/src/lib/payload-api'
 import { useAuth } from '@/src/components/AdminAuth'
@@ -14,6 +15,25 @@ const SORTS = [
   { value: 'name-desc', label: 'Name Z-A' },
   { value: 'email-asc', label: 'Email A-Z' },
 ]
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.3, ease: 'easeOut' },
+  },
+};
+
+const stagger = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.04,
+    },
+  },
+};
 
 function formatDate(value) {
   if (!value) return '-'
@@ -195,7 +215,7 @@ export default function UsersConsolePage() {
 
   return (
     <>
-      <div className="admin-topbar">
+      <motion.div className="admin-topbar" initial="hidden" animate="visible" variants={fadeUp}>
         <div>
           <div className="topbar-title">Users</div>
           <div style={{ fontSize: 12, color: 'var(--a-muted)', marginTop: 2 }}>
@@ -210,21 +230,21 @@ export default function UsersConsolePage() {
             + New User
           </Link>
         </div>
-      </div>
+      </motion.div>
 
       <div className="admin-content">
         {error && <div className="a-error" style={{ marginBottom: 16 }}>{error}</div>}
 
-        <div className="stats-grid" style={{ marginBottom: 16 }}>
-          <div className="stat-card"><div className="stat-label">Accounts</div><div className="stat-value">{total}</div></div>
-          <div className="stat-card"><div className="stat-label">Active</div><div className="stat-value">{active}</div></div>
-          <div className="stat-card"><div className="stat-label">Admins</div><div className="stat-value">{admins}</div></div>
-          <div className="stat-card"><div className="stat-label">Selected</div><div className="stat-value">{selectedCount}</div></div>
-        </div>
+        <motion.div className="stats-grid" style={{ marginBottom: 16 }} variants={stagger} initial="hidden" animate="visible">
+          <motion.div className="stat-card" variants={fadeUp}><div className="stat-label">Accounts</div><div className="stat-value">{total}</div></motion.div>
+          <motion.div className="stat-card" variants={fadeUp}><div className="stat-label">Active</div><div className="stat-value">{active}</div></motion.div>
+          <motion.div className="stat-card" variants={fadeUp}><div className="stat-label">Admins</div><div className="stat-value">{admins}</div></motion.div>
+          <motion.div className="stat-card" variants={fadeUp}><div className="stat-label">Selected</div><div className="stat-value">{selectedCount}</div></motion.div>
+        </motion.div>
 
         <div className="a-grid-2">
           <div>
-            <div className="a-card" style={{ marginBottom: 16 }}>
+            <motion.div className="a-card" style={{ marginBottom: 16 }} initial="hidden" animate="visible" variants={fadeUp}>
               <div className="users-toolbar">
                 <input
                   className="a-input"
@@ -252,10 +272,10 @@ export default function UsersConsolePage() {
                   ))}
                 </select>
               </div>
-            </div>
+            </motion.div>
 
             {selectedCount > 0 && (
-              <div className="bulk-bar">
+              <motion.div className="bulk-bar" initial="hidden" animate="visible" variants={fadeUp}>
                 <span>{selectedCount} selected</span>
                 <div className="bulk-actions">
                   <button type="button" className="btn btn-ghost btn-sm" onClick={() => handleBulkStatus('active')} disabled={busy}>
@@ -271,16 +291,16 @@ export default function UsersConsolePage() {
                     Clear
                   </button>
                 </div>
-              </div>
+              </motion.div>
             )}
 
-            <div className="a-card" style={{ padding: 0 }}>
+            <motion.div className="a-card" style={{ padding: 0 }} initial="hidden" animate="visible" variants={fadeUp}>
               {loading ? (
                 <div className="a-spinner" />
               ) : filteredUsers.length === 0 ? (
                 <div className="a-empty">No users match your filters.</div>
               ) : (
-                <div className="a-table-wrap">
+                <motion.div className="a-table-wrap" variants={stagger} initial="hidden" animate="visible">
                   <table className="a-table">
                     <thead>
                       <tr>
@@ -335,12 +355,12 @@ export default function UsersConsolePage() {
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </motion.div>
               )}
-            </div>
+            </motion.div>
           </div>
 
-          <div className="a-card">
+          <motion.div className="a-card" initial="hidden" animate="visible" variants={fadeUp}>
             <div className="a-card-header">
               <div className="a-card-title">Audit History</div>
               <button type="button" className="btn btn-ghost btn-sm" onClick={refreshLogs} disabled={busy}>
@@ -368,7 +388,7 @@ export default function UsersConsolePage() {
                 ))
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </>

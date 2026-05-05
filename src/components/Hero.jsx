@@ -1,14 +1,18 @@
 import React from 'react'
 import { I } from './Icons'
+import { DEFAULT_SITE_CONFIG } from './Layout'
 
 export function Hero({ siteConfig }) {
   const badge = siteConfig?.heroBadge ?? ''
   const headline = siteConfig?.heroHeadline ?? ''
   const lede = siteConfig?.heroLede ?? ''
-  const statLearners = siteConfig?.statLearners ?? ''
-  const statCourses = siteConfig?.statCourses ?? ''
-  const statPlacement = siteConfig?.statPlacement ?? ''
-  const statRating = siteConfig?.statRating ?? ''
+  const stats = [
+    { value: siteConfig?.statLearners ?? '', label: 'Learners trained' },
+    { value: siteConfig?.statCourses ?? '', label: 'Active courses' },
+    { value: siteConfig?.statCareerTracks ?? '', label: 'Career tracks' },
+    { value: siteConfig?.statPlacement ?? '', label: 'Job placement' },
+    { value: siteConfig?.statRating ?? '', label: 'Average rating' },
+  ].filter((item) => item.value)
 
   return (
     <section className="hero">
@@ -23,10 +27,12 @@ export function Hero({ siteConfig }) {
               <a href="#learning" className="btn btn-ghost btn-lg"><I.Play size={14} /> Start Learning</a>
             </div>
             <div className="hero-stats">
-              <div className="hero-stat"><strong>{statLearners}</strong><span>Learners trained</span></div>
-              <div className="hero-stat"><strong>{statCourses}</strong><span>Active courses</span></div>
-              <div className="hero-stat"><strong>{statPlacement}</strong><span>Job placement</span></div>
-              <div className="hero-stat"><strong>{statRating}</strong><span>Average rating</span></div>
+              {stats.map((item) => (
+                <div key={item.label} className="hero-stat">
+                  <strong>{item.value}</strong>
+                  <span>{item.label}</span>
+                </div>
+              ))}
             </div>
           </div>
           <div className="hero-visual">
@@ -92,11 +98,12 @@ export function Trusted({ siteConfig }) {
   const companies = siteConfig?.trustedCompanies?.length
     ? siteConfig.trustedCompanies.map((c) => c?.name).filter(Boolean)
     : []
+  const label = siteConfig?.trustedLabel || DEFAULT_SITE_CONFIG.trustedLabel
 
   return (
     <div className="trusted">
       <div className="container">
-        <div className="label">Trusted by teams & learners from</div>
+        <div className="label">{label}</div>
         <div className="trusted-row">
           {companies.length ? companies.map((company, i) => (
             <div key={company} className="trusted-logo">

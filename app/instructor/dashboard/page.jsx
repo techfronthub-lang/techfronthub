@@ -26,17 +26,6 @@ function authHeaders() {
   return { Authorization: `JWT ${token}` }
 }
 
-async function fetchCount(url) {
-  try {
-    const res = await fetch(url, { headers: authHeaders() })
-    if (!res.ok) return 0
-    const data = await res.json()
-    return data?.totalDocs ?? 0
-  } catch {
-    return 0
-  }
-}
-
 /* ── Course tag badge ─────────────────────────────────────────────────────── */
 function TagBadge({ tag }) {
   if (!tag || typeof tag !== 'string') return null
@@ -119,30 +108,46 @@ export default function DashboardPage() {
   /* Fetch stats */
   useEffect(() => {
     if (!instructor?.id) return
-
-    Promise.all([
-      fetchCount(`/api/courses?where[instructor][equals]=${instructor.id}&limit=0`),
-      fetchCount('/api/announcements?limit=0'),
-    ]).then(([courses, announcements]) => {
-      setStats({ courses, announcements })
-      setLoadingStats(false)
-    })
-  }, [instructor?.id])
-
-  /* Fetch cards */
-  useEffect(() => {
-    if (!instructor?.id) return
-
     const headers = authHeaders()
+    let cancelled = false
 
-    Promise.all([
-      fetch(`/api/courses?where[instructor][equals]=${instructor.id}&limit=3&sort=-createdAt`, { headers })
-        .then(r => r.ok ? r.json() : { docs: [] })
-        .then(d => d.docs ?? []),
-    ]).then(([c]) => {
-      setCourses(c)
-      setLoadingCards(false)
-    }).catch(() => setLoadingCards(false))
+    fetch(`/api/courses?where[instructor][equals]=${instructor.id}&limit=3&sort=-createdAt`, { headers })
+      .then(r => r.ok ? r.json() : Promise.reject(new Error(`Courses: HTTP ${r.status}`)))
+      .then(async data => {
+        if (cancelled) return
+
+        const docs = data?.docs ?? []
+        const courseIds = docs.map(course => course.id)
+        setCourses(docs)
+        setStats(prev => ({ ...prev, courses: data?.totalDocs ?? docs.length }))
+        setLoadingCards(false)
+        setLoadingStats(false)
+
+        if (courseIds.length === 0) {
+          if (!cancelled) setStats(prev => ({ ...prev, announcements: 0 }))
+          return
+        }
+
+        const announcementRes = await fetch(
+          `/api/announcements?where[course][in]=${encodeURIComponent(JSON.stringify(courseIds))}&limit=1`,
+          { headers }
+        )
+        if (!announcementRes.ok) return
+        const announcementData = await announcementRes.json()
+        if (!cancelled) {
+          setStats(prev => ({ ...prev, announcements: announcementData?.totalDocs ?? 0 }))
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setLoadingCards(false)
+          setLoadingStats(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
   }, [instructor?.id])
 
   if (!instructor) {

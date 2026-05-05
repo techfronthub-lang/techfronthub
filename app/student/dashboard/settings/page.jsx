@@ -31,7 +31,7 @@ export default function SettingsPage() {
       try {
         const token = localStorage.getItem('payload-token')
         if (!token) {
-          router.push('/student/login')
+          router.push('/login')
           return
         }
 
@@ -40,7 +40,7 @@ export default function SettingsPage() {
 
         if (!active) return
         if (!res.ok) {
-          router.push('/student/login')
+          router.push('/login')
           return
         }
 
@@ -142,7 +142,7 @@ export default function SettingsPage() {
           <p style={{ margin: 0, color: 'var(--ink-600)' }}>Manage your account details and security.</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, alignItems: 'start' }}>
           <aside style={{ ...card, borderRadius: 14, padding: 10, alignSelf: 'start' }}>
             <button
               type="button"
@@ -160,7 +160,7 @@ export default function SettingsPage() {
             </button>
           </aside>
 
-          <section style={{ ...card, borderRadius: 14, padding: 18 }}>
+          <section style={{ ...card, borderRadius: 14, padding: 18, minWidth: 0 }}>
             {activeTab === 'profile' && (
               <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <h2 style={{ margin: '0 0 2px', color: 'var(--ink-900)' }}>Profile Information</h2>

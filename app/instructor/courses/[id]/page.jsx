@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useInstructor } from '../../context'
+import { createDoc } from '@/src/lib/payload-api'
 
 /* ── Auth helper ──────────────────────────────────────────────────────────── */
 function authHeaders() {
@@ -175,6 +176,7 @@ export default function EditCoursePage() {
   const [deleting, setDeleting]   = useState(false)
   const [saveError, setSaveError] = useState(null)
   const [saveSuccess, setSaveSuccess] = useState(false)
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false)
 
   const loadCourse = useCallback(() => {
     if (!id) return
@@ -203,13 +205,36 @@ export default function EditCoursePage() {
 
   function set(field, val) { setForm(p => ({ ...p, [field]: val })); setSaveSuccess(false) }
 
+  async function uploadThumbnail(file) {
+    setUploadingThumbnail(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'courses')
+      const res = await fetch('/api/storage/upload', { method: 'POST', body: formData })
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(json.message || 'Upload failed')
+      set('thumbnail', json.url || '')
+      await createDoc('media-assets', {
+        name: file.name,
+        url: json.url || '',
+        key: json.key || '',
+        bucket: json.bucket || '',
+        folder: 'thumbnail',
+        mimeType: file.type,
+        size: file.size,
+      }).catch(() => {})
+    } finally {
+      setUploadingThumbnail(false)
+    }
+  }
+
   function buildPayload() {
     return {
       ...form,
       instructor:      instructor?.id,
       category:        form.category ? Number(form.category) : undefined,
       lessons:         form.lessons !== '' ? Number(form.lessons) : undefined,
-      hue:             form.hue !== '' ? Number(form.hue) : 214,
       priceKobo:       toKobo(form.price),
       whatYouLearn:    form.whatYouLearn.filter(i => i.benefit.trim()),
       whoThisIsFor:    form.whoThisIsFor.filter(i => i.audience.trim()),
@@ -278,26 +303,56 @@ export default function EditCoursePage() {
               </div>
             </div>
             <div className="i-form-grid-3">
-              <div className="i-field"><label className="i-label">Code</label><input type="text" className="i-input" value={form.code} onChange={e => set('code', e.target.value)} /></div>
-              <div className="i-field"><label className="i-label">Status</label><select className="i-select" value={form.tag} onChange={e => set('tag', e.target.value)}>{TAG_OPTIONS.map(t => <option key={t} value={t}>{t || 'None'}</option>)}</select></div>
-              <div className="i-field"><label className="i-label">Level</label><select className="i-select" value={form.level} onChange={e => set('level', e.target.value)}>{LEVEL_OPTIONS.map(l => <option key={l} value={l}>{l || 'None'}</option>)}</select></div>
-            </div>
-            <div className="i-field"><label className="i-label">Description</label><textarea className="i-textarea" rows={4} value={form.desc} onChange={e => set('desc', e.target.value)} /></div>
-            <label className="i-checkbox-row"><input type="checkbox" checked={form.tagHot} onChange={e => set('tagHot', e.target.checked)} /> Mark as Hot</label>
+            <div className="i-field"><label className="i-label">Code</label><input type="text" className="i-input" value={form.code} onChange={e => set('code', e.target.value)} /></div>
+            <div className="i-field"><label className="i-label">Status</label><select className="i-select" value={form.tag} onChange={e => set('tag', e.target.value)}>{TAG_OPTIONS.map(t => <option key={t} value={t}>{t || 'None'}</option>)}</select></div>
+            <div className="i-field"><label className="i-label">Level</label><select className="i-select" value={form.level} onChange={e => set('level', e.target.value)}>{LEVEL_OPTIONS.map(l => <option key={l} value={l}>{l || 'None'}</option>)}</select></div>
+          </div>
+          <div className="i-field"><label className="i-label">Description</label><textarea className="i-textarea" rows={4} value={form.desc} onChange={e => set('desc', e.target.value)} /></div>
+          <label className="i-checkbox-row"><input type="checkbox" checked={form.tagHot} onChange={e => set('tagHot', e.target.checked)} /> Mark as Hot</label>
           </FormSection>
 
           <FormSection title="Details" desc="Configure pricing and branding.">
             <div className="i-form-grid-3">
-              <div className="i-field"><label className="i-label">Duration</label><input type="text" className="i-input" value={form.duration} onChange={e => set('duration', e.target.value)} /></div>
-              <div className="i-field"><label className="i-label">Lessons</label><input type="number" className="i-input" value={form.lessons} onChange={e => set('lessons', e.target.value)} /></div>
-              <div className="i-field"><label className="i-label">Price (₦)</label><input type="text" className="i-input" value={form.price} onChange={e => set('price', e.target.value)} /></div>
+            <div className="i-field"><label className="i-label">Duration</label><input type="text" className="i-input" value={form.duration} onChange={e => set('duration', e.target.value)} /></div>
+            <div className="i-field"><label className="i-label">Lessons</label><input type="number" className="i-input" value={form.lessons} onChange={e => set('lessons', e.target.value)} /></div>
+            <div className="i-field"><label className="i-label">Price (₦)</label><input type="text" className="i-input" value={form.price} onChange={e => set('price', e.target.value)} /></div>
+          </div>
+          <div className="i-form-grid">
+            <div className="i-field"><label className="i-label">Old Price</label><input type="text" className="i-input" value={form.old} onChange={e => set('old', e.target.value)} /></div>
+            <div className="i-field">
+              <label className="i-label" htmlFor="thumbnail-upload">Thumbnail</label>
+              <input
+                id="thumbnail-upload"
+                type="file"
+                className="i-input"
+                accept="image/*"
+                disabled={uploadingThumbnail}
+                onChange={e => {
+                  const file = e.target.files?.[0]
+                  if (file) uploadThumbnail(file)
+                  e.target.value = ''
+                }}
+              />
+              <input
+                type="text"
+                className="i-input"
+                value={form.thumbnail}
+                onChange={e => set('thumbnail', e.target.value)}
+                placeholder="Or paste a thumbnail URL..."
+                style={{ marginTop: 10 }}
+              />
+              {uploadingThumbnail ? (
+                <p className="i-hint-block" style={{ marginTop: 8 }}>Uploading thumbnail...</p>
+              ) : form.thumbnail ? (
+                <img
+                  src={form.thumbnail}
+                  alt="Thumbnail preview"
+                  style={{ marginTop: 12, width: '100%', maxWidth: 320, aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: 12, border: '1px solid rgba(15, 23, 42, 0.12)' }}
+                />
+              ) : null}
             </div>
-            <div className="i-form-grid">
-              <div className="i-field"><label className="i-label">Old Price</label><input type="text" className="i-input" value={form.old} onChange={e => set('old', e.target.value)} /></div>
-              <div className="i-field"><label className="i-label">Thumbnail URL</label><input type="text" className="i-input" value={form.thumbnail} onChange={e => set('thumbnail', e.target.value)} /></div>
-            </div>
-            <div className="i-field"><label className="i-label">Hue ({form.hue})</label><input type="range" min="0" max="360" value={form.hue} onChange={e => set('hue', e.target.value)} /></div>
-          </FormSection>
+          </div>
+        </FormSection>
 
           <FormSection title="Enrollment Info">
             <div className="i-form-grid">

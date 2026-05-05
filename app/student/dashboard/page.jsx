@@ -18,7 +18,7 @@ export default function StudentDashboardPage() {
       try {
         const token = localStorage.getItem('payload-token')
         if (!token) {
-          router.push('/student/login')
+          router.push('/login')
           return
         }
 
@@ -28,7 +28,7 @@ export default function StudentDashboardPage() {
 
         if (!res.ok) {
           setError('Session expired. Please login again.')
-          router.push('/student/login')
+          router.push('/login')
           return
         }
 
@@ -55,7 +55,7 @@ export default function StudentDashboardPage() {
         <div style={{ background: '#fff', border: '1px solid var(--ink-200)', borderRadius: 16, padding: 24, maxWidth: 540, width: '100%' }}>
           <h2 style={{ margin: 0, color: 'var(--ink-900)' }}>Could not load dashboard</h2>
           <p style={{ color: 'var(--ink-600)' }}>{error}</p>
-          <Link href="/student/login" style={{ color: 'var(--brand-600)', textDecoration: 'none', fontWeight: 600 }}>Go to login</Link>
+          <Link href="/login" style={{ color: 'var(--brand-600)', textDecoration: 'none', fontWeight: 600 }}>Go to login</Link>
         </div>
       </div>
     )

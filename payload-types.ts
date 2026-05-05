@@ -327,6 +327,10 @@ export interface Category {
   title: string;
   desc?: string | null;
   count?: string | null;
+  /**
+   * Optional thumbnail image URL for category cards
+   */
+  thumbnail?: string | null;
   icon?:
     | (
         | 'Cpu'
@@ -439,6 +443,10 @@ export interface UdemyCourse {
    * Full Udemy course URL (e.g. https://www.udemy.com/course/...)
    */
   udemyUrl?: string | null;
+  /**
+   * Udemy preview image URL
+   */
+  thumbnail?: string | null;
   hue?: number | null;
   sortOrder?: number | null;
   updatedAt: string;
@@ -800,6 +808,7 @@ export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
   desc?: T;
   count?: T;
+  thumbnail?: T;
   icon?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -838,6 +847,7 @@ export interface UdemyCoursesSelect<T extends boolean = true> {
   hours?: T;
   price?: T;
   udemyUrl?: T;
+  thumbnail?: T;
   hue?: T;
   sortOrder?: T;
   updatedAt?: T;
@@ -918,19 +928,114 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface SiteConfig {
   id: number;
+  topbarLocation?: string | null;
+  topbarAnnouncement?: string | null;
+  topbarPhoneLabel?: string | null;
+  topbarPhoneHref?: string | null;
+  topbarSupportLabel?: string | null;
+  topbarSupportHref?: string | null;
+  topbarPartnersLabel?: string | null;
+  topbarPartnersHref?: string | null;
+  headerLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
   heroBadge?: string | null;
   heroHeadline?: string | null;
   heroLede?: string | null;
+  /**
+   * e.g. 12,400+
+   */
   statLearners?: string | null;
+  /**
+   * e.g. 125+
+   */
   statCourses?: string | null;
+  /**
+   * e.g. 12
+   */
+  statCareerTracks?: string | null;
   statPlacement?: string | null;
   statRating?: string | null;
+  trustedLabel?: string | null;
   trustedCompanies?:
     | {
         name?: string | null;
         id?: string | null;
       }[]
     | null;
+  featuredCoursesEyebrow?: string | null;
+  featuredCoursesHeadline?: string | null;
+  featuredCoursesBody?: string | null;
+  udemyEyebrow?: string | null;
+  udemyHeadline?: string | null;
+  udemyBody?: string | null;
+  whyUsEyebrow?: string | null;
+  whyUsHeadline?: string | null;
+  whyUsBody?: string | null;
+  categoriesEyebrow?: string | null;
+  categoriesHeadline?: string | null;
+  categoriesBody?: string | null;
+  packagesEyebrow?: string | null;
+  packagesHeadline?: string | null;
+  packagesBody?: string | null;
+  testimonialsEyebrow?: string | null;
+  testimonialsHeadline?: string | null;
+  testimonialsBody?: string | null;
+  footerHeadline?: string | null;
+  footerAddress?: string | null;
+  footerEmail?: string | null;
+  footerPhone?: string | null;
+  footerLearnTitle?: string | null;
+  footerLearnLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  footerBusinessTitle?: string | null;
+  footerBusinessLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  footerResourcesTitle?: string | null;
+  footerResourcesLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  footerSocialLinks?:
+    | {
+        platform: 'Facebook' | 'X' | 'Instagram' | 'LinkedIn' | 'YouTube';
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  footerNewsletterTitle?: string | null;
+  footerNewsletterBody?: string | null;
+  footerNewsletterPlaceholder?: string | null;
+  footerNewsletterButton?: string | null;
+  footerNewsletterNote?: string | null;
+  footerCopyright?: string | null;
+  footerLegalLinks?:
+    | {
+        label: string;
+        href: string;
+        id?: string | null;
+      }[]
+    | null;
+  finalCtaEyebrow?: string | null;
+  finalCtaSecondaryLabel?: string | null;
+  finalCtaSecondaryHref?: string | null;
   ctaHeadline?: string | null;
   ctaBody?: string | null;
   updatedAt?: string | null;
@@ -941,19 +1046,105 @@ export interface SiteConfig {
  * via the `definition` "site-config_select".
  */
 export interface SiteConfigSelect<T extends boolean = true> {
+  topbarLocation?: T;
+  topbarAnnouncement?: T;
+  topbarPhoneLabel?: T;
+  topbarPhoneHref?: T;
+  topbarSupportLabel?: T;
+  topbarSupportHref?: T;
+  topbarPartnersLabel?: T;
+  topbarPartnersHref?: T;
+  headerLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
   heroBadge?: T;
   heroHeadline?: T;
   heroLede?: T;
   statLearners?: T;
   statCourses?: T;
+  statCareerTracks?: T;
   statPlacement?: T;
   statRating?: T;
+  trustedLabel?: T;
   trustedCompanies?:
     | T
     | {
         name?: T;
         id?: T;
       };
+  featuredCoursesEyebrow?: T;
+  featuredCoursesHeadline?: T;
+  featuredCoursesBody?: T;
+  udemyEyebrow?: T;
+  udemyHeadline?: T;
+  udemyBody?: T;
+  whyUsEyebrow?: T;
+  whyUsHeadline?: T;
+  whyUsBody?: T;
+  categoriesEyebrow?: T;
+  categoriesHeadline?: T;
+  categoriesBody?: T;
+  packagesEyebrow?: T;
+  packagesHeadline?: T;
+  packagesBody?: T;
+  testimonialsEyebrow?: T;
+  testimonialsHeadline?: T;
+  testimonialsBody?: T;
+  footerHeadline?: T;
+  footerAddress?: T;
+  footerEmail?: T;
+  footerPhone?: T;
+  footerLearnTitle?: T;
+  footerLearnLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  footerBusinessTitle?: T;
+  footerBusinessLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  footerResourcesTitle?: T;
+  footerResourcesLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  footerSocialLinks?:
+    | T
+    | {
+        platform?: T;
+        href?: T;
+        id?: T;
+      };
+  footerNewsletterTitle?: T;
+  footerNewsletterBody?: T;
+  footerNewsletterPlaceholder?: T;
+  footerNewsletterButton?: T;
+  footerNewsletterNote?: T;
+  footerCopyright?: T;
+  footerLegalLinks?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        id?: T;
+      };
+  finalCtaEyebrow?: T;
+  finalCtaSecondaryLabel?: T;
+  finalCtaSecondaryHref?: T;
   ctaHeadline?: T;
   ctaBody?: T;
   updatedAt?: T;

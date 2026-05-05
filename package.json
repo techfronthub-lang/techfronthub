@@ -4,13 +4,15 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/auto-port.mjs dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node scripts/auto-port.mjs start",
     "lint": "next lint",
     "payload": "node --import tsx node_modules/payload/dist/bin/index.js",
     "db:migrate": "node scripts/with-direct-db.mjs pnpm payload migrate",
     "db:pull": "node scripts/with-direct-db.mjs pnpm exec drizzle-kit pull --config=drizzle.config.ts"
+    ,
+    "seed:course-content": "node scripts/seed-course-content.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1041.0",
@@ -19,6 +21,7 @@
     "@payloadcms/richtext-lexical": "^3",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
+    "framer-motion": "^12.38.0",
     "next": "^15",
     "payload": "^3",
     "react": "^19.2.5",

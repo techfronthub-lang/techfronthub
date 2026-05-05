@@ -8,7 +8,11 @@ function CourseCard({ c }) {
   return (
     <a href={`/courses/${c.id}`} className="course-card" style={{textDecoration: "none", color: "inherit"}}>
       <div className="course-flyer" style={{
-        background: `linear-gradient(135deg, oklch(0.96 0.03 ${c.hue || 210}), oklch(0.88 0.08 ${c.hue || 210}))`
+        background: c.thumbnail
+          ? `linear-gradient(rgba(7, 10, 20, 0.18), rgba(7, 10, 20, 0.18)), url(${c.thumbnail})`
+          : `linear-gradient(135deg, oklch(0.96 0.03 ${c.hue || 210}), oklch(0.88 0.08 ${c.hue || 210}))`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
       }}>
         {c.tag && <span className="flyer-tag" style={{opacity: c.tagHot ? 1 : 0.7}}>{c.tag}</span>}
       </div>
@@ -59,14 +63,34 @@ export default function CategoryPage({ params }) {
 
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        color: 'var(--ink-500)'
-      }}>
-        Loading...
+      <div className="category-page anim-fade">
+        <section style={{ padding: '96px 0 80px' }}>
+          <div className="container" style={{ maxWidth: 900 }}>
+            <div className="skel" style={{ width: 140, height: 14, marginBottom: 36, borderRadius: 20 }} />
+            <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', marginBottom: 48 }}>
+              <div className="skel skel-circle" style={{ width: 72, height: 72, flexShrink: 0 }} />
+              <div style={{ flex: 1 }}>
+                <div className="skel" style={{ width: 80, height: 12, marginBottom: 12 }} />
+                <div className="skel" style={{ width: '55%', height: 44, marginBottom: 14 }} />
+                <div className="skel" style={{ width: '80%', height: 14, marginBottom: 8 }} />
+                <div className="skel" style={{ width: '65%', height: 14 }} />
+              </div>
+            </div>
+            <div className="skel" style={{ height: 120, borderRadius: 16 }} />
+          </div>
+        </section>
+        <section style={{ padding: '0 0 88px' }}>
+          <div className="container">
+            <div className="skel" style={{ width: 100, height: 12, marginBottom: 14, borderRadius: 20 }} />
+            <div className="skel" style={{ width: 200, height: 36, marginBottom: 8 }} />
+            <div className="skel" style={{ width: 180, height: 13, marginBottom: 36 }} />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="skel" style={{ height: 240, borderRadius: 14 }} />
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
     )
   }
@@ -81,7 +105,7 @@ export default function CategoryPage({ params }) {
   }
 
   return (
-    <div className="category-page">
+    <div className="category-page anim-fade">
       <section className="category-hero" style={{padding: '96px 0 80px'}}>
         <div className="container" style={{maxWidth: '900px'}}>
           <Link href="/courses" style={{
@@ -100,18 +124,23 @@ export default function CategoryPage({ params }) {
           <div style={{display: 'flex', gap: 20, alignItems: 'flex-start', marginBottom: 48}}>
             <div>
               <div style={{
-                width: 56,
-                height: 56,
-                borderRadius: 14,
-                background: 'var(--brand-50)',
-                color: 'var(--brand-600)',
+                width: 72,
+                height: 72,
+                borderRadius: 18,
+                background: category.thumbnail
+                  ? `linear-gradient(rgba(7, 10, 20, 0.18), rgba(7, 10, 20, 0.18)), url(${category.thumbnail})`
+                  : 'var(--brand-50)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                color: category.thumbnail ? '#fff' : 'var(--brand-600)',
                 display: 'grid',
                 placeItems: 'center',
                 border: '1px solid var(--brand-100)',
                 fontSize: 24,
-                fontWeight: 700
+                fontWeight: 700,
+                overflow: 'hidden'
               }}>
-                {React.createElement(I[category.icon || 'Code'], { size: 28 })}
+                {!category.thumbnail ? React.createElement(I[category.icon || 'Code'], { size: 28 }) : null}
               </div>
             </div>
             <div style={{flex: 1}}>
@@ -185,7 +214,7 @@ export default function CategoryPage({ params }) {
                 color: 'var(--ink-900)',
                 fontWeight: 700
               }}>
-                {courses.length} of {category.count} courses
+                {courses.length} {courses.length === 1 ? 'course' : 'courses'}
               </h2>
               <p style={{color: 'var(--ink-500)', fontSize: 14, margin: 0}}>
                 Currently available in our catalog

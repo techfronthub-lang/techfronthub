@@ -45,16 +45,27 @@ export default function InstructorEnrollmentsPage() {
         setLoading(true)
         setError('')
 
-        const [coursesRes, enrollRes] = await Promise.all([
-          fetch(`/api/courses?where[instructor][equals]=${instructor.id}&limit=200`, { headers: authHeaders() }),
-          fetch('/api/enrollments?limit=500', { headers: authHeaders() }),
-        ])
-
+        const coursesRes = await fetch(`/api/courses?where[instructor][equals]=${instructor.id}&limit=200`, { headers: authHeaders() })
         const coursesData = await coursesRes.json()
+        const ownCourses = coursesData?.docs || []
+        const courseIds = ownCourses.map(course => course.id)
+
+        if (!mounted) return
+        setCourses(ownCourses)
+
+        if (courseIds.length === 0) {
+          setEnrollments([])
+          setLoading(false)
+          return
+        }
+
+        const enrollRes = await fetch(
+          `/api/enrollments?where[course][in]=${encodeURIComponent(JSON.stringify(courseIds))}&limit=500`,
+          { headers: authHeaders() }
+        )
         const enrollData = await enrollRes.json()
 
         if (!mounted) return
-        setCourses(coursesData?.docs || [])
         setEnrollments(enrollData?.docs || [])
         setLoading(false)
       } catch {

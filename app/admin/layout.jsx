@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { AnimatePresence, motion } from 'framer-motion'
 import { getMe, logout } from '@/src/lib/payload-api'
+import { getUserDestination, isPrivilegedAdminUser } from '@/src/lib/smart-auth'
 import './admin.css'
 
 import { AdminAuthProvider } from '@/src/components/AdminAuth'
@@ -97,23 +99,41 @@ export default function AdminLayout({ children }) {
     if (path === '/admin/login') { setLoading(false); return }
     getMe()
       .then(d => {
-        if (d?.user) setUser(d.user)
-        else router.replace('/admin/login')
+        if (!d?.user) {
+          router.replace('/login')
+          return
+        }
+        if (!isPrivilegedAdminUser(d.user)) {
+          router.replace(getUserDestination(d.user))
+          return
+        }
+        setUser(d.user)
       })
-      .catch(() => router.replace('/admin/login'))
+      .catch(() => router.replace('/login'))
       .finally(() => setLoading(false))
   }, [path, router])
 
   const handleLogout = async () => {
     await logout().catch(() => {})
     setUser(null)
-    router.replace('/admin/login')
+    router.replace('/login')
   }
 
   if (path === '/admin/login') {
     return (
       <AdminAuthProvider value={{ user, setUser }}>
-        <div style={{ background: 'var(--a-bg)', minHeight: '100vh' }}>{children}</div>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={path}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.24, ease: 'easeOut' }}
+            style={{ background: 'var(--a-bg)', minHeight: '100vh' }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </AdminAuthProvider>
     )
   }
@@ -131,7 +151,18 @@ export default function AdminLayout({ children }) {
       <div className="admin-root">
         <Sidebar user={user} onLogout={handleLogout} />
         <div className="admin-main">
-          {children}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={path}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.24, ease: 'easeOut' }}
+              style={{ minHeight: '100%' }}
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </AdminAuthProvider>

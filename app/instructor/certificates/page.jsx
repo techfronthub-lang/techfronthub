@@ -172,15 +172,45 @@ export default function CertificatesPage() {
     setError(null)
 
     const h = authHeaders()
-    Promise.all([
-      fetch(`/api/courses?where[instructor][equals]=${instructor.id}&limit=100`, { headers: h }).then(r => r.ok ? r.json() : { docs: [] }).then(d => d.docs ?? []),
-      fetch('/api/assignments?limit=200&depth=1',                                { headers: h }).then(r => r.ok ? r.json() : { docs: [] }).then(d => d.docs ?? []),
-      fetch('/api/submissions?limit=500&depth=1',                                { headers: h }).then(r => r.ok ? r.json() : { docs: [] }).then(d => d.docs ?? []),
-    ])
-      .then(([c, a, s]) => {
-        setCourses(c)
-        setAssignments(a)
-        setSubmissions(s)
+    fetch(`/api/courses?where[instructor][equals]=${instructor.id}&limit=100`, { headers: h })
+      .then(r => r.ok ? r.json() : Promise.reject(new Error(`Courses: HTTP ${r.status}`)))
+      .then(async courseData => {
+        const ownCourses = courseData.docs ?? []
+        const courseIds = ownCourses.map(course => course.id)
+
+        setCourses(ownCourses)
+
+        if (courseIds.length === 0) {
+          setAssignments([])
+          setSubmissions([])
+          setLoading(false)
+          return
+        }
+
+        const assignmentRes = await fetch(
+          `/api/assignments?where[course][in]=${encodeURIComponent(JSON.stringify(courseIds))}&limit=200&depth=1`,
+          { headers: h }
+        )
+        if (!assignmentRes.ok) throw new Error(`Assignments: HTTP ${assignmentRes.status}`)
+        const assignmentData = await assignmentRes.json()
+        const ownAssignments = assignmentData.docs ?? []
+        const assignmentIds = ownAssignments.map(assignment => assignment.id)
+
+        setAssignments(ownAssignments)
+
+        if (assignmentIds.length === 0) {
+          setSubmissions([])
+          setLoading(false)
+          return
+        }
+
+        const submissionRes = await fetch(
+          `/api/submissions?where[assignment][in]=${encodeURIComponent(JSON.stringify(assignmentIds))}&limit=500&depth=1`,
+          { headers: h }
+        )
+        if (!submissionRes.ok) throw new Error(`Submissions: HTTP ${submissionRes.status}`)
+        const submissionData = await submissionRes.json()
+        setSubmissions(submissionData.docs ?? [])
         setLoading(false)
       })
       .catch(err => {

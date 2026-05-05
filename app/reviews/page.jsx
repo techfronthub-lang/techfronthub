@@ -1,93 +1,17 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { I } from '@/src/components/Icons'
 
-function TestimonialCard({ t }) {
-  return (
-    <div className="testimonial-card" style={{
-      background: 'var(--canvas)',
-      border: '1px solid var(--ink-100)',
-      borderRadius: 16,
-      padding: 32,
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative',
-      transition: 'all 0.2s ease',
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.borderColor = 'var(--brand-300)'
-      e.currentTarget.style.boxShadow = '0 8px 24px rgba(37, 99, 235, 0.12)'
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.borderColor = 'var(--ink-100)'
-      e.currentTarget.style.boxShadow = 'none'
-    }}>
-      {/* Rating Stars */}
-      <div style={{
-        display: 'flex',
-        gap: 4,
-        marginBottom: 20,
-        fontSize: 16,
-      }}>
-        {[...Array(5)].map((_, i) => (
-          <span key={i} style={{ color: '#f59e0b' }}>★</span>
-        ))}
-      </div>
+const fadeUp = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+}
 
-      {/* Quote */}
-      <p style={{
-        fontSize: 15,
-        color: 'var(--ink-700)',
-        margin: '0 0 24px',
-        lineHeight: 1.7,
-        fontStyle: 'italic',
-        flex: 1,
-      }}>
-        "{t.quote}"
-      </p>
-
-      {/* Author */}
-      <div style={{
-        display: 'flex',
-        gap: 12,
-        alignItems: 'flex-start',
-        paddingTop: 20,
-        borderTop: '1px solid var(--ink-100)',
-      }}>
-        <div style={{
-          width: 44,
-          height: 44,
-          borderRadius: 50,
-          background: 'linear-gradient(135deg, var(--brand-500), var(--brand-600))',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#fff',
-          fontSize: 14,
-          fontWeight: 700,
-        }}>
-          {t.initials}
-        </div>
-        <div>
-          <div style={{
-            fontSize: 14,
-            fontWeight: 700,
-            color: 'var(--ink-900)',
-            marginBottom: 2,
-          }}>
-            {t.name}
-          </div>
-          <div style={{
-            fontSize: 13,
-            color: 'var(--ink-500)',
-          }}>
-            {t.role}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.04 } },
 }
 
 export default function ReviewsPage() {
@@ -95,192 +19,122 @@ export default function ReviewsPage() {
   const [testimonials, setTestimonials] = useState([])
 
   useEffect(() => {
-    const BASE = '/api'
-    fetch(`${BASE}/testimonials?limit=100`)
+    fetch('/api/testimonials?limit=100')
       .then(r => r.json())
-      .then(data => {
-        setTestimonials(data.docs || [])
-      })
+      .then(data => setTestimonials(data.docs || []))
       .catch(() => setTestimonials([]))
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) {
-    return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        color: 'var(--ink-500)',
-      }}>
-        Loading reviews...
-      </div>
-    )
-  }
-
   return (
-    <div>
-      {/* Hero Section */}
-      <section style={{ padding: '120px 0 80px', background: 'linear-gradient(135deg, var(--brand-50), rgba(37, 99, 235, 0.05))' }}>
-        <div className="container" style={{ maxWidth: '900px' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              fontSize: 12,
-              fontWeight: 700,
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              color: 'var(--brand-600)',
-              marginBottom: 16,
-            }}>
-              Student Success Stories
-            </div>
-            <h1 style={{
-              fontSize: 56,
-              margin: '0 0 20px',
-              color: 'var(--ink-900)',
-              fontWeight: 700,
-              lineHeight: 1.1,
-            }}>
-              Hear From Our Learners
-            </h1>
-            <p style={{
-              fontSize: 17,
-              color: 'var(--ink-600)',
-              margin: '0 auto',
-              maxWidth: 600,
-              lineHeight: 1.6,
-            }}>
-              Real stories from real learners who've transformed their careers through TECHFRONT HUB programs.
-            </p>
+    <div style={{ background: 'var(--paper)', minHeight: '100vh' }}>
+
+      {/* Hero */}
+      <section style={{ padding: '110px 0 80px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: 'radial-gradient(800px 500px at 60% -10%, rgba(37,99,235,0.18), transparent 65%), radial-gradient(600px 400px at 5% 80%, rgba(37,99,235,0.10), transparent 60%)',
+        }} />
+        <div className="container" style={{ maxWidth: 860, position: 'relative', textAlign: 'center' }}>
+          <div className="eyebrow anim-fade-up" style={{ marginBottom: 16 }}>Student stories</div>
+          <h1 className="anim-fade-up d1" style={{
+            fontSize: 'clamp(36px, 5vw, 58px)',
+            fontWeight: 700,
+            letterSpacing: '-0.03em',
+            lineHeight: 1.08,
+            margin: '0 0 20px',
+            color: '#fff',
+          }}>
+            Careers Built in Months,<br />Not Years
+          </h1>
+          <p className="anim-fade-up d2" style={{
+            fontSize: 17,
+            color: 'var(--ink-400)',
+            maxWidth: 560,
+            margin: '0 auto 36px',
+            lineHeight: 1.65,
+          }}>
+            Real stories from real learners who've transformed their careers through TECHFRONT HUB.
+          </p>
+          <div className="anim-fade-up d3" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="/courses" className="btn btn-primary btn-lg">Start Learning <I.Arrow size={16} /></a>
+            <a href="/programs" className="btn btn-ghost btn-lg">View Programs</a>
           </div>
         </div>
       </section>
 
-      {/* Testimonials Grid */}
-      <section style={{ padding: '96px 0' }}>
+      {/* Stats strip */}
+      <section style={{ borderTop: '1px solid var(--ink-100)', borderBottom: '1px solid var(--ink-100)', padding: '40px 0' }}>
         <div className="container">
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-            gap: 32,
-          }}>
-            {testimonials.map((t) => (
-              <TestimonialCard key={t.id} t={t} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, textAlign: 'center' }}>
+            {[
+              { value: `${testimonials.length || '—'}+`, label: 'Success Stories' },
+              { value: '4.8★', label: 'Average Rating' },
+              { value: '87%', label: 'Job Placement Rate' },
+            ].map(({ value, label }) => (
+              <div key={label}>
+                <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--brand-500)', letterSpacing: '-0.02em' }}>{value}</div>
+                <div style={{ fontSize: 14, color: 'var(--ink-400)', marginTop: 4 }}>{label}</div>
+              </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          {testimonials.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--ink-500)' }}>
-              <p>No reviews available yet.</p>
+      {/* Testimonials grid */}
+      <section className="testimonials" style={{ paddingTop: 80, paddingBottom: 100, borderTop: 'none' }}>
+        <div className="container">
+          {loading ? (
+            <div className="t-grid">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="skel-card" style={{ minHeight: 220 }} />
+              ))}
             </div>
+          ) : testimonials.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '80px 20px', color: 'var(--ink-500)' }}>
+              <p style={{ fontSize: 16 }}>No reviews yet — check back soon.</p>
+            </div>
+          ) : (
+            <motion.div className="t-grid" variants={stagger} initial="hidden" animate="visible">
+              {testimonials.map((t, i) => (
+                <motion.div key={t.id ?? i} className="t-card" variants={fadeUp}>
+                  <div className="t-stars">★★★★★</div>
+                  <div className="quote">"{t.quote}"</div>
+                  <div className="person">
+                    <div className="avatar">{t.initials}</div>
+                    <div>
+                      <b>{t.name}</b>
+                      <span>{t.role}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
           )}
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section style={{ background: 'var(--ink-50)', padding: '80px 0' }}>
-        <div className="container">
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: 40,
-            textAlign: 'center',
-          }}>
-            <div>
-              <div style={{
-                fontSize: 36,
-                fontWeight: 700,
-                color: 'var(--brand-600)',
-                marginBottom: 8,
-              }}>
-                {testimonials.length}+
-              </div>
-              <div style={{
-                fontSize: 15,
-                color: 'var(--ink-600)',
-              }}>
-                Success Stories
-              </div>
-            </div>
-            <div>
-              <div style={{
-                fontSize: 36,
-                fontWeight: 700,
-                color: 'var(--brand-600)',
-                marginBottom: 8,
-              }}>
-                4.8★
-              </div>
-              <div style={{
-                fontSize: 15,
-                color: 'var(--ink-600)',
-              }}>
-                Average Rating
-              </div>
-            </div>
-            <div>
-              <div style={{
-                fontSize: 36,
-                fontWeight: 700,
-                color: 'var(--brand-600)',
-                marginBottom: 8,
-              }}>
-                87%
-              </div>
-              <div style={{
-                fontSize: 15,
-                color: 'var(--ink-600)',
-              }}>
-                Job Placement Rate
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section style={{ background: '#020617', color: '#fff', padding: '96px 0', position: 'relative', overflow: 'hidden' }}>
+      {/* CTA */}
+      <section style={{ background: '#020617', padding: '96px 0', position: 'relative', overflow: 'hidden' }}>
         <div style={{
-          position: 'absolute',
-          inset: 0,
+          position: 'absolute', inset: 0, pointerEvents: 'none',
           background: 'radial-gradient(700px 400px at 20% 100%, rgba(37,99,235,0.35), transparent 60%), radial-gradient(600px 400px at 90% -10%, rgba(37,99,235,0.2), transparent 60%)',
-          pointerEvents: 'none',
         }} />
         <div className="container" style={{ position: 'relative', textAlign: 'center' }}>
-          <div style={{
-            fontSize: 12,
-            fontWeight: 700,
-            letterSpacing: '0.14em',
-            textTransform: 'uppercase',
-            color: 'var(--brand-200)',
-            marginBottom: 12,
-          }}>
-            Ready for Your Transformation?
-          </div>
-          <h2 style={{
-            fontSize: 48,
-            letterSpacing: '-0.025em',
-            lineHeight: 1.05,
-            margin: '12px auto 14px',
-            maxWidth: 800,
-          }}>
+          <div className="eyebrow" style={{ color: 'var(--brand-200)', marginBottom: 12 }}>Ready for your transformation?</div>
+          <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', letterSpacing: '-0.025em', lineHeight: 1.05, margin: '0 auto 16px', maxWidth: 700, color: '#fff' }}>
             Start Your Journey Today
           </h2>
-          <p style={{
-            color: 'rgba(255,255,255,0.72)',
-            fontSize: 17,
-            maxWidth: 560,
-            margin: '0 auto 28px',
-          }}>
+          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 17, maxWidth: 520, margin: '0 auto 32px', lineHeight: 1.6 }}>
             Join thousands of learners who've achieved their career goals through hands-on learning and expert mentorship.
           </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <a href="/courses" className="btn btn-primary btn-lg">Explore Courses <I.Arrow size={16} /></a>
             <a href="/programs" className="btn btn-lg" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>View Programs</a>
           </div>
         </div>
       </section>
+
     </div>
   )
 }

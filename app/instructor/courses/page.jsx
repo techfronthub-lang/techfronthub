@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { useInstructor } from '../context'
 
@@ -64,19 +64,35 @@ function IconFire() {
     </svg>
   )
 }
+function IconSearch() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" />
+      <line x1="16.65" y1="16.65" x2="21" y2="21" />
+    </svg>
+  )
+}
 
 /* ── Course card ──────────────────────────────────────────────────────────── */
 function CourseCard({ course, onDelete }) {
   const hue = course.hue ?? 214
-  const bannerStyle = {
-    background: `linear-gradient(135deg, oklch(0.35 0.08 ${hue}), oklch(0.18 0.06 ${hue}))`,
-  }
+  const bannerStyle = course.thumbnail
+    ? {
+        backgroundImage: `linear-gradient(135deg, rgba(7, 10, 20, 0.18), rgba(7, 10, 20, 0.18)), url(${course.thumbnail})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }
+    : {
+        background: `linear-gradient(135deg, oklch(0.35 0.08 ${hue}), oklch(0.18 0.06 ${hue}))`,
+      }
 
   const metaParts = [
     course.level,
     course.duration,
     course.lessons != null ? `${course.lessons} lessons` : null,
   ].filter(Boolean)
+
+  const status = course.tag || course.level || 'DRAFT'
 
   return (
     <div className="i-course-card">
@@ -96,7 +112,10 @@ function CourseCard({ course, onDelete }) {
 
       {/* Body */}
       <div className="i-course-card-body">
-        <h3 className="i-course-card-title">{course.title ?? 'Untitled Course'}</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+          <h3 className="i-course-card-title" style={{ marginBottom: 0 }}>{course.title ?? 'Untitled Course'}</h3>
+          <span className="i-badge i-badge-purple">{status}</span>
+        </div>
         {course.desc && (
           <p className="i-course-card-desc">{course.desc}</p>
         )}
@@ -145,6 +164,8 @@ export default function CoursesPage() {
   const instructor = ctx?.instructor
 
   const [courses, setCourses]   = useState([])
+  const [query, setQuery]       = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState(null)
   const [deleting, setDeleting] = useState(null) // course id being deleted
@@ -162,6 +183,22 @@ export default function CoursesPage() {
       .then(data => { setCourses(data.docs ?? []); setLoading(false) })
       .catch(err  => { setError(err.message); setLoading(false) })
   }, [instructor?.id])
+
+  const filteredCourses = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return courses.filter(course => {
+      const matchesQuery =
+        !q ||
+        [course.title, course.code, course.desc, course.level, course.tag]
+          .filter(Boolean)
+          .some(v => String(v).toLowerCase().includes(q))
+      const matchesStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'tagged' && !!course.tag) ||
+        (statusFilter === 'draft' && !course.tag)
+      return matchesQuery && matchesStatus
+    })
+  }, [courses, query, statusFilter])
 
   /* Delete a course */
   async function handleDelete(course) {
@@ -190,12 +227,38 @@ export default function CoursesPage() {
         <div>
           <h1 className="i-page-title">My Courses</h1>
           <p className="i-page-subtitle">
-            {loading ? 'Loading…' : `${courses.length} course${courses.length !== 1 ? 's' : ''}`}
+            {loading ? 'Loading…' : `${filteredCourses.length} of ${courses.length} course${courses.length !== 1 ? 's' : ''}`}
           </p>
         </div>
         <Link href="/instructor/courses/create" className="i-btn i-btn-primary">
           <IconPlus /> New Course
         </Link>
+      </div>
+
+      <div className="i-card i-card-pad" style={{ marginBottom: 18 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: 12 }}>
+          <label className="i-field" style={{ marginBottom: 0 }}>
+            <span className="i-label">Search</span>
+            <div style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--i-muted)' }}><IconSearch /></span>
+              <input
+                className="i-input"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search by title, code, tag, or level"
+                style={{ paddingLeft: 38 }}
+              />
+            </div>
+          </label>
+          <label className="i-field" style={{ marginBottom: 0 }}>
+            <span className="i-label">Filter</span>
+            <select className="i-select" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+              <option value="all">All courses</option>
+              <option value="tagged">Tagged courses</option>
+              <option value="draft">Draft / no tag</option>
+            </select>
+          </label>
+        </div>
       </div>
 
       {/* Error */}
@@ -225,9 +288,9 @@ export default function CoursesPage() {
       )}
 
       {/* Courses grid */}
-      {!loading && !error && courses.length > 0 && (
+      {!loading && !error && filteredCourses.length > 0 && (
         <div className="i-course-grid">
-          {courses.map(course => (
+          {filteredCourses.map(course => (
             <div
               key={course.id}
               style={{ opacity: deleting === course.id ? 0.4 : 1, pointerEvents: deleting === course.id ? 'none' : 'auto', transition: 'opacity 0.2s' }}
@@ -239,17 +302,17 @@ export default function CoursesPage() {
       )}
 
       {/* Empty state */}
-      {!loading && !error && courses.length === 0 && (
+      {!loading && !error && filteredCourses.length === 0 && (
         <div className="i-empty">
           <div className="i-empty-icon">
             <IconBook />
           </div>
-          <h2 className="i-empty-title">No courses yet</h2>
+          <h2 className="i-empty-title">{courses.length === 0 ? 'No courses yet' : 'No matching courses'}</h2>
           <p className="i-empty-text">
-            Create your first course to start teaching on TechFront.
+            {courses.length === 0 ? 'Create your first course to start teaching on TechFront.' : 'Try a different search or filter.'}
           </p>
           <Link href="/instructor/courses/create" className="i-btn i-btn-primary">
-            <IconPlus /> Create Your First Course
+            <IconPlus /> {courses.length === 0 ? 'Create Your First Course' : 'New Course'}
           </Link>
         </div>
       )}

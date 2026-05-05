@@ -308,19 +308,31 @@ export default function AnnouncementsPage() {
     setLoading(true)
     setError(null)
 
-    Promise.all([
-      fetch(
-        `/api/courses?where[instructor][equals]=${instructor.id}&limit=100`,
-        { headers: authHeaders() }
-      ).then(r => r.ok ? r.json() : Promise.reject(new Error(`Courses: HTTP ${r.status}`))),
+    fetch(
+      `/api/courses?where[instructor][equals]=${instructor.id}&limit=100`,
+      { headers: authHeaders() }
+    )
+      .then(r => r.ok ? r.json() : Promise.reject(new Error(`Courses: HTTP ${r.status}`)))
+      .then(async courseData => {
+        const ownCourses = courseData.docs ?? []
+        const ownCourseIds = ownCourses.map(c => c.id)
 
-      fetch(
-        `/api/announcements?limit=50&sort=-createdAt&depth=1`,
-        { headers: authHeaders() }
-      ).then(r => r.ok ? r.json() : Promise.reject(new Error(`Announcements: HTTP ${r.status}`))),
-    ])
-      .then(([courseData, announcementData]) => {
-        setCourses(courseData.docs ?? [])
+        setCourses(ownCourses)
+
+        if (ownCourseIds.length === 0) {
+          setAnnouncements([])
+          setLoading(false)
+          return
+        }
+
+        const announcementRes = await fetch(
+          `/api/announcements?where[course][in]=${encodeURIComponent(JSON.stringify(ownCourseIds))}&limit=100&sort=-createdAt&depth=1`,
+          { headers: authHeaders() }
+        )
+        if (!announcementRes.ok) {
+          throw new Error(`Announcements: HTTP ${announcementRes.status}`)
+        }
+        const announcementData = await announcementRes.json()
         setAnnouncements(announcementData.docs ?? [])
         setLoading(false)
       })

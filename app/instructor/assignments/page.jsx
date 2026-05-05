@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useInstructor } from '../context'
 
-/* ── Auth helper ──────────────────────────────────────────────────────────── */
+/* â”€â”€ Auth helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function authHeaders() {
   const token = typeof window !== 'undefined'
     ? localStorage.getItem('instructor-token')
@@ -12,7 +12,7 @@ function authHeaders() {
   return { Authorization: `JWT ${token}`, 'Content-Type': 'application/json' }
 }
 
-/* ── Date helpers ─────────────────────────────────────────────────────────── */
+/* â”€â”€ Date helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function formatDate(str) {
   if (!str) return 'No due date'
   try {
@@ -24,7 +24,7 @@ function formatDate(str) {
   }
 }
 
-/* ── Inline SVG icons ─────────────────────────────────────────────────────── */
+/* â”€â”€ Inline SVG icons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function IconPlus() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16" aria-hidden="true">
@@ -84,29 +84,8 @@ function IconAlert() {
   )
 }
 
-/* ── Submission count cell ────────────────────────────────────────────────── */
-function SubmissionCount({ assignmentId }) {
-  const [count, setCount] = useState(null)
-
-  useEffect(() => {
-    let cancelled = false
-    fetch(
-      `/api/submissions?where[assignment][equals]=${assignmentId}&limit=0`,
-      { headers: authHeaders() }
-    )
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => { if (!cancelled) setCount(data.totalDocs ?? 0) })
-      .catch(() => { if (!cancelled) setCount('—') })
-    return () => { cancelled = true }
-  }, [assignmentId])
-
-  if (count === null) {
-    return <span style={{ display: 'inline-block', width: 28, height: 14, borderRadius: 4, background: '#e2e8f0', animation: 'i-pulse 1.4s ease-in-out infinite' }} />
-  }
-  return <span>{count}</span>
-}
-
-/* ── Inline create form ───────────────────────────────────────────────────── */
+/* â”€â”€ Submission count cell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* â”€â”€ Inline create form â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function CreateForm({ courses, onCreated, onCancel }) {
   const [form, setForm] = useState({
     course: '',
@@ -195,7 +174,7 @@ function CreateForm({ courses, onCreated, onCancel }) {
               onChange={e => set('course', e.target.value)}
               required
             >
-              <option value="">Select a course…</option>
+              <option value="">Select a courseâ€¦</option>
               {courses.map(c => (
                 <option key={c.id} value={c.id}>{c.title}</option>
               ))}
@@ -245,7 +224,7 @@ function CreateForm({ courses, onCreated, onCancel }) {
             <textarea
               className="i-textarea"
               rows={3}
-              placeholder="Describe the assignment requirements…"
+              placeholder="Describe the assignment requirementsâ€¦"
               value={form.description}
               onChange={e => set('description', e.target.value)}
             />
@@ -258,7 +237,7 @@ function CreateForm({ courses, onCreated, onCancel }) {
           </button>
           <button type="submit" className="i-btn i-btn-primary" disabled={saving}>
             {saving
-              ? <><span className="i-spinner" style={{ width: 14, height: 14, borderWidth: 2 }} /> Saving…</>
+              ? <><span className="i-spinner" style={{ width: 14, height: 14, borderWidth: 2 }} /> Savingâ€¦</>
               : <><IconPlus /> Create Assignment</>
             }
           </button>
@@ -268,20 +247,21 @@ function CreateForm({ courses, onCreated, onCancel }) {
   )
 }
 
-/* ── Page ─────────────────────────────────────────────────────────────────── */
+/* â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export default function AssignmentsPage() {
   const ctx        = useInstructor()
   const instructor = ctx?.instructor
 
   const [assignments,     setAssignments]     = useState([])
   const [courses,         setCourses]         = useState([])
+  const [submissions,     setSubmissions]     = useState([])
   const [loading,         setLoading]         = useState(true)
   const [error,           setError]           = useState(null)
   const [showForm,        setShowForm]        = useState(false)
   const [selectedCourse,  setSelectedCourse]  = useState('')
   const [deleting,        setDeleting]        = useState(null)
 
-  /* ── Load data ── */
+  /* â”€â”€ Load data â”€â”€ */
   const load = useCallback(() => {
     if (!instructor?.id) return
     setLoading(true)
@@ -299,16 +279,36 @@ export default function AssignmentsPage() {
       ).then(r => r.ok ? r.json() : Promise.reject(new Error(`Assignments: HTTP ${r.status}`))),
     ])
       .then(([courseData, assignData]) => {
-        setCourses(courseData.docs ?? [])
-        setAssignments(assignData.docs ?? [])
-        setLoading(false)
+        const ownCourses = courseData.docs ?? []
+        const ownAssignments = assignData.docs ?? []
+        const assignmentIds = ownAssignments.map(assignment => assignment.id)
+
+        setCourses(ownCourses)
+        setAssignments(ownAssignments)
+
+        if (assignmentIds.length === 0) {
+          setSubmissions([])
+          setLoading(false)
+          return
+        }
+
+        fetch(
+          `/api/submissions?where[assignment][in]=${encodeURIComponent(JSON.stringify(assignmentIds))}&limit=1000&sort=-createdAt`,
+          { headers: authHeaders() }
+        )
+          .then(r => r.ok ? r.json() : Promise.reject(new Error(`Submissions: HTTP ${r.status}`)))
+          .then(subData => {
+            setSubmissions(subData.docs ?? [])
+            setLoading(false)
+          })
+          .catch(err => { throw err })
       })
       .catch(err => { setError(err.message); setLoading(false) })
   }, [instructor?.id])
 
   useEffect(() => { load() }, [load])
 
-  /* ── Delete ── */
+  /* â”€â”€ Delete â”€â”€ */
   async function handleDelete(assignment) {
     if (!window.confirm(`Delete "${assignment.title}"? This cannot be undone.`)) return
     setDeleting(assignment.id)
@@ -326,7 +326,7 @@ export default function AssignmentsPage() {
     }
   }
 
-  /* ── Filter ── */
+  /* â”€â”€ Filter â”€â”€ */
   const visible = selectedCourse
     ? assignments.filter(a => {
         const cid = a.course?.id ?? a.course
@@ -334,14 +334,23 @@ export default function AssignmentsPage() {
       })
     : assignments
 
-  /* ── Helpers ── */
+  /* â”€â”€ Helpers â”€â”€ */
   function courseTitle(assignment) {
     if (assignment.course && typeof assignment.course === 'object') return assignment.course.title ?? '—'
     const found = courses.find(c => c.id === assignment.course)
     return found?.title ?? '—'
   }
 
-  /* ── Render ── */
+  const submissionCounts = submissions.reduce((acc, submission) => {
+    const assignmentId = typeof submission.assignment === 'string'
+      ? submission.assignment
+      : submission.assignment?.id
+    if (!assignmentId) return acc
+    acc[assignmentId] = (acc[assignmentId] || 0) + 1
+    return acc
+  }, {})
+
+  /* â”€â”€ Render â”€â”€ */
   return (
     <div className="i-content">
 
@@ -351,7 +360,7 @@ export default function AssignmentsPage() {
           <h1>Assignments</h1>
           <p>
             {loading
-              ? 'Loading…'
+              ? 'Loadingâ€¦'
               : `${assignments.length} assignment${assignments.length !== 1 ? 's' : ''} across all courses`}
           </p>
         </div>
@@ -483,7 +492,10 @@ export default function AssignmentsPage() {
 
                     {/* Submissions */}
                     <td style={{ textAlign: 'right' }}>
-                      <SubmissionCount assignmentId={a.id} />
+                      {loading
+                        ? <span style={{ display: 'inline-block', width: 28, height: 14, borderRadius: 4, background: '#e2e8f0', animation: 'i-pulse 1.4s ease-in-out infinite' }} />
+                        : (submissionCounts[a.id] ?? 0)
+                      }
                     </td>
 
                     {/* Actions */}
@@ -541,3 +553,5 @@ export default function AssignmentsPage() {
     </div>
   )
 }
+
+

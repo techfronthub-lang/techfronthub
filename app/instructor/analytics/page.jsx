@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useInstructor } from '../context'
 
-/* ── Auth helper ──────────────────────────────────────────────────────────── */
+/* â”€â”€ Auth helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function authHeaders() {
   const token = typeof window !== 'undefined'
     ? localStorage.getItem('instructor-token')
@@ -11,7 +11,7 @@ function authHeaders() {
   return { Authorization: `JWT ${token}` }
 }
 
-/* ── Inline SVG icons ─────────────────────────────────────────────────────── */
+/* â”€â”€ Inline SVG icons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function IconBook() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22" aria-hidden="true">
@@ -55,7 +55,7 @@ function IconEmpty() {
   )
 }
 
-/* ── Stat card ────────────────────────────────────────────────────────────── */
+/* â”€â”€ Stat card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function StatCard({ label, value, color, icon, loading }) {
   return (
     <div className={`i-stat i-stat-${color}`}>
@@ -70,7 +70,7 @@ function StatCard({ label, value, color, icon, loading }) {
   )
 }
 
-/* ── Bar chart ────────────────────────────────────────────────────────────── */
+/* â”€â”€ Bar chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const BAR_MAX_H = 140
 
 function BarChart({ bars }) {
@@ -100,24 +100,24 @@ function BarChart({ bars }) {
   )
 }
 
-/* ── Helpers ──────────────────────────────────────────────────────────────── */
+/* â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function fmtDate(iso) {
-  if (!iso) return '—'
+  if (!iso) return 'â€”'
   try {
     return new Date(iso).toLocaleDateString('en-NG', {
       day: 'numeric', month: 'short', year: 'numeric',
     })
   } catch {
-    return '—'
+    return 'â€”'
   }
 }
 
 function truncate(str, n) {
-  if (!str) return '—'
-  return str.length > n ? str.slice(0, n) + '…' : str
+  if (!str) return 'â€”'
+  return str.length > n ? str.slice(0, n) + 'â€¦' : str
 }
 
-/* ── Page ─────────────────────────────────────────────────────────────────── */
+/* â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export default function AnalyticsPage() {
   const ctx        = useInstructor()
   const instructor = ctx?.instructor
@@ -135,17 +135,58 @@ export default function AnalyticsPage() {
     setError(null)
 
     const h = authHeaders()
-    Promise.all([
-      fetch(`/api/courses?where[instructor][equals]=${instructor.id}&limit=100`,      { headers: h }).then(r => r.ok ? r.json() : { docs: [] }).then(d => d.docs ?? []),
-      fetch('/api/assignments?limit=100',                                              { headers: h }).then(r => r.ok ? r.json() : { docs: [] }).then(d => d.docs ?? []),
-      fetch('/api/submissions?limit=100&sort=-createdAt',                             { headers: h }).then(r => r.ok ? r.json() : { docs: [] }).then(d => d.docs ?? []),
-      fetch('/api/announcements?limit=100',                                            { headers: h }).then(r => r.ok ? r.json() : { docs: [] }).then(d => d.docs ?? []),
-    ])
-      .then(([c, a, s, n]) => {
-        setCourses(c)
-        setAssignments(a)
-        setSubmissions(s)
-        setAnnouncements(n)
+    fetch(`/api/courses?where[instructor][equals]=${instructor.id}&limit=100`, { headers: h })
+      .then(r => r.ok ? r.json() : Promise.reject(new Error(`Courses: HTTP ${r.status}`)))
+      .then(async courseData => {
+        const ownCourses = courseData.docs ?? []
+        const courseIds = ownCourses.map(course => course.id)
+
+        setCourses(ownCourses)
+
+        if (courseIds.length === 0) {
+          setAssignments([])
+          setSubmissions([])
+          setAnnouncements([])
+          setLoading(false)
+          return
+        }
+
+        const [assignRes, announcementRes] = await Promise.all([
+          fetch(
+            `/api/assignments?where[course][in]=${encodeURIComponent(JSON.stringify(courseIds))}&limit=100&depth=1`,
+            { headers: h }
+          ),
+          fetch(
+            `/api/announcements?where[course][in]=${encodeURIComponent(JSON.stringify(courseIds))}&limit=100&depth=1`,
+            { headers: h }
+          ),
+        ])
+
+        if (!assignRes.ok) throw new Error(`Assignments: HTTP ${assignRes.status}`)
+        if (!announcementRes.ok) throw new Error(`Announcements: HTTP ${announcementRes.status}`)
+
+        const [assignData, announcementData] = await Promise.all([assignRes.json(), announcementRes.json()])
+        const ownAssignments = assignData.docs ?? []
+        const assignmentIds = ownAssignments.map(assignment => assignment.id)
+        const ownAnnouncements = announcementData.docs ?? []
+
+        setAssignments(ownAssignments)
+        setAnnouncements(ownAnnouncements)
+
+        if (assignmentIds.length === 0) {
+          setSubmissions([])
+          setLoading(false)
+          return
+        }
+
+        const submissionRes = await fetch(
+          `/api/submissions?where[assignment][in]=${encodeURIComponent(JSON.stringify(assignmentIds))}&limit=100&depth=1&sort=-createdAt`,
+          { headers: h }
+        )
+        if (!submissionRes.ok) throw new Error(`Submissions: HTTP ${submissionRes.status}`)
+
+        const submissionData = await submissionRes.json()
+        setSubmissions(submissionData.docs ?? [])
         setLoading(false)
       })
       .catch(err => {
@@ -154,7 +195,7 @@ export default function AnalyticsPage() {
       })
   }, [instructor?.id])
 
-  /* ── Derived counts ── */
+  /* â”€â”€ Derived counts â”€â”€ */
   const gradedCount = submissions.filter(s => s.status === 'graded').length
 
   const statusCounts = {
@@ -197,19 +238,19 @@ export default function AnalyticsPage() {
     }
   })
 
-  /* ── Loading state ── */
+  /* â”€â”€ Loading state â”€â”€ */
   if (loading) {
     return (
       <div className="i-page">
         <div className="i-loading">
           <div className="i-spinner" />
-          Loading analytics…
+          Loading analyticsâ€¦
         </div>
       </div>
     )
   }
 
-  /* ── Error state ── */
+  /* â”€â”€ Error state â”€â”€ */
   if (error) {
     return (
       <div className="i-page">
@@ -220,7 +261,7 @@ export default function AnalyticsPage() {
     )
   }
 
-  /* ── Render ── */
+  /* â”€â”€ Render â”€â”€ */
   return (
     <div className="i-page">
 
@@ -232,7 +273,7 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* ── Stats row ── */}
+      {/* â”€â”€ Stats row â”€â”€ */}
       <div className="i-stats-grid">
         <StatCard label="Total Courses"       value={courses.length}       color="blue"   icon={<IconBook />}       loading={false} />
         <StatCard label="Total Assignments"   value={assignments.length}   color="purple" icon={<IconClipboard />}  loading={false} />
@@ -240,7 +281,7 @@ export default function AnalyticsPage() {
         <StatCard label="Graded Submissions"  value={gradedCount}          color="orange" icon={<IconCheckCircle />} loading={false} />
       </div>
 
-      {/* ── Two columns: status chart + courses table ── */}
+      {/* â”€â”€ Two columns: status chart + courses table â”€â”€ */}
       <div className="i-two-col">
 
         {/* LEFT: Submissions by Status */}
@@ -288,18 +329,18 @@ export default function AnalyticsPage() {
                       const aCount = assignmentsForCourse(course.id).length
                       return (
                         <tr key={course.id}>
-                          <td style={{ fontWeight: 500 }}>{course.title ?? '—'}</td>
+                          <td style={{ fontWeight: 500 }}>{course.title ?? 'â€”'}</td>
                           <td>
                             {course.tag
                               ? <span className="i-badge i-badge-purple">{course.tag}</span>
-                              : <span className="i-muted">—</span>
+                              : <span className="i-muted">â€”</span>
                             }
                           </td>
-                          <td>{course.level ?? <span className="i-muted">—</span>}</td>
+                          <td>{course.level ?? <span className="i-muted">â€”</span>}</td>
                           <td>
                             {course.price != null
-                              ? `₦${Number(course.price).toLocaleString()}`
-                              : <span className="i-muted">—</span>
+                              ? `â‚¦${Number(course.price).toLocaleString()}`
+                              : <span className="i-muted">â€”</span>
                             }
                           </td>
                           <td style={{ textAlign: 'right' }}>{aCount}</td>
@@ -314,7 +355,7 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* ── Recent Graded Submissions ── */}
+      {/* â”€â”€ Recent Graded Submissions â”€â”€ */}
       <div className="i-card">
         <div className="i-card-header">
           <h2 className="i-card-title">Recent Graded Submissions</h2>
@@ -342,11 +383,11 @@ export default function AnalyticsPage() {
                   {recentGraded.map(sub => (
                     <tr key={sub.id}>
                       <td style={{ fontFamily: 'monospace', fontSize: '0.82rem' }}>
-                        {sub.studentEmail ?? sub.student?.email ?? '—'}
+                        {sub.studentEmail ?? sub.student?.email ?? 'â€”'}
                       </td>
-                      <td>{sub.assignment?.title ?? '—'}</td>
+                      <td>{sub.assignment?.title ?? 'â€”'}</td>
                       <td style={{ textAlign: 'right', fontWeight: 600 }}>
-                        {sub.grade != null ? sub.grade : '—'}
+                        {sub.grade != null ? sub.grade : 'â€”'}
                       </td>
                       <td style={{ color: 'var(--i-muted)', fontSize: '0.82rem' }}>
                         {truncate(sub.feedback, 60)}
@@ -363,7 +404,7 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* ── Assignment Completion bar chart ── */}
+      {/* â”€â”€ Assignment Completion bar chart â”€â”€ */}
       <div className="i-card">
         <div className="i-card-header">
           <h2 className="i-card-title">Assignment Completion</h2>

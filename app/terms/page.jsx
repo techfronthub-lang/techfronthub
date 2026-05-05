@@ -10,13 +10,13 @@ export default function TermsPage() {
           fontSize: 48,
           fontWeight: 700,
           margin: '0 0 40px',
-          color: 'var(--ink-50)',
+          color: '#000000',
         }}>
           Terms and Conditions
         </h1>
 
-        <div style={{ color: 'var(--ink-500)', lineHeight: 1.8, fontSize: 16 }}>
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+        <div style={{ color: '#000000', lineHeight: 1.8, fontSize: 16 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             1. Agreement to Terms
           </h2>
           <p>
@@ -24,7 +24,7 @@ export default function TermsPage() {
             agreement. If you do not agree to abide by the above, please do not use this service.
           </p>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             2. Use License
           </h2>
           <p>
@@ -40,7 +40,7 @@ export default function TermsPage() {
             <li>Attempt to gain unauthorized access to restricted portions of the website</li>
           </ul>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             3. Disclaimer
           </h2>
           <p>
@@ -50,7 +50,7 @@ export default function TermsPage() {
             of intellectual property or other violation of rights.
           </p>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             4. Limitations
           </h2>
           <p>
@@ -59,7 +59,7 @@ export default function TermsPage() {
             use the materials on TECHFRONT HUB.
           </p>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             5. Accuracy of Materials
           </h2>
           <p>
@@ -67,7 +67,7 @@ export default function TermsPage() {
             TECHFRONT HUB does not warrant that any of the materials on our website are accurate, complete, or current.
           </p>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             6. User Accounts
           </h2>
           <p>
@@ -76,7 +76,7 @@ export default function TermsPage() {
             responsibility for all activities that occur under your account or password.
           </p>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             7. Course Content and Intellectual Property
           </h2>
           <p>
@@ -85,7 +85,7 @@ export default function TermsPage() {
             without explicit written permission.
           </p>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             8. Limitation of Liability
           </h2>
           <p>
@@ -94,7 +94,7 @@ export default function TermsPage() {
             advised of the possibility of such damages.
           </p>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             9. Revisions
           </h2>
           <p>
@@ -102,7 +102,7 @@ export default function TermsPage() {
             website, you are agreeing to be bound by the then current version of these terms of service.
           </p>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: 'var(--ink-50)' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginTop: 40, marginBottom: 16, color: '#000000' }}>
             10. Governing Law
           </h2>
           <p>
@@ -110,7 +110,7 @@ export default function TermsPage() {
             irrevocably submit to the exclusive jurisdiction of the courts located in Nigeria.
           </p>
 
-          <p style={{ marginTop: 40, color: 'var(--ink-400)', fontSize: 14 }}>
+          <p style={{ marginTop: 40, color: '#000000', fontSize: 14 }}>
             Last Updated: April 2026
           </p>
         </div>
