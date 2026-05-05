@@ -4,10 +4,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { deleteStorageObject } from './src/lib/supabase-storage'
 
 const ACTIVITY_COLLECTION = 'admin-activity'
-const payloadConnectionString =
-  process.env.NODE_ENV === 'production'
-    ? process.env.DIRECT_URL || process.env.DATABASE_URL
-    : process.env.DATABASE_URL || process.env.DIRECT_URL
+const payloadConnectionString = process.env.DATABASE_URL || process.env.DIRECT_URL
 
 function getActorLabel(req: any) {
   const user = req?.user

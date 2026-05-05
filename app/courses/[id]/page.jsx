@@ -3,6 +3,8 @@ import config from '@/payload.config'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
+export const dynamic = 'force-dynamic'
+
 function flyerBg(hue) {
   return {
     background: `linear-gradient(135deg, oklch(0.35 0.08 ${hue ?? 214}), oklch(0.18 0.06 ${hue ?? 214}))`,

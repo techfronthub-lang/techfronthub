@@ -2,6 +2,8 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { CoursesPage } from '@/src/components/CoursesPage'
 
+export const dynamic = 'force-dynamic'
+
 function firstValue(value) {
   return Array.isArray(value) ? value[0] : value
 }

@@ -632,7 +632,7 @@ section { padding: 88px 0; }
 }
 .catalog-toolbar-head {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 20px;
   flex-wrap: wrap;
@@ -749,7 +749,7 @@ section { padding: 88px 0; }
 }
 .catalog-main-head {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
   flex-wrap: wrap;
@@ -880,7 +880,7 @@ section { padding: 88px 0; }
 }
 .catalog-course-foot {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
   margin-top: auto;
