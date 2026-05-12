@@ -12,41 +12,78 @@ function normalizeFilter(value) {
   return String(firstValue(value) || '').trim()
 }
 
-function buildWhere(filters) {
-  const and = []
-
-  if (filters.q) {
-    and.push({
-      or: [
-        { title: { like: filters.q } },
-        { desc: { like: filters.q } },
-        { code: { like: filters.q } },
-        { tag: { like: filters.q } },
-      ],
-    })
-  }
-
-  if (filters.category) and.push({ category: { equals: filters.category } })
-  if (filters.level) and.push({ level: { equals: filters.level } })
-  if (filters.tag) and.push({ tag: { equals: filters.tag } })
-  if (filters.format) and.push({ format: { equals: filters.format } })
-
-  return and.length ? { and } : undefined
+function matchesText(value, query) {
+  return String(value || '').toLowerCase().includes(query)
 }
 
-function buildSort(sort) {
+function getCategoryId(course) {
+  return course.category?.id ?? course.category
+}
+
+function getComparablePrice(course) {
+  const raw = course.priceKobo || course.price || ''
+  const number = Number(String(raw).replace(/[^\d.]/g, ''))
+  return Number.isFinite(number) ? number : 0
+}
+
+function filterCourses(courses, filters) {
+  const query = filters.q.toLowerCase()
+
+  return courses.filter((course) => {
+    if (query) {
+      const haystack = [
+        course.title,
+        course.desc,
+        course.code,
+        course.tag,
+        course.level,
+        course.format,
+        course.category?.title,
+      ]
+      if (!haystack.some((value) => matchesText(value, query))) return false
+    }
+
+    if (filters.category && String(getCategoryId(course)) !== String(filters.category)) return false
+    if (filters.level && String(course.level || '') !== filters.level) return false
+    if (filters.tag && String(course.tag || '') !== filters.tag) return false
+    if (filters.format && String(course.format || '') !== filters.format) return false
+
+    return true
+  })
+}
+
+function sortCourses(courses, sort) {
+  const sorted = [...courses]
+
   switch (sort) {
     case 'title':
-      return 'title'
+      return sorted.sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')))
     case 'price-low':
-      return 'price'
+      return sorted.sort((a, b) => getComparablePrice(a) - getComparablePrice(b))
     case 'price-high':
-      return '-price'
+      return sorted.sort((a, b) => getComparablePrice(b) - getComparablePrice(a))
     case 'newest':
-      return '-createdAt'
     default:
-      return '-createdAt'
+      return sorted.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
   }
+}
+
+function buildSearchSuggestions(courses, categories) {
+  const courseItems = courses.slice(0, 24).map((course) => ({
+    label: course.title,
+    type: course.category?.title || course.level || 'Course',
+    href: `/courses?q=${encodeURIComponent(course.title || '')}`,
+  }))
+  const categoryItems = categories.slice(0, 12).map((category) => ({
+    label: category.title,
+    type: 'Category',
+    href: `/courses?category=${category.id}`,
+  }))
+  const tagItems = [...new Set(courses.map((course) => String(course.tag || '').trim()).filter(Boolean))]
+    .slice(0, 8)
+    .map((tag) => ({ label: tag, type: 'Topic', href: `/courses?tag=${encodeURIComponent(tag)}` }))
+
+  return [...courseItems, ...categoryItems, ...tagItems]
 }
 
 export default async function Page({ searchParams }) {
@@ -62,7 +99,7 @@ export default async function Page({ searchParams }) {
     sort: normalizeFilter(resolved?.sort) || 'newest',
   }
 
-  const [categories, allCourses, filteredCourses, siteConfig] = await Promise.all([
+  const [categories, allCourses, siteConfig] = await Promise.all([
     payload.find({
       collection: 'categories',
       limit: 50,
@@ -75,19 +112,14 @@ export default async function Page({ searchParams }) {
       depth: 1,
       sort: '-createdAt',
     }),
-    payload.find({
-      collection: 'courses',
-      limit: 200,
-      depth: 1,
-      sort: buildSort(filters.sort),
-      where: buildWhere(filters),
-    }),
     payload.findGlobal({
       slug: 'site-config',
     }).catch(() => ({})),
   ])
 
   const allDocs = allCourses?.docs || []
+  const categoryDocs = categories?.docs || []
+  const filteredDocs = sortCourses(filterCourses(allDocs, filters), filters.sort)
   const options = {
     levels: ['Beginner', 'Intermediate', 'Advanced', 'All levels'].filter(level =>
       allDocs.some(course => String(course?.level || '') === level),
@@ -98,12 +130,13 @@ export default async function Page({ searchParams }) {
 
   return (
     <CoursesPage
-      categories={categories?.docs || []}
-      courses={filteredCourses?.docs || []}
+      categories={categoryDocs}
+      courses={filteredDocs}
       siteConfig={siteConfig || {}}
       totalCourses={allDocs.length}
       filters={filters}
       options={options}
+      searchSuggestions={buildSearchSuggestions(allDocs, categoryDocs)}
     />
   )
 }

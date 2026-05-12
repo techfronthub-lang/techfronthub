@@ -2,304 +2,349 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { I } from '@/src/components/Icons'
+import { ActionLink } from '@/src/components/public-ui'
 
 export const dynamic = 'force-dynamic'
 
-function flyerBg(hue) {
-  return {
-    background: `linear-gradient(135deg, oklch(0.35 0.08 ${hue ?? 214}), oklch(0.18 0.06 ${hue ?? 214}))`,
-    borderBottom: '1px solid rgba(255,255,255,0.08)',
-  };
+function formatPrice(value) {
+  if (!value) return 'Price unavailable'
+  return String(value).replace(/ÃƒÆ’Ã‚Â¢Ãƒâ€šÃ¢â‚¬Å¡Ãƒâ€šÃ‚Â¦/g, 'N').replace(/ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¦/g, 'N')
 }
 
-function Badge({ children, hot }) {
-  return (
-    <span style={{
-      display: 'inline-block',
-      padding: '4px 10px',
-      borderRadius: 4,
-      fontSize: 11,
-      fontWeight: 700,
-      letterSpacing: '0.08em',
-      textTransform: 'uppercase',
-      background: hot ? '#ef4444' : 'rgba(255,255,255,0.1)',
-      color: '#fff',
-      border: hot ? 'none' : '1px solid rgba(255,255,255,0.15)',
-    }}>
-      {children}
-    </span>
-  );
+async function findCourse(payload, idOrSlug) {
+  try {
+    return await payload.findByID({ collection: 'courses', id: idOrSlug })
+  } catch {
+    const result = await payload.find({
+      collection: 'courses',
+      where: { slug: { equals: idOrSlug } },
+      limit: 1,
+      depth: 1,
+    }).catch(() => ({ docs: [] }))
+    return result.docs?.[0] || null
+  }
 }
 
-function MetaPill({ label, value }) {
+function Badge({ children }) {
+  return <span className="rounded-sm bg-[#eceb98] px-2 py-1 text-xs font-extrabold text-[#3d3c0a]">{children}</span>
+}
+
+function QuickStat({ label, value }) {
   return (
-    <div style={{
-      display: 'flex', flexDirection: 'column', gap: 2,
-      padding: '12px 20px',
-      background: 'rgba(255,255,255,0.03)',
-      border: '1px solid rgba(255,255,255,0.08)',
-      borderRadius: 10,
-      minWidth: 120,
-      backdropFilter: 'blur(8px)',
-    }}>
-      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</span>
-      <span style={{ fontSize: 15, fontWeight: 600, color: '#fff' }}>{value}</span>
+    <div className="rounded border border-slate-200 bg-white px-4 py-4">
+      <div className="text-xs font-extrabold uppercase text-slate-500">{label}</div>
+      <div className="mt-1 text-sm font-extrabold text-slate-950">{value}</div>
     </div>
-  );
+  )
+}
+
+function SummaryRow({ label, value }) {
+  return (
+    <div className="flex items-start justify-between gap-4 text-sm text-slate-600">
+      <span>{label}</span>
+      <span className="text-right font-extrabold text-slate-950">{value}</span>
+    </div>
+  )
+}
+
+function SectionCard({ eyebrow, title, body, children, action = null }) {
+  return (
+    <section className="rounded border border-slate-200 bg-white px-5 py-6 shadow-[0_8px_22px_rgba(15,23,42,0.06)] sm:px-8 sm:py-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="max-w-2xl">
+          {eyebrow ? <p className="text-sm font-extrabold text-[#5624d0]">{eyebrow}</p> : null}
+          <h2 className="mt-1 text-2xl font-extrabold tracking-normal text-slate-950 sm:text-3xl">{title}</h2>
+          {body ? <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">{body}</p> : null}
+        </div>
+        {action ? <div className="shrink-0">{action}</div> : null}
+      </div>
+      {children ? <div className="mt-7">{children}</div> : null}
+    </section>
+  )
+}
+
+function DetailCard({ title, body, icon }) {
+  const Icon = I[icon]
+
+  return (
+    <div className="rounded border border-slate-200 bg-white p-5">
+      <div className="flex items-start gap-4">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded bg-slate-950 text-white">
+          {Icon ? <Icon size={18} /> : null}
+        </div>
+        <div className="min-w-0">
+          <h3 className="font-extrabold tracking-normal text-slate-950">{title}</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function RelatedCourseCard({ item }) {
+  const thumbnail = item.thumbnail || item.category?.thumbnail
+
+  return (
+    <Link
+      href={`/courses/${item.slug || item.id}`}
+      className="group block overflow-hidden rounded border border-slate-200 bg-white transition hover:shadow-[0_8px_22px_rgba(15,23,42,0.16)]"
+    >
+      <div className="aspect-[16/9] overflow-hidden bg-slate-200">
+        {thumbnail ? (
+          <img src={thumbnail} alt={item.title || 'Course thumbnail'} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+        ) : (
+          <div className="grid h-full place-items-center bg-slate-900 px-6 text-center text-sm font-extrabold text-white">{item.title}</div>
+        )}
+      </div>
+      <div className="p-3">
+        <p className="text-xs font-bold text-slate-500">{item.level || 'All levels'}</p>
+        <h3 className="mt-1 line-clamp-2 min-h-[2.5rem] text-[15px] font-extrabold leading-5 text-slate-950">{item.title}</h3>
+        <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{item.desc || 'A practical course with guided outcomes and real project work.'}</p>
+        <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 text-sm">
+          <span className="font-semibold text-slate-600">{item.duration || 'Flexible'}</span>
+          <span className="font-extrabold text-slate-950">{formatPrice(item.price)}</span>
+        </div>
+      </div>
+    </Link>
+  )
 }
 
 export async function generateMetadata({ params }) {
   const { id } = await params
   try {
     const payload = await getPayload({ config })
-    const course = await payload.findByID({ collection: 'courses', id })
-    return { title: `${course.title} — TECHFRONT HUB`, description: course.desc }
+    const course = await findCourse(payload, id)
+    if (!course) return { title: 'Course - TECHFRONT HUB' }
+    return { title: `${course.title} - TECHFRONT HUB`, description: course.desc }
   } catch {
-    return { title: 'Course — TECHFRONT HUB' }
+    return { title: 'Course - TECHFRONT HUB' }
   }
 }
 
 export default async function CoursePage({ params }) {
   const { id } = await params
   const payload = await getPayload({ config })
+  const course = await findCourse(payload, id)
 
-  let course
-  try {
-    course = await payload.findByID({ collection: 'courses', id })
-  } catch {
-    notFound()
-  }
+  if (!course) notFound()
 
-  // Fetch related courses (same level, excluding this one)
   const related = await payload.find({
     collection: 'courses',
     where: { and: [{ level: { equals: course.level } }, { id: { not_equals: course.id } }] },
     limit: 3,
+    depth: 1,
   }).catch(() => ({ docs: [] }))
 
-  const c = course
-
-  const whatYouLearn = c.whatYouLearn?.length
-    ? c.whatYouLearn.map(i => i.benefit)
+  const whatYouLearn = course.whatYouLearn?.length
+    ? course.whatYouLearn.map((item) => item.benefit)
     : [
         'Build real projects you can put in your portfolio',
         'Work with industry-standard tools and workflows',
-        'Understand core concepts at a deep, transferable level',
+        'Understand core concepts at a transferable level',
         'Get structured feedback from working practitioners',
         'Collaborate with peers on team deliverables',
         'Leave with a verifiable certificate of completion',
       ]
 
-  const programOverview = c.programOverview?.length
-    ? c.programOverview.map(i => ({ week: i.week, topic: i.title, desc: i.description }))
+  const programOverview = course.programOverview?.length
+    ? course.programOverview.map((item) => ({ week: item.week, topic: item.title, desc: item.description }))
     : [
-        { week: 'Week 1–2',   topic: 'Foundations & environment setup',    desc: 'Core concepts, tooling, and your first hands-on exercises.' },
-        { week: 'Week 3–4',   topic: 'Core skills — part one',             desc: 'Structured learning sessions with live instructor walkthroughs.' },
-        { week: 'Week 5–6',   topic: 'Core skills — part two',             desc: 'Deepening knowledge with real-world data and scenarios.' },
-        { week: 'Week 7–8',   topic: 'Practical application',              desc: 'Mini-project: apply everything learned to a defined problem.' },
-        { week: 'Week 9–10',  topic: 'Advanced techniques',                desc: 'Edge cases, optimisation, and industry best practices.' },
-        { week: 'Week 11–12', topic: 'Capstone project & peer review',     desc: 'Ship your final project, present it, and receive structured feedback.' },
-      ].slice(0, Math.ceil((c.lessons ?? 60) / 10))
+        { week: 'Week 1-2', topic: 'Foundations and environment setup', desc: 'Core concepts, tooling, and your first hands-on exercises.' },
+        { week: 'Week 3-4', topic: 'Core skills, part one', desc: 'Structured learning sessions with live instructor walkthroughs.' },
+        { week: 'Week 5-6', topic: 'Practical application', desc: 'Apply everything learned to a defined problem.' },
+        { week: 'Week 7-8', topic: 'Capstone project and review', desc: 'Ship your final project, present it, and receive structured feedback.' },
+      ]
 
-  const whoThisIsFor = c.whoThisIsFor?.length
-    ? c.whoThisIsFor.map(i => i.audience)
+  const whoThisIsFor = course.whoThisIsFor?.length
+    ? course.whoThisIsFor.map((item) => item.audience)
     : [
         'Professionals looking to upskill or pivot into a tech-adjacent role',
         'Recent graduates who want practical, portfolio-ready experience',
         'Entrepreneurs building digital products or data-driven businesses',
-        'Anyone who learns best through structured cohorts and real projects',
+        'Anyone who learns best through structured projects and feedback',
       ]
 
+  const enrollHref = `/student/register?courseId=${course.id}`
+  const thumbnail = course.thumbnail || course.category?.thumbnail
+
   return (
-    <div className="course-detail-page" style={{ minHeight: '100vh', background: 'var(--paper)', color: 'var(--ink-700)' }}>
-      {/* Back nav */}
-      <div style={{ borderBottom: '1px solid var(--ink-100)' }}>
-        <div className="course-detail-container course-detail-backinner" style={{ maxWidth: 1100, margin: '0 auto', padding: '14px 24px' }}>
-          <Link href="/#courses" style={{ fontSize: 13, color: 'var(--ink-400)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            ← Back to courses
+    <div className="bg-white">
+      <div className="border-b border-slate-200 bg-white">
+        <div className="site-container py-4">
+          <Link href="/courses" className="inline-flex items-center gap-2 text-sm font-extrabold text-[#5624d0] transition hover:text-[#401b9c]">
+            <I.Chev dir="left" size={16} /> Back to courses
           </Link>
         </div>
       </div>
 
-      {/* Hero banner */}
-      <div className="course-detail-hero" style={{ ...flyerBg(c.hue), padding: '64px 24px 56px', position: 'relative', overflow: 'hidden' }}>
-        {/* Supabase Thumbnail Background */}
-        {c.thumbnail && (
-          <div style={{
-            position: 'absolute', inset: 0,
-            backgroundImage: `url(${c.thumbnail})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            opacity: 0.15,
-            mixBlendMode: 'overlay'
-          }} />
-        )}
-        {/* Subtle grid pattern for hero */}
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.1, pointerEvents: 'none', backgroundImage: 'radial-gradient(circle at 2px 2px, #fff 1px, transparent 0)', backgroundSize: '32px 32px' }} />
-        
-        <div className="course-detail-container" style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
-          <div className="course-detail-badges" style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-            <Badge hot={c.tagHot}>{c.tag}</Badge>
-            <Badge>{c.code}</Badge>
+      <section className="border-b border-slate-200 bg-[#f6f8fb]">
+        <div className="site-container grid gap-8 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.48fr)] lg:items-start lg:py-14">
+          <div className="max-w-4xl">
+            <div className="flex flex-wrap gap-2">
+              {course.tag ? <Badge>{course.tag}</Badge> : null}
+              {course.code ? <Badge>{course.code}</Badge> : null}
+            </div>
+            <h1 className="mt-4 max-w-4xl text-3xl font-extrabold tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
+              {course.title}
+            </h1>
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-700 sm:text-base sm:leading-8">
+              {course.desc}
+            </p>
+
+            <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
+              <span className="font-extrabold text-[#b4690e]">4.7</span>
+              <span className="flex text-[#f69c08]">{Array.from({ length: 5 }).map((_, index) => <I.Star key={index} size={14} />)}</span>
+              <span className="font-semibold text-slate-600">(1,240 ratings)</span>
+              <span className="font-semibold text-slate-600">12,000 learners</span>
+            </div>
+
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <QuickStat label="Duration" value={course.duration ?? 'Flexible'} />
+              <QuickStat label="Lessons" value={course.lessons ? `${course.lessons} lessons` : 'Custom track'} />
+              <QuickStat label="Level" value={course.level ?? 'All levels'} />
+              <QuickStat label="Delivery" value={course.format ?? 'Cohort-based'} />
+            </div>
           </div>
-          <h1 className="course-detail-title" style={{ fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: '#fff', lineHeight: 1.1, marginBottom: 18, maxWidth: 750, letterSpacing: '-0.02em' }}>
-            {c.title}
-          </h1>
-          <p className="course-detail-desc" style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)', maxWidth: 640, lineHeight: 1.6, marginBottom: 36 }}>
-            {c.desc}
-          </p>
-          <div className="course-detail-meta-row" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <MetaPill label="Duration"  value={c.duration ?? '—'} />
-            <MetaPill label="Lessons"   value={c.lessons ? `${c.lessons} lessons` : '—'} />
-            <MetaPill label="Level"     value={c.level ?? '—'} />
-          </div>
-        </div>
-      </div>
 
-      {/* Main content */}
-      <div className="course-detail-container course-detail-layout" style={{ maxWidth: 1100, margin: '0 auto', padding: '56px 24px', display: 'grid', gridTemplateColumns: '1fr 340px', gap: 48, alignItems: 'start' }}>
-
-        {/* Left: course body */}
-        <div>
-          {/* What you'll learn */}
-          <section style={{ marginBottom: 56 }}>
-            <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, color: '#fff', letterSpacing: '-0.01em' }}>What you'll learn</h2>
-            <div className="course-detail-learn-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-              {whatYouLearn.map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '16px', background: 'var(--ink-100)', borderRadius: 12, border: '1px solid var(--ink-200)', transition: 'transform 0.2s ease' }}>
-                  <span style={{ color: 'var(--success)', fontWeight: 700, fontSize: 16, flexShrink: 0 }}>✓</span>
-                  <span style={{ fontSize: 14.5, color: 'var(--ink-700)', lineHeight: 1.5 }}>{item}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Program overview */}
-          <section style={{ marginBottom: 56 }}>
-            <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, color: '#fff', letterSpacing: '-0.01em' }}>Program overview</h2>
-            <div className="course-detail-overview-list" style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {programOverview.map((m, i) => (
-                <div key={i} className="course-detail-overview-item" style={{
-                  display: 'grid', gridTemplateColumns: '120px 1fr',
-                  padding: '20px 24px', gap: 20,
-                  background: i % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'transparent',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  borderTop: i === 0 ? undefined : 'none',
-                  borderRadius: i === 0 ? '12px 12px 0 0' : (i === programOverview.length - 1 ? '0 0 12px 12px' : '0'),
-                }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--brand-500)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{m.week}</span>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 15, color: '#fff', marginBottom: 4 }}>{m.topic}</div>
-                    <div style={{ fontSize: 13.5, color: 'var(--ink-400)', lineHeight: 1.5 }}>{m.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Who this is for */}
-          <section style={{ marginBottom: 56 }}>
-            <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, color: '#fff', letterSpacing: '-0.01em' }}>Who this is for</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {whoThisIsFor.map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-                  <span style={{ color: 'var(--brand-500)', fontWeight: 700, fontSize: 18, lineHeight: 1.3 }}>→</span>
-                  <span style={{ fontSize: 16, color: 'var(--ink-200)', lineHeight: 1.6 }}>{item}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Related courses */}
-          {related.docs.length > 0 && (
-            <section>
-              <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, color: '#fff', letterSpacing: '-0.01em' }}>Related courses</h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {related.docs.map(r => (
-                  <Link key={r.id} href={`/courses/${r.id}`} style={{ textDecoration: 'none' }}>
-                    <div className="course-detail-related-item" style={{ display: 'flex', gap: 18, padding: '18px 24px', background: 'var(--canvas)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, alignItems: 'center', transition: 'all 0.2s ease' }}>
-                      <div style={{ width: 52, height: 52, borderRadius: 10, flexShrink: 0, ...flyerBg(r.hue), backgroundSize: 'cover' }} />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 600, fontSize: 15, color: '#fff', marginBottom: 2 }}>{r.title}</div>
-                        <div style={{ fontSize: 12.5, color: 'var(--ink-300)' }}>{r.duration} · {r.level}</div>
-                      </div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--brand-500)', whiteSpace: 'nowrap' }}>{r.price}</div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
-
-        {/* Right: enrolment card */}
-        <div className="course-detail-sidebar" style={{ position: 'sticky', top: 96 }}>
-          <div className="course-detail-enrol-card" style={{ border: '1px solid var(--ink-200)', borderRadius: 20, overflow: 'hidden', boxShadow: 'var(--shadow-lg)', background: 'var(--ink-100)' }}>
-            {/* Price header */}
-            <div className="course-detail-price-head" style={{ ...flyerBg(c.hue), padding: '32px 28px 28px' }}>
-              <div className="course-detail-price-row" style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-                {c.old && (
-                  <span style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through', fontWeight: 500 }}>{c.old}</span>
+          <aside className="lg:sticky lg:top-24">
+            <div className="overflow-hidden rounded border border-slate-200 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.12)]">
+              <div className="aspect-[16/9] bg-slate-200">
+                {thumbnail ? (
+                  <img src={thumbnail} alt={`${course.title} thumbnail`} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="grid h-full place-items-center bg-slate-950 px-6 text-center text-sm font-extrabold text-white">{course.title}</div>
                 )}
-                <span style={{ fontSize: 36, fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>{c.price}</span>
               </div>
-              {c.old && (
-                <div style={{ marginTop: 6, fontSize: 12, color: 'var(--success)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Best price available
+              <div className="p-5">
+                <div className="flex items-end gap-2">
+                  {course.old ? <span className="text-lg font-semibold text-slate-500 line-through">{formatPrice(course.old)}</span> : null}
+                  <span className="text-3xl font-extrabold tracking-normal text-slate-950">{formatPrice(course.price)}</span>
                 </div>
-              )}
+
+                <ActionLink href={enrollHref} variant="primary" size="lg" className="mt-5 w-full">
+                  Enrol Now <I.Arrow size={16} />
+                </ActionLink>
+                <ActionLink href="/student/login" variant="ghost" size="lg" className="mt-3 w-full">
+                  Already have an account
+                </ActionLink>
+
+                <div className="mt-6 space-y-3 border-t border-slate-200 pt-5">
+                  <SummaryRow label="Duration" value={course.duration ?? '-'} />
+                  <SummaryRow label="Lessons" value={course.lessons ? `${course.lessons} lessons` : '-'} />
+                  <SummaryRow label="Level" value={course.level ?? '-'} />
+                  <SummaryRow label="Delivery" value={course.format ?? 'Cohort-based'} />
+                  <SummaryRow label="Support" value={course.support || 'Mentor feedback and office hours'} />
+                </div>
+              </div>
             </div>
+          </aside>
+        </div>
+      </section>
 
-            <div className="course-detail-card-body" style={{ padding: '28px' }}>
-              <a
-                href="#"
-                className="btn btn-primary course-detail-primary-btn"
-                style={{
-                  display: 'flex', width: '100%', padding: '16px 0', textAlign: 'center',
-                  justifyContent: 'center', borderRadius: 12,
-                  fontWeight: 700, fontSize: 16, textDecoration: 'none', marginBottom: 14,
-                }}
-              >
-                Enrol Now
-              </a>
-              <a
-                href="#"
-                className="course-detail-secondary-btn"
-                style={{
-                  display: 'block', width: '100%', padding: '14px 0', textAlign: 'center',
-                  background: 'transparent', color: '#fff',
-                  border: '1.5px solid var(--ink-200)', borderRadius: 12,
-                  fontWeight: 600, fontSize: 15, textDecoration: 'none', marginBottom: 24,
-                  transition: 'background 0.2s ease'
-                }}
-              >
-                Talk to an advisor →
-              </a>
+      <section className="py-10 sm:py-12">
+        <div className="site-container space-y-8">
+          <SectionCard
+            eyebrow="Outcome"
+            title="What you will learn"
+            body="The course is structured around practical outputs you can show, explain, and reuse after class."
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
+              {whatYouLearn.map((item) => (
+                <DetailCard
+                  key={item}
+                  icon="Check"
+                  title={item}
+                  body="Covered through guided practice and assignments that reinforce the concept."
+                />
+              ))}
+            </div>
+          </SectionCard>
 
-              <div className="course-detail-info-list" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {[
-                  ['Duration',    c.duration    || '—'],
-                  ['Lessons',     c.lessons     ? `${c.lessons} lessons` : '—'],
-                  ['Level',       c.level       || '—'],
-                  ['Delivery',    c.format      || 'Cohort-based, live online'],
-                  ['Certificate', c.certificate || 'Professional Certificate'],
-                  ['Support',     c.support     || 'Slack + weekly office hours'],
-                ].map(([label, value]) => (
-                  <div key={label} className="course-detail-info-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13.5 }}>
-                    <span style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</span>
-                    <span style={{ fontWeight: 600, color: '#fff', textAlign: 'right', marginLeft: 20 }}>{value}</span>
+          <SectionCard
+            eyebrow="Structure"
+            title="Program overview"
+            body="A clear learning path from foundations through final delivery."
+          >
+            <div className="overflow-hidden rounded border border-slate-200 bg-white">
+              {programOverview.map((item, index) => (
+                <div
+                  key={`${item.week}-${item.topic}`}
+                  className={`grid gap-3 px-5 py-5 sm:grid-cols-[8rem_1fr] sm:gap-6 sm:px-6 ${index !== 0 ? 'border-t border-slate-200' : ''}`}
+                >
+                  <span className="text-xs font-extrabold uppercase text-[#5624d0]">{item.week}</span>
+                  <div>
+                    <div className="text-base font-extrabold text-slate-950">{item.topic}</div>
+                    <div className="mt-2 text-sm leading-6 text-slate-600">{item.desc}</div>
                   </div>
-                ))}
-              </div>
-
-              <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--ink-200)', fontSize: 12, color: 'var(--ink-500)', textAlign: 'center', lineHeight: 1.5 }}>
-                {c.guarantee || '30-day satisfaction guarantee'}<br/>No hidden fees · Secure checkout
-              </div>
+                </div>
+              ))}
             </div>
+          </SectionCard>
+
+          <SectionCard
+            eyebrow="Who it is for"
+            title="Built for learners with a clear goal"
+            body="This works best when you want structure, practical output, and visible progress."
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
+              {whoThisIsFor.map((item) => (
+                <div key={item} className="rounded border border-slate-200 bg-white p-5">
+                  <div className="flex gap-3">
+                    <span className="mt-1 text-[#5624d0]"><I.Arrow size={16} /></span>
+                    <span className="text-sm leading-7 text-slate-700 sm:text-base">{item}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            eyebrow="Included"
+            title="Delivery, certificate, and support"
+            body="Everything below is what the learner experience is built around."
+          >
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <DetailCard icon="Users" title="Live delivery" body={course.format || 'Cohort-based online training with guided projects and instructor feedback.'} />
+              <DetailCard icon="Crown" title="Certificate" body={course.certificate || 'A professional certificate is issued after successful completion.'} />
+              <DetailCard icon="Briefcase" title="Learner support" body={course.support || 'Mentor feedback, downloadable templates, and community support throughout the program.'} />
+            </div>
+          </SectionCard>
+
+          {related.docs.length > 0 ? (
+            <SectionCard
+              eyebrow="Next up"
+              title="Related courses"
+              body="If this course is close but not exact, these are the nearest matches in the catalog."
+              action={<ActionLink href="/courses" variant="ghost">Browse all courses <I.Arrow size={14} /></ActionLink>}
+            >
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {related.docs.map((item) => <RelatedCourseCard key={item.id} item={item} />)}
+              </div>
+            </SectionCard>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="bg-[#2d2f31] py-10 text-white">
+        <div className="site-container flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-sm font-extrabold text-[#cec0fc]">Ready to decide?</p>
+            <h2 className="mt-2 text-2xl font-extrabold sm:text-3xl">Start with {course.title}</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/75">
+              Enroll now or sign in if you already have a student account.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <ActionLink href={enrollHref} variant="primary" size="lg" className="bg-white text-slate-950 hover:bg-slate-100">
+              Enrol Now <I.Arrow size={16} />
+            </ActionLink>
+            <ActionLink href="/student/login" variant="ghost" size="lg" className="border-white bg-transparent text-white hover:bg-white/10">
+              Student Login
+            </ActionLink>
           </div>
         </div>
-
-      </div>
+      </section>
     </div>
   )
 }

@@ -16,7 +16,11 @@
       "Bash(findstr \"@typescript-eslint+parser\")",
       "Bash(pnpm add *)",
       "Bash(pnpm run *)",
-      "Bash(echo \"EXIT:$?\")"
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(xargs grep *)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:3000/admin/login)",
+      "Bash(curl -s http://localhost:3000/student/login)"
     ]
   }
 }

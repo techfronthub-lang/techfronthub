@@ -5,13 +5,15 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { getGlobal } from '@/src/lib/payload-api'
 import { I } from './Icons'
+import { ActionLink } from './public-ui'
+import { SearchBox } from './SearchBox'
 
 export const DEFAULT_SITE_CONFIG = {
   topbarLocation: 'Bodija, Ibadan | Lekki, Lagos',
-  topbarAnnouncement: 'New AI cohort starts June 3 - limited seats',
+  topbarAnnouncement: 'New AI, data, design, and development courses are now live',
   topbarPhoneLabel: '+234 810 000 0000',
   topbarPhoneHref: 'tel:+2348100000000',
-  topbarSupportLabel: 'Support',
+  topbarSupportLabel: 'Help',
   topbarSupportHref: '/help-center',
   topbarPartnersLabel: 'Partners',
   topbarPartnersHref: '/partner-with-us',
@@ -148,17 +150,17 @@ export function TopBar({ siteConfig }) {
   const config = normalizeConfig(siteConfig)
 
   return (
-    <div className="topbar">
-      <div className="container">
-        <div className="left">
+    <div className="border-b border-[#f0c89a] bg-[#ffeed8]">
+      <div className="site-container flex min-h-8 flex-col gap-1.5 py-2 text-[11px] leading-5 text-[#8c5a2a] sm:flex-row sm:items-center sm:justify-between sm:py-0 sm:text-xs">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 sm:gap-x-3">
           <span>{config.topbarLocation}</span>
-          <span className="sep">|</span>
-          <span>{config.topbarAnnouncement}</span>
+          <span className="hidden text-[#d4a060] sm:inline">|</span>
+          <span className="font-semibold text-[#c04a00]">{config.topbarAnnouncement}</span>
         </div>
-        <div className="right">
-          <a href={config.topbarPhoneHref || '#'}><I.Phone size={12} /> {config.topbarPhoneLabel}</a>
-          <SmartLink href={config.topbarSupportHref}>{config.topbarSupportLabel}</SmartLink>
-          <SmartLink href={config.topbarPartnersHref}>{config.topbarPartnersLabel}</SmartLink>
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 sm:gap-x-4">
+          <a href={config.topbarPhoneHref || '#'} className="inline-flex items-center gap-1.5 transition hover:text-[#3b1800]"><I.Phone size={12} /> {config.topbarPhoneLabel}</a>
+          <SmartLink href={config.topbarSupportHref} className="transition hover:text-[#3b1800]">{config.topbarSupportLabel}</SmartLink>
+          <SmartLink href={config.topbarPartnersHref} className="transition hover:text-[#3b1800]">{config.topbarPartnersLabel}</SmartLink>
         </div>
       </div>
     </div>
@@ -180,6 +182,11 @@ export function Header({ siteConfig }) {
     checkAuth()
   }, [pathname, checkAuth])
 
+  React.useEffect(() => {
+    document.body.classList.toggle('menu-open', isMenuOpen)
+    return () => document.body.classList.remove('menu-open')
+  }, [isMenuOpen])
+
   const close = () => setIsMenuOpen(false)
 
   const handleLogout = () => {
@@ -191,48 +198,52 @@ export function Header({ siteConfig }) {
   }
 
   return (
-    <header className={`header${isMenuOpen ? ' menu-is-open' : ''}`}>
-      <div className="container">
-        <Link href="/" className="brand" aria-label="TECHFRONT HUB">
-          <span className="brand-mark">TF</span>
-          <span className="brand-name">TECHFRONT<span className="dot">.</span>HUB</span>
+    <header className="sticky top-0 z-50 border-b border-[#f0c89a] bg-[#fff8f0]/95 backdrop-blur">
+      <div className="site-container flex min-h-[64px] items-center gap-3 py-2 lg:gap-4 lg:py-0">
+        <Link href="/" className="inline-flex items-center gap-2 text-[#3b1800]" aria-label="TECHFRONT HUB">
+          <span className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded bg-[#c04a00] text-sm font-extrabold text-white">
+            TF
+          </span>
+          <span className="text-sm font-extrabold tracking-normal sm:text-base">TECHFRONT<span className="text-[#d4600a]">.</span>HUB</span>
         </Link>
 
-        {!isAuthenticated && (
-          <nav className={`nav ${isMenuOpen ? 'mobile-open' : ''}`}>
+        <SearchBox size="compact" className="hidden min-w-0 flex-1 lg:block" />
+
+        <nav className={`${isMenuOpen ? 'fixed inset-x-4 top-[76px] z-40 flex max-h-[calc(100vh-6rem)] overflow-y-auto rounded border border-[#f0c89a] bg-[#fff8f0] p-4 shadow-[0_18px_50px_rgba(120,60,10,0.16)] sm:top-[86px] lg:static lg:z-auto lg:max-h-none lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none' : 'hidden'} lg:flex lg:items-center lg:justify-center`}>
+          {!isAuthenticated ? (
+            <div className="flex w-full flex-col gap-1 lg:w-auto lg:flex-row lg:items-center lg:justify-center">
             {config.headerLinks.map((link) => (
-              <SmartLink key={`${link.label}-${link.href}`} href={link.href} onClick={close}>
+              <SmartLink key={`${link.label}-${link.href}`} href={link.href} onClick={close} className="rounded px-3 py-3 text-sm font-bold text-[#6b3a10] transition hover:bg-[#ffe0bf] hover:text-[#3b1800] lg:py-2">
                 {link.label}
               </SmartLink>
             ))}
-            <div className="mobile-only-cta">
-              <Link href="/login" className="btn btn-ghost btn-sm" onClick={close}>Login</Link>
+            <div className="mt-3 lg:hidden">
+              <ActionLink href="/login" variant="ghost" size="sm" className="w-full" onClick={close}>Login</ActionLink>
             </div>
-          </nav>
-        )}
-
-        {isAuthenticated && (
-          <nav className={`nav ${isMenuOpen ? 'mobile-open' : ''}`}>
-            <Link href="/student/dashboard" onClick={close}>Dashboard</Link>
-            <Link href="/student/dashboard/courses" onClick={close}>My Courses</Link>
-            <Link href="/courses" onClick={close}>Explore</Link>
-            <div className="mobile-only-cta">
-              <button onClick={handleLogout} className="btn btn-ghost btn-sm">Logout</button>
+          </div>
+          ) : (
+            <div className="flex w-full flex-col gap-2 lg:flex-row lg:items-center lg:justify-center">
+              <Link href="/student/dashboard" onClick={close} className="rounded px-4 py-3 text-sm font-bold text-[#6b3a10] transition hover:bg-[#ffe0bf] hover:text-[#3b1800] lg:px-3 lg:py-2">Dashboard</Link>
+              <Link href="/student/dashboard/courses" onClick={close} className="rounded px-4 py-3 text-sm font-bold text-[#6b3a10] transition hover:bg-[#ffe0bf] hover:text-[#3b1800] lg:px-3 lg:py-2">My Courses</Link>
+              <Link href="/courses" onClick={close} className="rounded px-4 py-3 text-sm font-bold text-[#6b3a10] transition hover:bg-[#ffe0bf] hover:text-[#3b1800] lg:px-3 lg:py-2">Explore</Link>
+              <div className="mt-3 lg:hidden">
+                <button onClick={handleLogout} className="inline-flex h-11 w-full items-center justify-center rounded border border-[#d4a060] bg-[#ffeed8] px-4 text-sm font-bold text-[#6b3a10] transition hover:bg-[#ffe0bf]">Logout</button>
+              </div>
             </div>
-          </nav>
-        )}
+          )}
+        </nav>
 
-        <div className="header-cta">
+        <div className="ml-auto flex items-center gap-2">
           {!isAuthenticated && (
             <>
-              <Link href="/login" className="btn btn-ghost btn-sm hide-mobile">Login</Link>
-              <a href="/#enroll" className="btn btn-primary btn-sm">Enroll Now <I.Arrow size={14} /></a>
+              <SmartLink href="/login" className="hidden h-10 items-center rounded border border-[#d4a060] bg-[#ffeed8] px-4 text-sm font-extrabold text-[#6b3a10] transition hover:bg-[#ffe0bf] lg:inline-flex">Log in</SmartLink>
+              <SmartLink href="/#enroll" className="hidden h-10 items-center rounded bg-[#c04a00] px-4 text-sm font-extrabold text-white transition hover:bg-[#a03d00] sm:inline-flex">Sign up</SmartLink>
             </>
           )}
           {isAuthenticated && (
-            <button onClick={handleLogout} className="btn btn-ghost btn-sm hide-mobile">Logout</button>
+            <button onClick={handleLogout} className="hidden h-10 rounded border border-[#d4a060] bg-[#ffeed8] px-4 text-sm font-extrabold text-[#6b3a10] transition hover:bg-[#ffe0bf] lg:inline-flex lg:items-center lg:justify-center">Logout</button>
           )}
-          <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle Menu">
+          <button className="inline-flex h-10 w-10 items-center justify-center rounded border border-[#d4a060] bg-[#ffeed8] text-[#6b3a10] transition hover:bg-[#ffe0bf] lg:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle Menu">
             {isMenuOpen ? <I.X size={24} /> : <I.Menu size={24} />}
           </button>
         </div>
@@ -245,27 +256,27 @@ export function Footer({ siteConfig }) {
   const config = normalizeConfig(siteConfig)
 
   return (
-    <footer className="footer">
-      <div className="container">
-        <div className="footer-grid">
+    <footer className="border-t border-[#f0c89a] bg-[#ffeed8]">
+      <div className="site-container py-12 lg:py-14">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.25fr_repeat(4,minmax(0,1fr))] xl:gap-12">
           <div>
-            <Link href="/" className="brand" style={{ color: '#fff' }}>
-              <span className="brand-mark">TF</span>
-              <span className="brand-name">TECHFRONT<span className="dot">.</span>HUB</span>
+            <Link href="/" className="inline-flex items-center gap-3 text-[#3b1800]">
+              <span className="grid h-10 w-10 place-items-center rounded bg-[#c04a00] text-sm font-extrabold text-white">TF</span>
+              <span className="text-sm font-extrabold tracking-normal sm:text-base">TECHFRONT<span className="text-[#d4600a]">.</span>HUB</span>
             </Link>
-            <p className="about-copy">{config.footerHeadline}</p>
-            <div className="footer-contact" style={{ fontSize: 13, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}><I.MapPin size={14} /> {config.footerAddress}</span>
-              <a href={`mailto:${config.footerEmail}`} style={{ display: 'flex', gap: 8, alignItems: 'center', color: 'inherit', textDecoration: 'none' }}>
+            <p className="mt-5 max-w-md text-sm leading-7 text-[#8c5a2a]">{config.footerHeadline}</p>
+            <div className="mt-6 flex flex-col gap-3 text-sm font-semibold text-[#8c5a2a]">
+              <span className="inline-flex items-center gap-2"><I.MapPin size={14} /> {config.footerAddress}</span>
+              <a href={`mailto:${config.footerEmail}`} className="inline-flex items-center gap-2 transition hover:text-[#3b1800]">
                 <I.Mail size={14} /> {config.footerEmail}
               </a>
-              <a href={`tel:${String(config.footerPhone || '').replace(/[^+\d]/g, '')}`} style={{ display: 'flex', gap: 8, alignItems: 'center', color: 'inherit', textDecoration: 'none' }}>
+              <a href={`tel:${String(config.footerPhone || '').replace(/[^+\d]/g, '')}`} className="inline-flex items-center gap-2 transition hover:text-[#3b1800]">
                 <I.Phone size={14} /> {config.footerPhone}
               </a>
             </div>
-            <div className="socials">
+            <div className="mt-6 flex flex-wrap gap-3">
               {config.footerSocialLinks.map((item) => (
-                <SmartLink key={`${item.platform}-${item.href}`} href={item.href} aria-label={item.platform} target="_blank" rel="noreferrer">
+                <SmartLink key={`${item.platform}-${item.href}`} href={item.href} aria-label={item.platform} target="_blank" rel="noreferrer" className="inline-flex h-10 w-10 items-center justify-center rounded border border-[#d4a060] bg-[#fff8f0] text-[#8c5a2a] transition hover:border-[#c04a00] hover:text-[#3b1800]">
                   {socialIcon(item.platform)}
                 </SmartLink>
               ))}
@@ -273,48 +284,48 @@ export function Footer({ siteConfig }) {
           </div>
 
           <div>
-            <h5>{config.footerLearnTitle}</h5>
-            <ul>
+            <h5 className="text-sm font-extrabold uppercase text-[#3b1800]">{config.footerLearnTitle}</h5>
+            <ul className="mt-5 space-y-3 text-sm font-semibold text-[#8c5a2a]">
               {config.footerLearnLinks.map((item) => (
-                <li key={`${item.label}-${item.href}`}><SmartLink href={item.href}>{item.label}</SmartLink></li>
+                <li key={`${item.label}-${item.href}`}><SmartLink href={item.href} className="transition hover:text-[#3b1800]">{item.label}</SmartLink></li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h5>{config.footerBusinessTitle}</h5>
-            <ul>
+            <h5 className="text-sm font-extrabold uppercase text-[#3b1800]">{config.footerBusinessTitle}</h5>
+            <ul className="mt-5 space-y-3 text-sm font-semibold text-[#8c5a2a]">
               {config.footerBusinessLinks.map((item) => (
-                <li key={`${item.label}-${item.href}`}><SmartLink href={item.href}>{item.label}</SmartLink></li>
+                <li key={`${item.label}-${item.href}`}><SmartLink href={item.href} className="transition hover:text-[#3b1800]">{item.label}</SmartLink></li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h5>{config.footerResourcesTitle}</h5>
-            <ul>
+            <h5 className="text-sm font-extrabold uppercase text-[#3b1800]">{config.footerResourcesTitle}</h5>
+            <ul className="mt-5 space-y-3 text-sm font-semibold text-[#8c5a2a]">
               {config.footerResourcesLinks.map((item) => (
-                <li key={`${item.label}-${item.href}`}><SmartLink href={item.href}>{item.label}</SmartLink></li>
+                <li key={`${item.label}-${item.href}`}><SmartLink href={item.href} className="transition hover:text-[#3b1800]">{item.label}</SmartLink></li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h5>{config.footerNewsletterTitle}</h5>
-            <p style={{ fontSize: 13, margin: '0 0 12px', color: '#9ca3af' }}>{config.footerNewsletterBody}</p>
-            <form className="newsletter" onSubmit={(e) => { e.preventDefault(); alert('Subscribed - check your inbox.') }}>
-              <input type="email" placeholder={config.footerNewsletterPlaceholder} required />
-              <button type="submit" className="btn btn-primary btn-sm">{config.footerNewsletterButton}</button>
+            <h5 className="text-sm font-extrabold uppercase text-[#3b1800]">{config.footerNewsletterTitle}</h5>
+            <p className="mt-5 text-sm leading-6 text-[#8c5a2a]">{config.footerNewsletterBody}</p>
+            <form className="mt-4 flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); alert('Subscribed - check your inbox.') }}>
+              <input type="email" placeholder={config.footerNewsletterPlaceholder} required className="h-11 flex-1 rounded border border-[#d4a060] bg-[#fff8f0] px-4 text-sm font-semibold text-[#3b1800] outline-none transition focus:border-[#c04a00]" />
+              <button type="submit" className="inline-flex h-11 items-center justify-center rounded bg-[#c04a00] px-5 text-sm font-extrabold text-white transition hover:bg-[#a03d00]">{config.footerNewsletterButton}</button>
             </form>
-            <div style={{ fontSize: 11, color: '#6b7280', marginTop: 10 }}>{config.footerNewsletterNote}</div>
+            <div className="mt-3 text-xs font-semibold text-[#a67845]">{config.footerNewsletterNote}</div>
           </div>
         </div>
 
-        <div className="footer-bottom">
+        <div className="mt-12 flex flex-col gap-4 border-t border-[#f0c89a] pt-6 text-sm font-semibold text-[#a67845] lg:flex-row lg:items-center lg:justify-between">
           <div>{config.footerCopyright}</div>
-          <div className="links">
+          <div className="flex flex-wrap gap-4">
             {config.footerLegalLinks.map((item) => (
-              <SmartLink key={`${item.label}-${item.href}`} href={item.href}>{item.label}</SmartLink>
+              <SmartLink key={`${item.label}-${item.href}`} href={item.href} className="transition hover:text-[#3b1800]">{item.label}</SmartLink>
             ))}
           </div>
         </div>

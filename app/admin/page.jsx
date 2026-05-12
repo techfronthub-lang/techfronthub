@@ -65,6 +65,9 @@ export default function Dashboard() {
               <Link href="/admin/users" className="btn btn-ghost btn-sm" style={{ justifyContent: 'flex-start' }}>
                 Manage Users
               </Link>
+              <Link href="/admin/users" className="btn btn-ghost btn-sm" style={{ justifyContent: 'flex-start' }}>
+                Instructor Approvals
+              </Link>
               <Link href="/admin/media" className="btn btn-ghost btn-sm" style={{ justifyContent: 'flex-start' }}>
                 Media Library
               </Link>

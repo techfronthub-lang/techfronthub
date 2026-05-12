@@ -2,9 +2,32 @@ import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { deleteStorageObject } from './src/lib/supabase-storage'
+import { resendEmailAdapter } from './src/lib/email'
+import { sendAdminSignupAlert, sendWelcomeForRecord } from './src/lib/auth-email'
 
 const ACTIVITY_COLLECTION = 'admin-activity'
 const payloadConnectionString = process.env.DATABASE_URL || process.env.DIRECT_URL
+
+async function sendAuthEmails(collection: 'users' | 'instructors', doc: any, operation: string) {
+  if (operation !== 'create' || !doc?.email) return
+
+  try {
+    await sendWelcomeForRecord({
+      email: doc.email,
+      name: doc.name,
+      audience: collection === 'instructors' ? 'instructor' : 'student',
+    })
+
+    await sendAdminSignupAlert({
+      email: doc.email,
+      name: doc.name,
+      role: collection === 'instructors' ? 'instructor' : doc.role || 'student',
+      status: doc.status || 'active',
+    })
+  } catch (error) {
+    console.error('Failed to send auth email', error)
+  }
+}
 
 function getActorLabel(req: any) {
   const user = req?.user
@@ -32,6 +55,7 @@ export default buildConfig({
   admin: {
     user: 'users',
   },
+  email: resendEmailAdapter,
   collections: [
     {
       slug: 'users',
@@ -51,12 +75,15 @@ export default buildConfig({
           options: ['active', 'pending', 'suspended'],
           defaultValue: 'active',
         },
+        { name: 'emailVerified', type: 'checkbox', defaultValue: false, admin: { hidden: true } },
         { name: 'phone', type: 'text' },
         { name: 'avatar', type: 'text', admin: { description: 'Optional avatar URL or initials image link' } },
       ],
       hooks: {
         afterChange: [
           async ({ doc, previousDoc, operation, req }) => {
+            await sendAuthEmails('users', doc, operation)
+
             const targetLabel = doc?.email || doc?.name || String(doc?.id || '')
             const statusChanged = previousDoc && previousDoc.status !== doc.status
             const roleChanged = previousDoc && previousDoc.role !== doc.role
@@ -105,6 +132,13 @@ export default buildConfig({
       admin: { useAsTitle: 'email' },
       fields: [
         { name: 'name',      type: 'text' },
+        {
+          name: 'status',
+          type: 'select',
+          options: ['active', 'pending', 'suspended'],
+          defaultValue: 'active',
+        },
+        { name: 'emailVerified', type: 'checkbox', defaultValue: false, admin: { hidden: true } },
         { name: 'bio',       type: 'textarea' },
         { name: 'expertise', type: 'text', admin: { description: 'Comma-separated e.g. Data Analytics, Python, SQL' } },
         { name: 'photo',     type: 'text', admin: { description: 'Avatar image URL (leave blank to use initials)' } },
@@ -113,6 +147,13 @@ export default buildConfig({
         { name: 'github',    type: 'text' },
         { name: 'website',   type: 'text' },
       ],
+      hooks: {
+        afterChange: [
+          async ({ doc, operation }) => {
+            await sendAuthEmails('instructors', doc, operation)
+          },
+        ],
+      },
     },
     {
       slug: 'assignments',

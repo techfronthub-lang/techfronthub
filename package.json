@@ -10,8 +10,7 @@
     "lint": "next lint",
     "payload": "node --import tsx node_modules/payload/dist/bin/index.js",
     "db:migrate": "node scripts/with-direct-db.mjs pnpm payload migrate",
-    "db:pull": "node scripts/with-direct-db.mjs pnpm exec drizzle-kit pull --config=drizzle.config.ts"
-    ,
+    "db:pull": "node scripts/with-direct-db.mjs pnpm exec drizzle-kit pull --config=drizzle.config.ts",
     "seed:course-content": "node scripts/seed-course-content.js"
   },
   "dependencies": {
@@ -29,15 +28,19 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@tailwindcss/postcss": "^4.3.0",
     "@types/node": "^22",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.5.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^10.2.1",
     "eslint-config-next": "^15",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^4.3.0",
     "tsx": "^4.21.0",
     "typescript": "^5",
     "typescript-eslint": "^8.59.1"

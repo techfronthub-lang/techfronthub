@@ -2,37 +2,9 @@
 
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { CourseCard } from '@/src/components/Sections'
 import { I } from '@/src/components/Icons'
-
-function CourseCard({ c }) {
-  return (
-    <a href={`/courses/${c.id}`} className="course-card" style={{textDecoration: "none", color: "inherit"}}>
-      <div className="course-flyer" style={{
-        background: c.thumbnail
-          ? `linear-gradient(rgba(7, 10, 20, 0.18), rgba(7, 10, 20, 0.18)), url(${c.thumbnail})`
-          : `linear-gradient(135deg, oklch(0.96 0.03 ${c.hue || 210}), oklch(0.88 0.08 ${c.hue || 210}))`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}>
-        {c.tag && <span className="flyer-tag" style={{opacity: c.tagHot ? 1 : 0.7}}>{c.tag}</span>}
-      </div>
-      <div className="course-body">
-        <h3>{c.title}</h3>
-        <p>{c.desc}</p>
-        <div className="course-meta">
-          <span>{c.duration || '8 weeks'}</span><span className="sep"/>
-          <span>{c.level || 'All levels'}</span>
-        </div>
-      </div>
-      <div className="course-foot">
-        <div className="course-price">
-          ₦{c.price?.replace(/[₦,]/g, '') || '0'}
-        </div>
-        <button className="btn btn-dark btn-sm">Enroll Now <I.Arrow size={12}/></button>
-      </div>
-    </a>
-  )
-}
+import { ActionLink, Eyebrow } from '@/src/components/public-ui'
 
 export default function CategoryPage({ params }) {
   const [category, setCategory] = useState(null)
@@ -41,53 +13,39 @@ export default function CategoryPage({ params }) {
 
   useEffect(() => {
     const BASE = '/api'
-    const get = (path) => fetch(`${BASE}${path}`).then(r => r.json()).catch(() => null)
+    const get = (path) => fetch(`${BASE}${path}`).then((response) => response.json()).catch(() => null)
 
     Promise.all([
       get('/categories?limit=50'),
       get('/courses?limit=100'),
     ]).then(([cats, allCourses]) => {
-      const cat = cats?.docs?.find(c => c.id === parseInt(params.id))
+      const categoryId = parseInt(params.id)
+      const cat = cats?.docs?.find((item) => item.id === categoryId)
       setCategory(cat)
 
       if (cat) {
-        // Get all courses for this category by matching the category relationship
-        const catCourses = allCourses?.docs?.filter(c => {
-          const catId = c.category?.id || c.category
-          return catId === parseInt(params.id)
+        const categoryCourses = allCourses?.docs?.filter((course) => {
+          const catId = course.category?.id || course.category
+          return catId === categoryId
         }) || []
-        setCourses(catCourses)
+        setCourses(categoryCourses)
       }
     }).finally(() => setLoading(false))
   }, [params.id])
 
   if (loading) {
     return (
-      <div className="category-page anim-fade">
-        <section style={{ padding: '96px 0 80px' }}>
-          <div className="container" style={{ maxWidth: 900 }}>
-            <div className="skel" style={{ width: 140, height: 14, marginBottom: 36, borderRadius: 20 }} />
-            <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', marginBottom: 48 }}>
-              <div className="skel skel-circle" style={{ width: 72, height: 72, flexShrink: 0 }} />
-              <div style={{ flex: 1 }}>
-                <div className="skel" style={{ width: 80, height: 12, marginBottom: 12 }} />
-                <div className="skel" style={{ width: '55%', height: 44, marginBottom: 14 }} />
-                <div className="skel" style={{ width: '80%', height: 14, marginBottom: 8 }} />
-                <div className="skel" style={{ width: '65%', height: 14 }} />
+      <div className="bg-white">
+        <section className="border-b border-slate-200 bg-[#f6f8fb] py-12">
+          <div className="site-container max-w-5xl">
+            <div className="shimmer-block h-5 w-40 rounded" />
+            <div className="mt-8 flex gap-5">
+              <div className="shimmer-block h-[72px] w-[72px] rounded" />
+              <div className="min-w-0 flex-1 space-y-3">
+                <div className="shimmer-block h-4 w-20 rounded" />
+                <div className="shimmer-block h-12 w-2/3 rounded" />
+                <div className="shimmer-block h-5 w-4/5 rounded" />
               </div>
-            </div>
-            <div className="skel" style={{ height: 120, borderRadius: 16 }} />
-          </div>
-        </section>
-        <section style={{ padding: '0 0 88px' }}>
-          <div className="container">
-            <div className="skel" style={{ width: 100, height: 12, marginBottom: 14, borderRadius: 20 }} />
-            <div className="skel" style={{ width: 200, height: 36, marginBottom: 8 }} />
-            <div className="skel" style={{ width: 180, height: 13, marginBottom: 36 }} />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="skel" style={{ height: 240, borderRadius: 14 }} />
-              ))}
             </div>
           </div>
         </section>
@@ -97,239 +55,96 @@ export default function CategoryPage({ params }) {
 
   if (!category) {
     return (
-      <div style={{padding: '40px 20px', textAlign: 'center'}}>
-        <h2>Category not found</h2>
-        <Link href="/courses">Back to all tracks</Link>
+      <div className="site-container py-16 text-center">
+        <h2 className="text-3xl font-extrabold text-slate-950">Category not found</h2>
+        <Link href="/courses" className="mt-4 inline-flex font-extrabold text-[#5624d0]">Back to all tracks</Link>
       </div>
     )
   }
 
+  const Icon = I[category.icon || 'Code']
+
   return (
-    <div className="category-page anim-fade">
-      <section className="category-hero" style={{padding: '96px 0 80px'}}>
-        <div className="container" style={{maxWidth: '900px'}}>
-          <Link href="/courses" style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            color: 'var(--brand-600)',
-            textDecoration: 'none',
-            fontSize: 14,
-            fontWeight: 600,
-            marginBottom: 32
-          }}>
-            <I.Chev dir="left" size={16} /> Back to all tracks
+    <div className="bg-white">
+      <section className="border-b border-slate-200 bg-[#f6f8fb] py-12 sm:py-14">
+        <div className="site-container max-w-5xl">
+          <Link href="/courses" className="inline-flex items-center gap-2 text-sm font-extrabold text-[#5624d0] transition hover:text-[#401b9c]">
+            <I.Chev dir="left" size={16} /> Back to all courses
           </Link>
 
-          <div style={{display: 'flex', gap: 20, alignItems: 'flex-start', marginBottom: 48}}>
-            <div>
-              <div style={{
-                width: 72,
-                height: 72,
-                borderRadius: 18,
-                background: category.thumbnail
-                  ? `linear-gradient(rgba(7, 10, 20, 0.18), rgba(7, 10, 20, 0.18)), url(${category.thumbnail})`
-                  : 'var(--brand-50)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                color: category.thumbnail ? '#fff' : 'var(--brand-600)',
-                display: 'grid',
-                placeItems: 'center',
-                border: '1px solid var(--brand-100)',
-                fontSize: 24,
-                fontWeight: 700,
-                overflow: 'hidden'
-              }}>
-                {!category.thumbnail ? React.createElement(I[category.icon || 'Code'], { size: 28 }) : null}
-              </div>
+          <div className="mt-8 flex flex-col gap-5 sm:flex-row">
+            <div className="grid h-[72px] w-[72px] shrink-0 place-items-center overflow-hidden rounded border border-slate-200 bg-white text-slate-950 shadow-[0_8px_22px_rgba(15,23,42,0.08)]" style={category.thumbnail ? { backgroundImage: `url(${category.thumbnail})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+              {!category.thumbnail && Icon ? <Icon size={28} /> : null}
             </div>
-            <div style={{flex: 1}}>
-              <div style={{
-                fontSize: 12,
-                fontWeight: 700,
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
-                color: 'var(--brand-600)',
-                marginBottom: 8
-              }}>
-                {category.n}
-              </div>
-              <h1 style={{
-                fontSize: 48,
-                margin: '0 0 12px',
-                color: 'var(--ink-900)',
-                fontWeight: 700
-              }}>
-                {category.title}
-              </h1>
-              <p style={{
-                fontSize: 16,
-                color: 'var(--ink-600)',
-                margin: 0,
-                lineHeight: 1.6,
-                maxWidth: 600
-              }}>
-                {category.desc}
-              </p>
+            <div className="min-w-0">
+              <Eyebrow>{category.n}</Eyebrow>
+              <h1 className="mt-4 text-3xl font-extrabold tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">{category.title}</h1>
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600 sm:text-base sm:leading-8">{category.desc}</p>
             </div>
           </div>
 
-          <div style={{
-            background: 'var(--canvas)',
-            border: '1px solid var(--ink-100)',
-            borderRadius: 16,
-            padding: 28
-          }}>
-            <h3 style={{margin: '0 0 12px', fontSize: 20, color: 'var(--ink-900)'}}>What you'll learn</h3>
-            <p style={{
-              fontSize: 15,
-              color: 'var(--ink-600)',
-              margin: '0 0 20px',
-              lineHeight: 1.6
-            }}>
-              Portfolio-ready projects, industry certifications, and direct access to hiring partners. You'll ship real work and graduate with concrete proof of your skills.
+          <div className="mt-8 rounded border border-slate-200 bg-white p-5 shadow-[0_8px_22px_rgba(15,23,42,0.06)] sm:p-6">
+            <h3 className="text-2xl font-extrabold tracking-normal text-slate-950">What you will learn</h3>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 sm:text-base">
+              Portfolio-ready projects, practical exercises, and clear next steps for building proof of skill in this topic.
             </p>
-            <a href="#" className="btn btn-primary">Start this track <I.Arrow size={14}/></a>
+            <div className="mt-5">
+              <ActionLink href={`/courses?category=${category.id}`} variant="primary">Browse this track <I.Arrow size={14} /></ActionLink>
+            </div>
           </div>
         </div>
       </section>
 
-      {courses.length > 0 && (
-        <section style={{padding: '88px 0'}}>
-          <div className="container">
-            <div style={{marginBottom: 32}}>
-              <div style={{
-                fontSize: 12,
-                fontWeight: 700,
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
-                color: 'var(--brand-600)',
-                marginBottom: 8
-              }}>
-                Curriculum
-              </div>
-              <h2 style={{
-                fontSize: 36,
-                margin: '0 0 8px',
-                color: 'var(--ink-900)',
-                fontWeight: 700
-              }}>
+      {courses.length > 0 ? (
+        <section className="py-10 sm:py-12">
+          <div className="site-container">
+            <div className="mb-6">
+              <p className="text-sm font-extrabold text-[#5624d0]">Curriculum</p>
+              <h2 className="mt-1 text-2xl font-extrabold tracking-normal text-slate-950 sm:text-3xl">
                 {courses.length} {courses.length === 1 ? 'course' : 'courses'}
               </h2>
-              <p style={{color: 'var(--ink-500)', fontSize: 14, margin: 0}}>
-                Currently available in our catalog
-              </p>
+              <p className="mt-2 text-sm text-slate-600">Currently available in our catalog.</p>
             </div>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-              gap: 20,
-              marginTop: 32
-            }}>
-              {courses.map((c, i) => (
-                <div key={c.id} style={{position: 'relative'}}>
-                  <div style={{
-                    position: 'absolute',
-                    top: -12,
-                    left: 16,
-                    fontFamily: 'ui-monospace, Menlo, monospace',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: 'var(--ink-400)',
-                    letterSpacing: '-0.01em'
-                  }}>
-                    {String(i + 1).padStart(2, '0')}
-                  </div>
-                  <CourseCard c={c} />
-                </div>
-              ))}
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {courses.map((course) => <CourseCard key={course.id} c={course} />)}
             </div>
           </div>
         </section>
-      )}
+      ) : null}
 
-      <section style={{background: 'var(--canvas)', padding: '88px 0'}}>
-        <div className="container">
-          <div style={{textAlign: 'center', marginBottom: 36}}>
-            <div style={{
-              fontSize: 12,
-              fontWeight: 700,
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              color: 'var(--brand-600)',
-              marginBottom: 8
-            }}>
-              Questions?
-            </div>
-            <h2 style={{fontSize: 36, margin: '0', color: 'var(--ink-900)'}}>How tracks work</h2>
+      <section className="border-y border-slate-200 bg-[#f6f8fb] py-10 sm:py-12">
+        <div className="site-container">
+          <div className="mb-6 text-center">
+            <p className="text-sm font-extrabold text-[#5624d0]">Questions?</p>
+            <h2 className="mt-1 text-2xl font-extrabold tracking-normal text-slate-950 sm:text-3xl">How tracks work</h2>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 24
-          }}>
-            <div style={{
-              background: 'var(--ink-100)',
-              border: '1px solid var(--ink-200)',
-              borderRadius: 14,
-              padding: 28
-            }}>
-              <h3 style={{margin: '0 0 12px', fontSize: 18, fontWeight: 700}}>Can I switch tracks?</h3>
-              <p style={{margin: 0, fontSize: 14, color: 'var(--ink-500)', lineHeight: 1.6}}>
-                Yes. Many learners pivot once they discover their focus. We support transitions within the first 2 weeks.
-              </p>
-            </div>
-            <div style={{
-              background: 'var(--ink-100)',
-              border: '1px solid var(--ink-200)',
-              borderRadius: 14,
-              padding: 28
-            }}>
-              <h3 style={{margin: '0 0 12px', fontSize: 18, fontWeight: 700}}>Prerequisites?</h3>
-              <p style={{margin: 0, fontSize: 14, color: 'var(--ink-500)', lineHeight: 1.6}}>
-                Most tracks are beginner-friendly. We assess and provide resources to bridge any gaps.
-              </p>
-            </div>
-            <div style={{
-              background: 'var(--ink-100)',
-              border: '1px solid var(--ink-200)',
-              borderRadius: 14,
-              padding: 28
-            }}>
-              <h3 style={{margin: '0 0 12px', fontSize: 18, fontWeight: 700}}>Multiple tracks?</h3>
-              <p style={{margin: 0, fontSize: 14, color: 'var(--ink-500)', lineHeight: 1.6}}>
-                Combine self-paced courses with bootcamps. Take them back-to-back for deeper focus.
-              </p>
-            </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              ['Can I switch tracks?', 'Yes. Many learners pivot once they discover their focus.'],
+              ['Prerequisites?', 'Most tracks are beginner-friendly, with bridge resources where needed.'],
+              ['Multiple tracks?', 'Combine self-paced courses with bootcamps for deeper focus.'],
+            ].map(([title, body]) => (
+              <div key={title} className="rounded border border-slate-200 bg-white p-5">
+                <h3 className="text-lg font-extrabold text-slate-950">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{body}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section style={{background: '#020617', color: '#fff', padding: '96px 0', position: 'relative', overflow: 'hidden'}}>
-        <div style={{position: 'absolute', inset: 0, background: 'radial-gradient(700px 400px at 20% 100%, rgba(37,99,235,0.35), transparent 60%), radial-gradient(600px 400px at 90% -10%, rgba(37,99,235,0.2), transparent 60%)', pointerEvents: 'none'}} />
-        <div className="container" style={{position: 'relative', textAlign: 'center'}}>
-          <div style={{
-            fontSize: 12,
-            fontWeight: 700,
-            letterSpacing: '0.14em',
-            textTransform: 'uppercase',
-            color: 'var(--brand-200)',
-            marginBottom: 12
-          }}>
-            Ready to start?
+      <section className="bg-[#2d2f31] py-10 text-white">
+        <div className="site-container flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-sm font-extrabold text-[#cec0fc]">Ready to start?</p>
+            <h2 className="mt-2 text-2xl font-extrabold sm:text-3xl">Begin your journey in {category.title}</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/75">Compare the courses in this track and choose the one that matches your current level.</p>
           </div>
-          <h2 style={{fontSize: 48, letterSpacing: '-0.025em', lineHeight: 1.05, margin: '12px auto 14px', maxWidth: 800}}>
-            Begin your journey in {category.title}
-          </h2>
-          <p style={{color: 'rgba(255,255,255,0.72)', fontSize: 17, maxWidth: 560, margin: '0 auto 28px'}}>
-            Join thousands of learners who've transformed their careers through focused, outcome-driven learning.
-          </p>
-          <div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>
-            <a href="#" className="btn btn-primary btn-lg">Enroll Now <I.Arrow size={16}/></a>
-            <a href="#" className="btn btn-lg" style={{background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#fff"}}>Contact Us</a>
-          </div>
+          <ActionLink href={`/courses?category=${category.id}`} variant="primary" size="lg" className="bg-white text-slate-950 hover:bg-slate-100">
+            Browse Track <I.Arrow size={16} />
+          </ActionLink>
         </div>
       </section>
     </div>

@@ -3,15 +3,16 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { I } from '@/src/components/Icons'
+import { ActionLink, PageHero } from '@/src/components/public-ui'
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' } },
 }
 
 const stagger = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.04 } },
+  visible: { transition: { staggerChildren: 0.06, delayChildren: 0.03 } },
 }
 
 export default function ReviewsPage() {
@@ -20,121 +21,75 @@ export default function ReviewsPage() {
 
   useEffect(() => {
     fetch('/api/testimonials?limit=100')
-      .then(r => r.json())
-      .then(data => setTestimonials(data.docs || []))
+      .then((response) => response.json())
+      .then((data) => setTestimonials(data.docs || []))
       .catch(() => setTestimonials([]))
       .finally(() => setLoading(false))
   }, [])
 
   return (
-    <div style={{ background: 'var(--paper)', minHeight: '100vh' }}>
+    <div className="bg-white">
+      <PageHero
+        eyebrow="Student stories"
+        title="Learner reviews and outcomes."
+        body="A cleaner review page with readable stories, visible ratings, and marketplace-style proof."
+        actions={
+          <>
+            <ActionLink href="/courses" variant="primary" size="lg">Start Learning <I.Arrow size={16} /></ActionLink>
+            <ActionLink href="/programs" variant="ghost" size="lg">View Programs</ActionLink>
+          </>
+        }
+        stats={[
+          { value: `${testimonials.length || '-' }+`, label: 'Success stories' },
+          { value: '4.8', label: 'Average rating' },
+          { value: '87%', label: 'Placement rate' },
+        ]}
+      />
 
-      {/* Hero */}
-      <section style={{ padding: '110px 0 80px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(800px 500px at 60% -10%, rgba(37,99,235,0.18), transparent 65%), radial-gradient(600px 400px at 5% 80%, rgba(37,99,235,0.10), transparent 60%)',
-        }} />
-        <div className="container" style={{ maxWidth: 860, position: 'relative', textAlign: 'center' }}>
-          <div className="eyebrow anim-fade-up" style={{ marginBottom: 16 }}>Student stories</div>
-          <h1 className="anim-fade-up d1" style={{
-            fontSize: 'clamp(36px, 5vw, 58px)',
-            fontWeight: 700,
-            letterSpacing: '-0.03em',
-            lineHeight: 1.08,
-            margin: '0 0 20px',
-            color: '#fff',
-          }}>
-            Careers Built in Months,<br />Not Years
-          </h1>
-          <p className="anim-fade-up d2" style={{
-            fontSize: 17,
-            color: 'var(--ink-400)',
-            maxWidth: 560,
-            margin: '0 auto 36px',
-            lineHeight: 1.65,
-          }}>
-            Real stories from real learners who've transformed their careers through TECHFRONT HUB.
-          </p>
-          <div className="anim-fade-up d3" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="/courses" className="btn btn-primary btn-lg">Start Learning <I.Arrow size={16} /></a>
-            <a href="/programs" className="btn btn-ghost btn-lg">View Programs</a>
+      <section className="py-10 sm:py-12">
+        <div className="site-container">
+          <div className="mb-6">
+            <p className="text-sm font-extrabold text-[#5624d0]">Reviews</p>
+            <h2 className="mt-1 text-2xl font-extrabold text-slate-950 sm:text-3xl">What learners say after taking a course</h2>
           </div>
-        </div>
-      </section>
 
-      {/* Stats strip */}
-      <section style={{ borderTop: '1px solid var(--ink-100)', borderBottom: '1px solid var(--ink-100)', padding: '40px 0' }}>
-        <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, textAlign: 'center' }}>
-            {[
-              { value: `${testimonials.length || '—'}+`, label: 'Success Stories' },
-              { value: '4.8★', label: 'Average Rating' },
-              { value: '87%', label: 'Job Placement Rate' },
-            ].map(({ value, label }) => (
-              <div key={label}>
-                <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--brand-500)', letterSpacing: '-0.02em' }}>{value}</div>
-                <div style={{ fontSize: 14, color: 'var(--ink-400)', marginTop: 4 }}>{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials grid */}
-      <section className="testimonials" style={{ paddingTop: 80, paddingBottom: 100, borderTop: 'none' }}>
-        <div className="container">
           {loading ? (
-            <div className="t-grid">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="skel-card" style={{ minHeight: 220 }} />
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="rounded border border-slate-200 bg-white p-5">
+                  <div className="shimmer-block h-6 w-32 rounded" />
+                  <div className="mt-6 shimmer-block h-5 w-full rounded" />
+                  <div className="mt-3 shimmer-block h-5 w-4/5 rounded" />
+                </div>
               ))}
             </div>
           ) : testimonials.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '80px 20px', color: 'var(--ink-500)' }}>
-              <p style={{ fontSize: 16 }}>No reviews yet — check back soon.</p>
+            <div className="rounded border border-dashed border-slate-300 bg-[#f6f8fb] px-6 py-10 text-center text-sm font-semibold text-slate-500">
+              No reviews yet. Check back soon.
             </div>
           ) : (
-            <motion.div className="t-grid" variants={stagger} initial="hidden" animate="visible">
-              {testimonials.map((t, i) => (
-                <motion.div key={t.id ?? i} className="t-card" variants={fadeUp}>
-                  <div className="t-stars">★★★★★</div>
-                  <div className="quote">"{t.quote}"</div>
-                  <div className="person">
-                    <div className="avatar">{t.initials}</div>
-                    <div>
-                      <b>{t.name}</b>
-                      <span>{t.role}</span>
-                    </div>
+            <motion.div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" variants={stagger} initial="hidden" animate="visible">
+              {testimonials.map((testimonial, index) => (
+                <motion.figure key={testimonial.id ?? index} className="rounded border border-slate-200 bg-white p-5 shadow-[0_8px_22px_rgba(15,23,42,0.06)]" variants={fadeUp}>
+                  <div className="flex text-[#f69c08]">
+                    {Array.from({ length: 5 }).map((_, starIndex) => <I.Star key={starIndex} size={15} />)}
                   </div>
-                </motion.div>
+                  <blockquote className="mt-4 text-sm leading-7 text-slate-700">"{testimonial.quote}"</blockquote>
+                  <figcaption className="mt-5 flex items-center gap-3 border-t border-slate-200 pt-4">
+                    <div className="grid h-11 w-11 place-items-center rounded bg-slate-950 text-sm font-extrabold text-white">
+                      {testimonial.initials}
+                    </div>
+                    <div>
+                      <b className="block text-slate-950">{testimonial.name}</b>
+                      <span className="text-sm text-slate-500">{testimonial.role}</span>
+                    </div>
+                  </figcaption>
+                </motion.figure>
               ))}
             </motion.div>
           )}
         </div>
       </section>
-
-      {/* CTA */}
-      <section style={{ background: '#020617', padding: '96px 0', position: 'relative', overflow: 'hidden' }}>
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(700px 400px at 20% 100%, rgba(37,99,235,0.35), transparent 60%), radial-gradient(600px 400px at 90% -10%, rgba(37,99,235,0.2), transparent 60%)',
-        }} />
-        <div className="container" style={{ position: 'relative', textAlign: 'center' }}>
-          <div className="eyebrow" style={{ color: 'var(--brand-200)', marginBottom: 12 }}>Ready for your transformation?</div>
-          <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', letterSpacing: '-0.025em', lineHeight: 1.05, margin: '0 auto 16px', maxWidth: 700, color: '#fff' }}>
-            Start Your Journey Today
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 17, maxWidth: 520, margin: '0 auto 32px', lineHeight: 1.6 }}>
-            Join thousands of learners who've achieved their career goals through hands-on learning and expert mentorship.
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="/courses" className="btn btn-primary btn-lg">Explore Courses <I.Arrow size={16} /></a>
-            <a href="/programs" className="btn btn-lg" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>View Programs</a>
-          </div>
-        </div>
-      </section>
-
     </div>
   )
 }

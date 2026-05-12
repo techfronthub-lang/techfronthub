@@ -171,6 +171,7 @@ export interface User {
   name?: string | null;
   role?: ('admin' | 'instructor' | 'student' | 'staff') | null;
   status?: ('active' | 'pending' | 'suspended') | null;
+  emailVerified?: boolean | null;
   phone?: string | null;
   /**
    * Optional avatar URL or initials image link
@@ -202,6 +203,8 @@ export interface User {
 export interface Instructor {
   id: number;
   name?: string | null;
+  status?: ('active' | 'pending' | 'suspended') | null;
+  emailVerified?: boolean | null;
   bio?: string | null;
   /**
    * Comma-separated e.g. Data Analytics, Python, SQL
@@ -619,6 +622,7 @@ export interface UsersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
   status?: T;
+  emailVerified?: T;
   phone?: T;
   avatar?: T;
   updatedAt?: T;
@@ -644,6 +648,8 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface InstructorsSelect<T extends boolean = true> {
   name?: T;
+  status?: T;
+  emailVerified?: T;
   bio?: T;
   expertise?: T;
   photo?: T;

@@ -75,6 +75,7 @@ function compareUsers(a, b, sort) {
 export default function UsersConsolePage() {
   const auth = useAuth()
   const [users, setUsers] = useState([])
+  const [instructors, setInstructors] = useState([])
   const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -89,12 +90,14 @@ export default function UsersConsolePage() {
     setLoading(true)
     setError('')
     try {
-      const [usersRes, logsRes] = await Promise.all([
+      const [usersRes, logsRes, instructorsRes] = await Promise.all([
         getCollection('users', { limit: 250, page: 1 }),
         getCollection('admin-activity', { limit: 15, page: 1 }),
+        getCollection('instructors', { limit: 250, page: 1 }),
       ])
       setUsers(usersRes.docs || [])
       setLogs(logsRes.docs || [])
+      setInstructors(instructorsRes.docs || [])
     } catch (e) {
       setError(e.message)
     } finally {
@@ -211,7 +214,21 @@ export default function UsersConsolePage() {
 
   const total = users.length
   const active = users.filter((user) => valueText(user, 'status') === 'active').length
-  const admins = users.filter((user) => valueText(user, 'role') === 'admin').length
+  const pendingInstructors = instructors.filter((instructor) => valueText(instructor, 'status') === 'pending')
+  const instructorCount = instructors.length
+  const pendingInstructorCount = pendingInstructors.length
+
+  const updateInstructorStatus = async (instructor, nextStatus) => {
+    setBusy(true)
+    try {
+      await updateDoc('instructors', instructor.id, { status: nextStatus })
+      await load()
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setBusy(false)
+    }
+  }
 
   return (
     <>
@@ -238,8 +255,8 @@ export default function UsersConsolePage() {
         <motion.div className="stats-grid" style={{ marginBottom: 16 }} variants={stagger} initial="hidden" animate="visible">
           <motion.div className="stat-card" variants={fadeUp}><div className="stat-label">Accounts</div><div className="stat-value">{total}</div></motion.div>
           <motion.div className="stat-card" variants={fadeUp}><div className="stat-label">Active</div><div className="stat-value">{active}</div></motion.div>
-          <motion.div className="stat-card" variants={fadeUp}><div className="stat-label">Admins</div><div className="stat-value">{admins}</div></motion.div>
-          <motion.div className="stat-card" variants={fadeUp}><div className="stat-label">Selected</div><div className="stat-value">{selectedCount}</div></motion.div>
+          <motion.div className="stat-card" variants={fadeUp}><div className="stat-label">Instructors</div><div className="stat-value">{instructorCount}</div></motion.div>
+          <motion.div className="stat-card" variants={fadeUp}><div className="stat-label">Pending instructors</div><div className="stat-value">{pendingInstructorCount}</div></motion.div>
         </motion.div>
 
         <div className="a-grid-2">
@@ -360,35 +377,67 @@ export default function UsersConsolePage() {
             </motion.div>
           </div>
 
-          <motion.div className="a-card" initial="hidden" animate="visible" variants={fadeUp}>
-            <div className="a-card-header">
-              <div className="a-card-title">Audit History</div>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={refreshLogs} disabled={busy}>
-                Refresh
-              </button>
-            </div>
+          <div style={{ display: 'grid', gap: 16 }}>
+            <motion.div className="a-card" initial="hidden" animate="visible" variants={fadeUp}>
+              <div className="a-card-header">
+                <div className="a-card-title">Instructor approvals</div>
+                <span style={{ color: 'var(--a-muted)', fontSize: 12 }}>{pendingInstructorCount} pending</span>
+              </div>
 
-            <div className="audit-feed">
-              {logs.length === 0 ? (
-                <div className="a-empty" style={{ padding: 0 }}>No activity yet.</div>
-              ) : (
-                logs.map((log) => (
-                  <div key={log.id} className="audit-item">
-                    <div className="audit-head">
-                      <span className="pill" style={badgeStyle(log.action)}>{log.action}</span>
-                      <span style={{ color: 'var(--a-muted)', fontSize: 12 }}>{formatDate(log.createdAt)}</span>
+              <div style={{ display: 'grid', gap: 12 }}>
+                {pendingInstructors.length === 0 ? (
+                  <div className="a-empty" style={{ padding: 0 }}>No instructors waiting for approval.</div>
+                ) : (
+                  pendingInstructors.map((instructor) => (
+                    <div key={instructor.id} style={{ border: '1px solid var(--a-border)', borderRadius: 16, padding: 14, display: 'grid', gap: 10 }}>
+                      <div>
+                        <div style={{ fontWeight: 700 }}>{instructor.name || instructor.email}</div>
+                        <div style={{ color: 'var(--a-muted)', fontSize: 13 }}>{instructor.email}</div>
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                        <button type="button" className="btn btn-primary btn-sm" onClick={() => updateInstructorStatus(instructor, 'active')} disabled={busy}>
+                          Approve
+                        </button>
+                        <button type="button" className="btn btn-ghost btn-sm" onClick={() => updateInstructorStatus(instructor, 'suspended')} disabled={busy}>
+                          Reject
+                        </button>
+                      </div>
                     </div>
-                    <div className="audit-title">{log.targetLabel}</div>
-                    <div className="audit-meta">
-                      <span>{log.actor}</span>
-                      <span>-</span>
-                      <span>{log.note || log.targetCollection}</span>
+                  ))
+                )}
+              </div>
+            </motion.div>
+
+            <motion.div className="a-card" initial="hidden" animate="visible" variants={fadeUp}>
+              <div className="a-card-header">
+                <div className="a-card-title">Audit History</div>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={refreshLogs} disabled={busy}>
+                  Refresh
+                </button>
+              </div>
+
+              <div className="audit-feed">
+                {logs.length === 0 ? (
+                  <div className="a-empty" style={{ padding: 0 }}>No activity yet.</div>
+                ) : (
+                  logs.map((log) => (
+                    <div key={log.id} className="audit-item">
+                      <div className="audit-head">
+                        <span className="pill" style={badgeStyle(log.action)}>{log.action}</span>
+                        <span style={{ color: 'var(--a-muted)', fontSize: 12 }}>{formatDate(log.createdAt)}</span>
+                      </div>
+                      <div className="audit-title">{log.targetLabel}</div>
+                      <div className="audit-meta">
+                        <span>{log.actor}</span>
+                        <span>-</span>
+                        <span>{log.note || log.targetCollection}</span>
+                      </div>
                     </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </motion.div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </>

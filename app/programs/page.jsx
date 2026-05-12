@@ -2,49 +2,42 @@
 
 import React, { useEffect, useState } from 'react'
 import { I } from '@/src/components/Icons'
+import { ActionLink, PageHero } from '@/src/components/public-ui'
 
-function featureText(f) {
-  return typeof f === 'string' ? f : f?.feature ?? ''
+function featureText(feature) {
+  return typeof feature === 'string' ? feature : feature?.feature ?? ''
 }
 
-function ProgramCard({ p, index }) {
-  const isFeatured = !!p.featured
-  const Ic = p.icon && I[p.icon] ? I[p.icon] : I.Briefcase
+function ProgramCard({ program }) {
+  const featured = !!program.featured
+  const Icon = program.icon && I[program.icon] ? I[program.icon] : I.Briefcase
 
   return (
-    <div className={'pkg anim-fade-up d' + Math.min(index + 1, 8)} style={{ animationFillMode: 'both' }}
-      {...(isFeatured ? { 'data-featured': true } : {})}
-    >
-      {p.badge && <span className="pkg-badge">{p.badge}</span>}
-
-      <div className="pkg-ic">
-        <Ic size={20} />
+    <article className={`flex h-full flex-col rounded border bg-white p-5 shadow-[0_8px_22px_rgba(15,23,42,0.06)] ${featured ? 'border-slate-950' : 'border-slate-200'}`}>
+      {program.badge ? <span className="w-fit rounded-sm bg-[#eceb98] px-2 py-1 text-xs font-extrabold text-[#3d3c0a]">{program.badge}</span> : null}
+      <div className="mt-4 grid h-12 w-12 place-items-center rounded bg-slate-950 text-white">
+        <Icon size={20} />
       </div>
-
-      <h3>{p.name}</h3>
-      <p>{p.desc}</p>
-
-      <div className="pkg-price">
-        <strong>{p.price}</strong>
-        {p.per && <span className="per">{p.per}</span>}
+      <h3 className="mt-5 text-xl font-extrabold text-slate-950">{program.name}</h3>
+      <p className="mt-3 text-sm leading-6 text-slate-600">{program.desc}</p>
+      <div className="mt-5 flex items-end gap-2">
+        <strong className="text-2xl font-extrabold text-slate-950">{program.price}</strong>
+        {program.per ? <span className="pb-1 text-sm font-semibold text-slate-500">{program.per}</span> : null}
       </div>
-
-      {p.features?.length > 0 && (
-        <ul>
-          {p.features.map((f, i) => (
-            <li key={i}>{featureText(f)}</li>
+      {program.features?.length ? (
+        <ul className="mt-5 space-y-2 border-t border-slate-200 pt-5 text-sm text-slate-700">
+          {program.features.map((feature, featureIndex) => (
+            <li key={featureIndex} className="flex gap-2">
+              <span className="mt-1 text-[#5624d0]"><I.Check size={14} /></span>
+              <span>{featureText(feature)}</span>
+            </li>
           ))}
         </ul>
-      )}
-
-      <a
-        href="/courses"
-        className={'btn ' + (isFeatured ? 'btn-primary' : 'btn-ghost')}
-        style={{ marginTop: 'auto', justifyContent: 'center' }}
-      >
-        {isFeatured ? 'Get started' : 'Learn more'} <I.Arrow size={14} />
-      </a>
-    </div>
+      ) : null}
+      <ActionLink href="/courses" variant={featured ? 'primary' : 'ghost'} className="mt-auto w-full">
+        {featured ? 'Get started' : 'Learn more'} <I.Arrow size={14} />
+      </ActionLink>
+    </article>
   )
 }
 
@@ -54,8 +47,8 @@ export default function ProgramsPage() {
 
   useEffect(() => {
     fetch('/api/packages?limit=100')
-      .then(r => r.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         const sorted = (data.docs || []).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
         setPackages(sorted)
       })
@@ -64,86 +57,62 @@ export default function ProgramsPage() {
   }, [])
 
   return (
-    <div style={{ background: 'var(--paper)', minHeight: '100vh' }}>
+    <div className="bg-white">
+      <PageHero
+        eyebrow="Learning Programs"
+        title="Find the learning format that fits your goal."
+        body="Compare bootcamps, 1-on-1 coaching, and corporate training in a cleaner marketplace format."
+        actions={
+          <>
+            <ActionLink href="/courses" variant="primary" size="lg">Browse Courses <I.Arrow size={16} /></ActionLink>
+            <ActionLink href="#programs" variant="ghost" size="lg">See Programs</ActionLink>
+          </>
+        }
+      />
 
-      {/* Hero */}
-      <section style={{ padding: '110px 0 80px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(800px 500px at 60% -10%, rgba(37,99,235,0.18), transparent 65%), radial-gradient(600px 400px at 10% 80%, rgba(37,99,235,0.10), transparent 60%)',
-        }} />
-        <div className="container" style={{ maxWidth: 860, position: 'relative', textAlign: 'center' }}>
-          <div className="eyebrow anim-fade-up" style={{ marginBottom: 16 }}>Learning Programs</div>
-          <h1 className="anim-fade-up d1" style={{
-            fontSize: 'clamp(36px, 5vw, 58px)',
-            fontWeight: 700,
-            letterSpacing: '-0.03em',
-            lineHeight: 1.08,
-            margin: '0 0 20px',
-            color: '#fff',
-          }}>
-            Find Your Perfect<br />Learning Format
-          </h1>
-          <p className="anim-fade-up d2" style={{
-            fontSize: 17,
-            color: 'var(--ink-400)',
-            maxWidth: 580,
-            margin: '0 auto 36px',
-            lineHeight: 1.65,
-          }}>
-            Structured bootcamps, 1-on-1 coaching, or corporate training — a program designed for your goals.
-          </p>
-          <div className="anim-fade-up d3" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="/courses" className="btn btn-primary btn-lg">Browse Courses <I.Arrow size={16} /></a>
-            <a href="#programs" className="btn btn-ghost btn-lg">See Programs</a>
+      <section id="programs" className="py-10 sm:py-12">
+        <div className="site-container">
+          <div className="mb-6">
+            <p className="text-sm font-extrabold text-[#5624d0]">Ways to learn</p>
+            <h2 className="mt-1 text-2xl font-extrabold text-slate-950 sm:text-3xl">Choose a program type</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Pick the structure, support level, and pace that fits your schedule.</p>
           </div>
-        </div>
-      </section>
 
-      {/* Programs Grid */}
-      <section id="programs" className="packages" style={{ paddingTop: 80, paddingBottom: 100 }}>
-        <div className="container">
           {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="skel-card" style={{ minHeight: 340 }} />
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="rounded border border-slate-200 bg-white p-5">
+                  <div className="shimmer-block h-5 w-24 rounded" />
+                  <div className="mt-6 shimmer-block h-12 w-12 rounded" />
+                  <div className="mt-6 shimmer-block h-8 w-2/3 rounded" />
+                  <div className="mt-4 shimmer-block h-5 w-full rounded" />
+                </div>
               ))}
             </div>
           ) : packages.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '80px 20px', color: 'var(--ink-500)' }}>
-              <p style={{ fontSize: 16 }}>No programs available yet — check back soon.</p>
+            <div className="rounded border border-dashed border-slate-300 bg-[#f6f8fb] px-6 py-10 text-center text-sm font-semibold text-slate-500">
+              No programs available yet. Check back soon.
             </div>
           ) : (
-            <div className="pkg-grid">
-              {packages.map((p, i) => (
-                <ProgramCard key={p.id} p={p} index={i} />
-              ))}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {packages.map((program) => <ProgramCard key={program.id} program={program} />)}
             </div>
           )}
         </div>
       </section>
 
-      {/* CTA */}
-      <section style={{ background: '#020617', padding: '96px 0', position: 'relative', overflow: 'hidden' }}>
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'radial-gradient(700px 400px at 20% 100%, rgba(37,99,235,0.35), transparent 60%), radial-gradient(600px 400px at 90% -10%, rgba(37,99,235,0.2), transparent 60%)',
-        }} />
-        <div className="container" style={{ position: 'relative', textAlign: 'center' }}>
-          <div className="eyebrow" style={{ color: 'var(--brand-200)', marginBottom: 12 }}>Ready to transform your career?</div>
-          <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', letterSpacing: '-0.025em', lineHeight: 1.05, margin: '0 auto 16px', maxWidth: 700, color: '#fff' }}>
-            Choose Your Path
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 17, maxWidth: 520, margin: '0 auto 32px', lineHeight: 1.6 }}>
-            All programs include hands-on projects, industry expertise, and career support.
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="/courses" className="btn btn-primary btn-lg">Explore Courses <I.Arrow size={16} /></a>
-            <a href="/" className="btn btn-lg" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}>Contact Sales</a>
+      <section className="bg-[#2d2f31] py-10 text-white">
+        <div className="site-container flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-sm font-extrabold text-[#cec0fc]">Ready to compare?</p>
+            <h2 className="mt-2 text-2xl font-extrabold sm:text-3xl">Start with the course catalog.</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/75">Every program links back to practical courses, topics, and learner outcomes.</p>
           </div>
+          <ActionLink href="/courses" variant="primary" size="lg" className="bg-white text-slate-950 hover:bg-slate-100">
+            Explore Courses <I.Arrow size={16} />
+          </ActionLink>
         </div>
       </section>
-
     </div>
   )
 }
