@@ -23,8 +23,8 @@ function fallbackThumbnail(course) {
 function StarRating({ value = '4.7', count = '1,000' }) {
   return (
     <div className="mt-2 flex items-center gap-1 text-sm">
-      <b className="text-[#b4690e]">{value}</b>
-      <span className="flex text-[#f69c08]">
+      <b className="text-[color:var(--brand-strong)]">{value}</b>
+      <span className="flex text-[color:var(--brand)]">
         {Array.from({ length: 5 }).map((_, index) => <I.Star key={index} size={13} />)}
       </span>
       <span className="text-xs text-slate-500">({count})</span>
@@ -64,7 +64,7 @@ export default function UdemyPage() {
       <section id="courses" className="py-10 sm:py-12">
         <div className="site-container">
           <div className="mb-6">
-            <p className="text-sm font-extrabold text-[#5624d0]">Self-paced shelf</p>
+            <p className="text-sm font-extrabold text-[color:var(--brand-strong)]">Self-paced shelf</p>
             <h2 className="mt-1 text-2xl font-extrabold text-slate-950 sm:text-3xl">Courses available through Udemy</h2>
           </div>
 
@@ -79,7 +79,7 @@ export default function UdemyPage() {
               ))}
             </div>
           ) : courses.length === 0 ? (
-            <div className="rounded border border-dashed border-slate-300 bg-[#f6f8fb] px-6 py-10 text-center text-sm font-semibold text-slate-500">
+            <div className="rounded border border-dashed border-slate-300 bg-[color:var(--bg-surface-strong)] px-6 py-10 text-center text-sm font-semibold text-slate-500">
               No Udemy courses published yet. Check back soon.
             </div>
           ) : (

@@ -1,41 +1,57 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Plus Jakarta Sans", "Inter", "Segoe UI", sans-serif;
+  --font-sans: "Nunito Sans", "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  --font-display: "Plus Jakarta Sans", "Nunito Sans", "Segoe UI", sans-serif;
 
-  --color-brand-50: #fff4e6;
-  --color-brand-100: #ffe0b8;
-  --color-brand-200: #ffcc8a;
-  --color-brand-300: #ffb05c;
-  --color-brand-400: #ff9433;
-  --color-brand-500: #e87410;
-  --color-brand-600: #c45800;
-  --color-brand-700: #9c4400;
-  --color-brand-900: #3b1800;
+  --color-brand-50: #eff8ff;
+  --color-brand-100: #dff0ff;
+  --color-brand-200: #b9e0ff;
+  --color-brand-300: #7cc7ff;
+  --color-brand-400: #38a9f5;
+  --color-brand-500: #0b84df;
+  --color-brand-600: #0669bd;
+  --color-brand-700: #075599;
+  --color-brand-900: #0a2347;
 
-  --color-accent-100: #fff0d4;
-  --color-accent-200: #ffd980;
-  --color-accent-300: #ffbe3d;
+  --color-accent-100: #eaf6ff;
+  --color-accent-200: #cdeaff;
+  --color-accent-300: #8cd1ff;
 
-  --color-ink-100: #fff8f0;
-  --color-ink-200: #f0c89a;
-  --color-ink-300: #c49660;
-  --color-ink-400: #a67845;
-  --color-ink-500: #8c5a2a;
-  --color-ink-900: #3b1800;
+  --color-ink-100: #f8fbff;
+  --color-ink-200: #e4edf7;
+  --color-ink-300: #c7d5e6;
+  --color-ink-400: #7c8da3;
+  --color-ink-500: #53657a;
+  --color-ink-900: #10233f;
 }
 
 :root {
   --bg-page:
-    linear-gradient(180deg, #fff5ee 0%, #ffecd2 42%, #fff2e8 100%);
-  --bg-surface: #fff8f0;
-  --bg-surface-strong: #ffeed8;
-  --bg-soft: #ffe0bf;
-  --bg-soft-strong: #ffd4a3;
-  --border-soft: rgba(164, 95, 25, 0.18);
-  --border-strong: rgba(180, 100, 20, 0.42);
-  --shadow-card: 0 12px 28px rgba(120, 60, 10, 0.10);
-  --shadow-soft: 0 8px 20px rgba(120, 60, 10, 0.07);
+    radial-gradient(circle at 12% 0%, rgba(219, 239, 255, 0.78), transparent 26%),
+    linear-gradient(180deg, #ffffff 0%, #f7fbff 44%, #ffffff 100%);
+  --bg-surface: #ffffff;
+  --bg-surface-strong: #f8fbff;
+  --bg-soft: #eef7ff;
+  --bg-soft-strong: #dff0ff;
+  --bg-cta: #0a2347;
+  --border-soft: rgba(93, 125, 160, 0.18);
+  --border-strong: rgba(11, 132, 223, 0.34);
+  --shadow-card: 0 14px 32px rgba(16, 35, 63, 0.08);
+  --shadow-soft: 0 8px 22px rgba(16, 35, 63, 0.06);
+  --shadow-blue: 0 14px 28px rgba(11, 132, 223, 0.22);
+  --text-strong: #10233f;
+  --text-body: #53657a;
+  --text-muted: #7c8da3;
+  --brand: #0b84df;
+  --brand-strong: #0669bd;
+  --brand-soft: #eaf6ff;
+  --success: #11845b;
+  --success-soft: #e9f8f1;
+  --warning: #b45309;
+  --warning-soft: #fff7ed;
+  --danger: #b42318;
+  --danger-soft: #fff1f0;
 }
 
 @layer base {
@@ -51,7 +67,7 @@
     min-height: 100vh;
     overflow-x: hidden;
     background: var(--bg-page);
-    color: #3b1800;
+    color: var(--text-strong);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -81,12 +97,12 @@
 
   input::placeholder,
   textarea::placeholder {
-    color: rgba(140, 90, 42, 0.75);
+    color: rgba(83, 101, 122, 0.72);
   }
 
   select option {
-    background: #fff8f0;
-    color: #3b1800;
+    background: #ffffff;
+    color: var(--text-strong);
   }
 }
 
@@ -121,11 +137,11 @@
   }
 
   .surface-card {
-    @apply rounded border border-[color:var(--border-soft)] bg-[color:var(--bg-surface)] shadow-[var(--shadow-card)];
+    @apply rounded-xl border border-[color:var(--border-soft)] bg-[color:var(--bg-surface)] shadow-[var(--shadow-card)];
   }
 
   .surface-card-soft {
-    @apply rounded border border-[color:var(--border-soft)] bg-[color:var(--bg-soft)] shadow-[var(--shadow-soft)];
+    @apply rounded-xl border border-[color:var(--border-soft)] bg-[color:var(--bg-soft)] shadow-[var(--shadow-soft)];
   }
 
   .section-space {
@@ -137,15 +153,15 @@
   }
 
   .btn-primary {
-    @apply bg-[#c04a00] text-white shadow-[0_12px_24px_rgba(192,74,0,0.22)] hover:bg-[#a03d00];
+    @apply bg-[color:var(--brand)] text-white shadow-[var(--shadow-blue)] hover:bg-[color:var(--brand-strong)];
   }
 
   .btn-ghost {
-    @apply border border-[#d4a060]/50 bg-[#ffeed8] text-[#6b3a10] hover:bg-[#ffe0bf];
+    @apply border border-[color:var(--border-soft)] bg-white text-[color:var(--text-strong)] hover:border-[color:var(--border-strong)] hover:bg-[color:var(--brand-soft)];
   }
 
   .btn-dark {
-    @apply border border-orange-300/16 bg-orange-300/12 text-accent-100 hover:bg-orange-300/18;
+    @apply border border-white/18 bg-white/10 text-white hover:bg-white/16;
   }
 
   .btn-sm {
@@ -157,7 +173,7 @@
   }
 
   .shimmer-block {
-    background: linear-gradient(90deg, rgba(255, 224, 191, 0.6) 25%, rgba(255, 248, 240, 0.8) 50%, rgba(255, 224, 191, 0.6) 75%);
+    background: linear-gradient(90deg, rgba(223, 240, 255, 0.72) 25%, rgba(255, 255, 255, 0.92) 50%, rgba(223, 240, 255, 0.72) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.3s linear infinite;
   }

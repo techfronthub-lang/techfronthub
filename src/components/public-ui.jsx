@@ -17,11 +17,11 @@ export function formatMetricValue(value) {
 
 const buttonVariants = {
   primary:
-    'bg-[#c04a00] text-white shadow-[0_12px_24px_rgba(192,74,0,0.22)] hover:bg-[#a03d00]',
+    'bg-[color:var(--brand)] text-white shadow-[var(--shadow-blue)] hover:bg-[color:var(--brand-strong)]',
   ghost:
-    'border border-[#d4a060]/50 bg-[#ffeed8] text-[#6b3a10] hover:bg-[#ffe0bf]',
+    'border border-[color:var(--border-soft)] bg-white text-[color:var(--text-strong)] hover:border-[color:var(--border-strong)] hover:bg-[color:var(--brand-soft)]',
   subtle:
-    'border border-[#f0c89a] bg-[#fff5ee] text-[#6b3a10] hover:bg-[#ffe0bf]',
+    'border border-[color:var(--border-soft)] bg-[color:var(--bg-surface-strong)] text-[color:var(--text-strong)] hover:bg-[color:var(--brand-soft)]',
 }
 
 const buttonSizes = {
@@ -64,8 +64,8 @@ export function Eyebrow({ children, className = '' }) {
   return (
     <span
       className={cn(
-        'inline-flex w-fit items-center gap-2 rounded-sm bg-[#ff8c42] px-2.5 py-1 text-[11px] font-extrabold uppercase text-[#3b1800]',
-        'shadow-[inset_0_0_0_1px_rgba(192,74,0,0.16)]',
+        'inline-flex w-fit items-center gap-2 rounded-sm bg-[color:var(--brand-soft)] px-2.5 py-1 text-[11px] font-extrabold uppercase text-[color:var(--brand-strong)]',
+        'shadow-[inset_0_0_0_1px_rgba(11,132,223,0.18)]',
         className,
       )}
     >
@@ -92,11 +92,11 @@ export function SectionHeading({
     >
       <div className={cn('max-w-2xl', centered && 'mx-auto')}>
         {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-        <h2 className="mt-4 text-2xl font-extrabold tracking-normal text-[#3b1800] sm:text-3xl lg:text-4xl">
+        <h2 className="mt-4 font-[var(--font-display)] text-2xl font-extrabold tracking-normal text-[color:var(--text-strong)] sm:text-3xl lg:text-4xl">
           {title}
         </h2>
         {body ? (
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-[#8c5a2a] sm:text-base sm:leading-8">
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-[color:var(--text-body)] sm:text-base sm:leading-8">
             {body}
           </p>
         ) : null}
@@ -108,14 +108,14 @@ export function SectionHeading({
 
 export function PageHero({ eyebrow, title, body, actions, stats }) {
   return (
-    <section className="relative overflow-hidden border-b border-[#f0c89a] bg-[linear-gradient(180deg,#fff5ee_0%,#ffecd2_100%)] py-14 sm:py-18 lg:py-20 xl:py-24">
+    <section className="relative overflow-hidden border-b border-[color:var(--border-soft)] bg-[linear-gradient(180deg,#ffffff_0%,#eef7ff_100%)] py-14 sm:py-18 lg:py-20 xl:py-24">
       <div className="site-container relative">
         <div className="mx-auto max-w-4xl text-center">
           <Eyebrow>{eyebrow}</Eyebrow>
-          <h1 className="mt-4 text-wrap-balance text-3xl font-extrabold tracking-normal text-[#3b1800] sm:text-4xl lg:text-5xl">
+          <h1 className="mt-4 text-wrap-balance font-[var(--font-display)] text-3xl font-extrabold tracking-normal text-[color:var(--text-strong)] sm:text-4xl lg:text-5xl">
             {title}
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#8c5a2a] sm:text-base sm:leading-8">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[color:var(--text-body)] sm:text-base sm:leading-8">
             {body}
           </p>
           {actions ? <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">{actions}</div> : null}
@@ -123,8 +123,8 @@ export function PageHero({ eyebrow, title, body, actions, stats }) {
             <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {stats.map((item) => (
                 <div key={item.label} className="surface-card-soft px-4 py-4 text-left sm:px-5 sm:py-5">
-                  <div className="text-2xl font-extrabold tracking-normal text-[#3b1800] sm:text-3xl">{formatMetricValue(item.value)}</div>
-                  <div className="mt-1 text-xs text-[#8c5a2a] sm:text-sm">{item.label}</div>
+                  <div className="text-2xl font-extrabold tracking-normal text-[color:var(--text-strong)] sm:text-3xl">{formatMetricValue(item.value)}</div>
+                  <div className="mt-1 text-xs text-[color:var(--text-body)] sm:text-sm">{item.label}</div>
                 </div>
               ))}
             </div>

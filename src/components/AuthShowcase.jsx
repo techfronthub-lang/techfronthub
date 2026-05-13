@@ -96,8 +96,8 @@ const panelStyle = {
   justifyContent: 'space-between',
   padding: '28px',
   background:
-    'radial-gradient(circle at top right, rgba(245, 185, 75, 0.18), transparent 24%), linear-gradient(180deg, #081321 0%, #0e2342 55%, #10213a 100%)',
-  color: '#f8fafc',
+    'radial-gradient(circle at top right, rgba(223, 240, 255, 0.92), transparent 28%), linear-gradient(180deg, #f8fbff 0%, #eaf6ff 100%)',
+  color: '#10233f',
   minHeight: '100%',
 }
 
@@ -108,7 +108,7 @@ const glowOneStyle = {
   width: '240px',
   height: '240px',
   borderRadius: '999px',
-  background: 'rgba(37, 99, 235, 0.18)',
+  background: 'rgba(11, 132, 223, 0.16)',
   filter: 'blur(18px)',
 }
 
@@ -119,7 +119,7 @@ const glowTwoStyle = {
   width: '220px',
   height: '220px',
   borderRadius: '999px',
-  background: 'rgba(245, 185, 75, 0.16)',
+  background: 'rgba(124, 199, 255, 0.18)',
   filter: 'blur(20px)',
 }
 
@@ -133,8 +133,8 @@ const eyebrowStyle = {
   display: 'inline-flex',
   padding: '8px 12px',
   borderRadius: '999px',
-  border: '1px solid rgba(255,255,255,0.16)',
-  background: 'rgba(255,255,255,0.08)',
+  border: '1px solid rgba(11, 132, 223, 0.18)',
+  background: '#ffffff',
   fontSize: '12px',
   fontWeight: 700,
   letterSpacing: '0.12em',
@@ -150,7 +150,7 @@ const titleStyle = {
 
 const bodyStyle = {
   margin: 0,
-  color: 'rgba(226, 232, 240, 0.82)',
+  color: '#53657a',
   fontSize: '15px',
   lineHeight: 1.7,
 }
@@ -166,7 +166,7 @@ const bulletRowStyle = {
   alignItems: 'center',
   gap: '12px',
   fontSize: '14px',
-  color: 'rgba(241, 245, 249, 0.94)',
+  color: '#53657a',
 }
 
 const bulletDotStyle = {
@@ -174,8 +174,8 @@ const bulletDotStyle = {
   height: '10px',
   flexShrink: 0,
   borderRadius: '999px',
-  background: '#f2b94b',
-  boxShadow: '0 0 0 6px rgba(242, 185, 75, 0.16)',
+  background: '#0b84df',
+  boxShadow: '0 0 0 6px rgba(11, 132, 223, 0.12)',
 }
 
 const mockStyle = {
@@ -189,9 +189,9 @@ const mockStyle = {
 const dashboardCardStyle = {
   borderRadius: '24px',
   padding: '20px',
-  background: 'rgba(7, 16, 30, 0.46)',
-  border: '1px solid rgba(255,255,255,0.12)',
-  boxShadow: '0 24px 48px rgba(0,0,0,0.28)',
+  background: 'rgba(255,255,255,0.82)',
+  border: '1px solid rgba(93, 125, 160, 0.18)',
+  boxShadow: '0 24px 48px rgba(16,35,63,0.10)',
   backdropFilter: 'blur(10px)',
 }
 
@@ -209,7 +209,7 @@ const miniLabelStyle = {
   fontWeight: 700,
   letterSpacing: '0.12em',
   textTransform: 'uppercase',
-  color: 'rgba(219, 234, 254, 0.94)',
+  color: '#0669bd',
 }
 
 const dashboardTitleStyle = {
@@ -221,8 +221,8 @@ const dashboardTitleStyle = {
 const badgeStyle = {
   borderRadius: '999px',
   padding: '8px 12px',
-  background: 'rgba(242, 185, 75, 0.14)',
-  color: '#fde7b0',
+  background: '#eaf6ff',
+  color: '#0669bd',
   fontSize: '12px',
   fontWeight: 700,
 }
@@ -236,8 +236,8 @@ const statsGridStyle = {
 const statCardStyle = {
   borderRadius: '18px',
   padding: '14px',
-  background: 'rgba(2, 6, 23, 0.28)',
-  border: '1px solid rgba(255,255,255,0.08)',
+  background: '#ffffff',
+  border: '1px solid rgba(93, 125, 160, 0.16)',
 }
 
 const statValueStyle = {
@@ -250,7 +250,7 @@ const statLabelStyle = {
   marginTop: '8px',
   fontSize: '12px',
   lineHeight: 1.5,
-  color: 'rgba(226, 232, 240, 0.7)',
+  color: '#7c8da3',
 }
 
 const courseListStyle = {
@@ -266,7 +266,7 @@ const courseItemStyle = {
   gap: '16px',
   borderRadius: '18px',
   padding: '14px 16px',
-  background: 'rgba(255,255,255,0.06)',
+  background: '#f8fbff',
 }
 
 const courseTitleStyle = {
@@ -277,14 +277,14 @@ const courseTitleStyle = {
 const courseMetaStyle = {
   marginTop: '4px',
   fontSize: '12px',
-  color: 'rgba(226, 232, 240, 0.68)',
+  color: '#7c8da3',
 }
 
 const progressPillStyle = {
   borderRadius: '999px',
   padding: '8px 12px',
-  background: 'rgba(29, 78, 216, 0.22)',
-  color: '#dbeafe',
+  background: '#eaf6ff',
+  color: '#0669bd',
   fontSize: '12px',
   fontWeight: 700,
 }
@@ -292,9 +292,9 @@ const progressPillStyle = {
 const certificateCardStyle = {
   borderRadius: '24px',
   padding: '18px 20px',
-  background: 'linear-gradient(135deg, rgba(242, 185, 75, 0.18), rgba(15, 23, 42, 0.72))',
-  border: '1px solid rgba(255,255,255,0.12)',
-  boxShadow: '0 18px 34px rgba(0,0,0,0.2)',
+  background: 'linear-gradient(135deg, #ffffff 0%, #dff0ff 100%)',
+  border: '1px solid rgba(93, 125, 160, 0.18)',
+  boxShadow: '0 18px 34px rgba(16,35,63,0.10)',
 }
 
 const certificateTopStyle = {
@@ -309,8 +309,8 @@ const certificateSealStyle = {
   borderRadius: '16px',
   display: 'grid',
   placeItems: 'center',
-  background: '#f8fafc',
-  color: '#0f172a',
+  background: '#0b84df',
+  color: '#ffffff',
   fontWeight: 800,
   letterSpacing: '0.08em',
 }
@@ -320,7 +320,7 @@ const miniLabelLightStyle = {
   fontWeight: 700,
   letterSpacing: '0.12em',
   textTransform: 'uppercase',
-  color: 'rgba(254, 229, 161, 0.96)',
+  color: '#0669bd',
 }
 
 const certificateTitleStyle = {
@@ -333,5 +333,5 @@ const certificateBodyStyle = {
   margin: '14px 0 0',
   fontSize: '14px',
   lineHeight: 1.7,
-  color: 'rgba(241, 245, 249, 0.84)',
+  color: '#53657a',
 }

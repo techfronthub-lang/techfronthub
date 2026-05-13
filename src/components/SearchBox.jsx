@@ -103,7 +103,7 @@ export function SearchBox({
   return (
     <div ref={rootRef} className={`relative ${className}`}>
       <form action="/courses">
-        <label className={`flex ${wrapperSize} items-center gap-3 rounded-full border border-[#d4a060] bg-[#fff8f0] px-4 shadow-[0_12px_30px_rgba(120,60,10,0.10)]`}>
+        <label className={`flex ${wrapperSize} items-center gap-3 rounded-full border border-[color:var(--border-soft)] bg-white px-4 shadow-[0_12px_30px_rgba(16,35,63,0.08)] transition focus-within:border-[color:var(--brand)]`}>
           <I.Search size={size === 'compact' ? 17 : 20} />
           <input
             name="q"
@@ -119,36 +119,36 @@ export function SearchBox({
             }}
             autoComplete="off"
             placeholder={placeholder}
-            className={`min-w-0 flex-1 bg-transparent font-semibold text-[#3b1800] outline-none placeholder:text-[#a67845] ${size === 'compact' ? 'text-sm' : 'text-base'} ${inputClassName}`}
+            className={`min-w-0 flex-1 bg-transparent font-semibold text-[color:var(--text-strong)] outline-none placeholder:text-[color:var(--text-muted)] ${size === 'compact' ? 'text-sm' : 'text-base'} ${inputClassName}`}
           />
-          <button className={`hidden rounded-full bg-[#c04a00] text-sm font-extrabold text-white transition hover:bg-[#a03d00] sm:inline-flex sm:items-center ${buttonSize}`}>
+          <button className={`hidden rounded-full bg-[color:var(--brand)] text-sm font-extrabold text-white transition hover:bg-[color:var(--brand-strong)] sm:inline-flex sm:items-center ${buttonSize}`}>
             Search
           </button>
         </label>
       </form>
 
       {open ? (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-[80] overflow-hidden rounded border border-[#d4a060] bg-[#fff8f0] shadow-[0_18px_44px_rgba(120,60,10,0.18)]">
+        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-[80] overflow-hidden rounded-xl border border-[color:var(--border-soft)] bg-white shadow-[0_18px_44px_rgba(16,35,63,0.14)]">
           {value.trim() ? (
-            <a href={searchHref} className="flex items-center justify-between gap-4 border-b border-[#f0c89a] px-4 py-3 text-sm hover:bg-[#ffe0bf]">
-              <span className="font-extrabold text-[#3b1800]">Search for "{value.trim()}"</span>
+            <a href={searchHref} className="flex items-center justify-between gap-4 border-b border-[color:var(--border-soft)] px-4 py-3 text-sm hover:bg-[color:var(--brand-soft)]">
+              <span className="font-extrabold text-[color:var(--text-strong)]">Search for "{value.trim()}"</span>
               <I.Arrow size={14} />
             </a>
           ) : null}
           {filteredSuggestions.length ? (
             <div className="py-2">
               {filteredSuggestions.map((item) => (
-                <a key={`${item.type}-${item.label}`} href={item.href} className="flex items-center justify-between gap-4 px-4 py-2.5 text-sm hover:bg-[#ffe0bf]">
+                <a key={`${item.type}-${item.label}`} href={item.href} className="flex items-center justify-between gap-4 px-4 py-2.5 text-sm hover:bg-[color:var(--brand-soft)]">
                   <span>
-                    <b className="block text-[#3b1800]">{item.label}</b>
-                    <span className="text-xs font-semibold text-[#a67845]">{item.type}</span>
+                    <b className="block text-[color:var(--text-strong)]">{item.label}</b>
+                    <span className="text-xs font-semibold text-[color:var(--text-muted)]">{item.type}</span>
                   </span>
                   <I.Arrow size={13} />
                 </a>
               ))}
             </div>
           ) : (
-            <div className="px-4 py-4 text-sm font-semibold text-[#a67845]">No suggestions yet. Press Search to check the catalog.</div>
+            <div className="px-4 py-4 text-sm font-semibold text-[color:var(--text-muted)]">No suggestions yet. Press Search to check the catalog.</div>
           )}
         </div>
       ) : null}

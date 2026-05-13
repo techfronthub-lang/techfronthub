@@ -193,9 +193,9 @@ const cardStyle = {
   maxWidth: '560px',
   margin: '0 auto',
   background: getFormPanelStyle(true).background,
-  borderRadius: '30px',
+  borderRadius: '26px',
   padding: '32px',
-  border: '1px solid rgba(148, 163, 184, 0.16)',
-  boxShadow: '0 30px 90px rgba(2, 6, 23, .35)',
-  color: '#f8fafc',
+  border: '1px solid rgba(93, 125, 160, 0.18)',
+  boxShadow: '0 30px 84px rgba(16, 35, 63, 0.14)',
+  color: '#10233f',
 }

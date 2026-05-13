@@ -49,7 +49,7 @@ export default function ReviewsPage() {
       <section className="py-10 sm:py-12">
         <div className="site-container">
           <div className="mb-6">
-            <p className="text-sm font-extrabold text-[#5624d0]">Reviews</p>
+            <p className="text-sm font-extrabold text-[color:var(--brand-strong)]">Reviews</p>
             <h2 className="mt-1 text-2xl font-extrabold text-slate-950 sm:text-3xl">What learners say after taking a course</h2>
           </div>
 
@@ -64,14 +64,14 @@ export default function ReviewsPage() {
               ))}
             </div>
           ) : testimonials.length === 0 ? (
-            <div className="rounded border border-dashed border-slate-300 bg-[#f6f8fb] px-6 py-10 text-center text-sm font-semibold text-slate-500">
+            <div className="rounded border border-dashed border-slate-300 bg-[color:var(--bg-surface-strong)] px-6 py-10 text-center text-sm font-semibold text-slate-500">
               No reviews yet. Check back soon.
             </div>
           ) : (
             <motion.div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" variants={stagger} initial="hidden" animate="visible">
               {testimonials.map((testimonial, index) => (
                 <motion.figure key={testimonial.id ?? index} className="rounded border border-slate-200 bg-white p-5 shadow-[0_8px_22px_rgba(15,23,42,0.06)]" variants={fadeUp}>
-                  <div className="flex text-[#f69c08]">
+                  <div className="flex text-[color:var(--brand)]">
                     {Array.from({ length: 5 }).map((_, starIndex) => <I.Star key={starIndex} size={15} />)}
                   </div>
                   <blockquote className="mt-4 text-sm leading-7 text-slate-700">"{testimonial.quote}"</blockquote>

@@ -52,10 +52,10 @@ const sections = [
 
 export default function TermsPage() {
   return (
-    <div className="bg-[#f6f8fb] py-12 sm:py-16">
+    <div className="bg-[color:var(--bg-surface-strong)] py-12 sm:py-16">
       <div className="site-container max-w-4xl">
         <div className="rounded border border-slate-200 bg-white px-5 py-7 shadow-[0_8px_22px_rgba(15,23,42,0.06)] sm:px-8 lg:px-10 lg:py-10">
-          <p className="text-sm font-extrabold text-[#5624d0]">Legal</p>
+          <p className="text-sm font-extrabold text-[color:var(--brand-strong)]">Legal</p>
           <h1 className="mt-2 text-3xl font-extrabold tracking-normal text-slate-950 sm:text-4xl">Terms and Conditions</h1>
           <div className="mt-7 space-y-7 text-sm leading-7 text-slate-700 sm:text-base sm:leading-8">
             {sections.map((section) => (

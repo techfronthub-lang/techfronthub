@@ -14,7 +14,7 @@ function ProgramCard({ program }) {
 
   return (
     <article className={`flex h-full flex-col rounded border bg-white p-5 shadow-[0_8px_22px_rgba(15,23,42,0.06)] ${featured ? 'border-slate-950' : 'border-slate-200'}`}>
-      {program.badge ? <span className="w-fit rounded-sm bg-[#eceb98] px-2 py-1 text-xs font-extrabold text-[#3d3c0a]">{program.badge}</span> : null}
+      {program.badge ? <span className="w-fit rounded-sm bg-[color:var(--brand-soft)] px-2 py-1 text-xs font-extrabold text-[color:var(--brand-strong)]">{program.badge}</span> : null}
       <div className="mt-4 grid h-12 w-12 place-items-center rounded bg-slate-950 text-white">
         <Icon size={20} />
       </div>
@@ -28,7 +28,7 @@ function ProgramCard({ program }) {
         <ul className="mt-5 space-y-2 border-t border-slate-200 pt-5 text-sm text-slate-700">
           {program.features.map((feature, featureIndex) => (
             <li key={featureIndex} className="flex gap-2">
-              <span className="mt-1 text-[#5624d0]"><I.Check size={14} /></span>
+              <span className="mt-1 text-[color:var(--brand-strong)]"><I.Check size={14} /></span>
               <span>{featureText(feature)}</span>
             </li>
           ))}
@@ -73,7 +73,7 @@ export default function ProgramsPage() {
       <section id="programs" className="py-10 sm:py-12">
         <div className="site-container">
           <div className="mb-6">
-            <p className="text-sm font-extrabold text-[#5624d0]">Ways to learn</p>
+            <p className="text-sm font-extrabold text-[color:var(--brand-strong)]">Ways to learn</p>
             <h2 className="mt-1 text-2xl font-extrabold text-slate-950 sm:text-3xl">Choose a program type</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Pick the structure, support level, and pace that fits your schedule.</p>
           </div>
@@ -90,7 +90,7 @@ export default function ProgramsPage() {
               ))}
             </div>
           ) : packages.length === 0 ? (
-            <div className="rounded border border-dashed border-slate-300 bg-[#f6f8fb] px-6 py-10 text-center text-sm font-semibold text-slate-500">
+            <div className="rounded border border-dashed border-slate-300 bg-[color:var(--bg-surface-strong)] px-6 py-10 text-center text-sm font-semibold text-slate-500">
               No programs available yet. Check back soon.
             </div>
           ) : (
@@ -101,10 +101,10 @@ export default function ProgramsPage() {
         </div>
       </section>
 
-      <section className="bg-[#2d2f31] py-10 text-white">
+      <section className="bg-[color:var(--bg-cta)] py-10 text-white">
         <div className="site-container flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm font-extrabold text-[#cec0fc]">Ready to compare?</p>
+            <p className="text-sm font-extrabold text-[#cdeaff]">Ready to compare?</p>
             <h2 className="mt-2 text-2xl font-extrabold sm:text-3xl">Start with the course catalog.</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-white/75">Every program links back to practical courses, topics, and learner outcomes.</p>
           </div>

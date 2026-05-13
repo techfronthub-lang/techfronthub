@@ -36,7 +36,7 @@ export default function CategoryPage({ params }) {
   if (loading) {
     return (
       <div className="bg-white">
-        <section className="border-b border-slate-200 bg-[#f6f8fb] py-12">
+        <section className="border-b border-slate-200 bg-[color:var(--bg-surface-strong)] py-12">
           <div className="site-container max-w-5xl">
             <div className="shimmer-block h-5 w-40 rounded" />
             <div className="mt-8 flex gap-5">
@@ -57,7 +57,7 @@ export default function CategoryPage({ params }) {
     return (
       <div className="site-container py-16 text-center">
         <h2 className="text-3xl font-extrabold text-slate-950">Category not found</h2>
-        <Link href="/courses" className="mt-4 inline-flex font-extrabold text-[#5624d0]">Back to all tracks</Link>
+        <Link href="/courses" className="mt-4 inline-flex font-extrabold text-[color:var(--brand-strong)]">Back to all tracks</Link>
       </div>
     )
   }
@@ -66,9 +66,9 @@ export default function CategoryPage({ params }) {
 
   return (
     <div className="bg-white">
-      <section className="border-b border-slate-200 bg-[#f6f8fb] py-12 sm:py-14">
+      <section className="border-b border-slate-200 bg-[color:var(--bg-surface-strong)] py-12 sm:py-14">
         <div className="site-container max-w-5xl">
-          <Link href="/courses" className="inline-flex items-center gap-2 text-sm font-extrabold text-[#5624d0] transition hover:text-[#401b9c]">
+          <Link href="/courses" className="inline-flex items-center gap-2 text-sm font-extrabold text-[color:var(--brand-strong)] transition hover:text-[color:var(--brand)]">
             <I.Chev dir="left" size={16} /> Back to all courses
           </Link>
 
@@ -99,7 +99,7 @@ export default function CategoryPage({ params }) {
         <section className="py-10 sm:py-12">
           <div className="site-container">
             <div className="mb-6">
-              <p className="text-sm font-extrabold text-[#5624d0]">Curriculum</p>
+              <p className="text-sm font-extrabold text-[color:var(--brand-strong)]">Curriculum</p>
               <h2 className="mt-1 text-2xl font-extrabold tracking-normal text-slate-950 sm:text-3xl">
                 {courses.length} {courses.length === 1 ? 'course' : 'courses'}
               </h2>
@@ -113,10 +113,10 @@ export default function CategoryPage({ params }) {
         </section>
       ) : null}
 
-      <section className="border-y border-slate-200 bg-[#f6f8fb] py-10 sm:py-12">
+      <section className="border-y border-slate-200 bg-[color:var(--bg-surface-strong)] py-10 sm:py-12">
         <div className="site-container">
           <div className="mb-6 text-center">
-            <p className="text-sm font-extrabold text-[#5624d0]">Questions?</p>
+            <p className="text-sm font-extrabold text-[color:var(--brand-strong)]">Questions?</p>
             <h2 className="mt-1 text-2xl font-extrabold tracking-normal text-slate-950 sm:text-3xl">How tracks work</h2>
           </div>
 
@@ -135,10 +135,10 @@ export default function CategoryPage({ params }) {
         </div>
       </section>
 
-      <section className="bg-[#2d2f31] py-10 text-white">
+      <section className="bg-[color:var(--bg-cta)] py-10 text-white">
         <div className="site-container flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm font-extrabold text-[#cec0fc]">Ready to start?</p>
+            <p className="text-sm font-extrabold text-[#cdeaff]">Ready to start?</p>
             <h2 className="mt-2 text-2xl font-extrabold sm:text-3xl">Begin your journey in {category.title}</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-white/75">Compare the courses in this track and choose the one that matches your current level.</p>
           </div>

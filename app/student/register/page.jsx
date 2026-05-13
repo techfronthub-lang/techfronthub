@@ -9,6 +9,34 @@ import {
   storeInstructorSession,
   storeUserSession,
 } from '@/src/lib/smart-auth'
+import {
+  pageShellStyle,
+  loadingCardStyle,
+  getSplitLayoutStyle,
+  getFormPanelStyle,
+  formHeaderStyle,
+  brandStyle,
+  brandMarkStyle,
+  brandTextStyle,
+  formTitleStyle,
+  formBodyStyle,
+  formStyle,
+  fieldStyle,
+  labelStyle,
+  inputStyle,
+  textareaStyle,
+  dualGridStyle,
+  passwordWrapStyle,
+  toggleStyle,
+  checkboxGroupStyle,
+  checkboxLabelStyle,
+  checkboxStyle,
+  inlineLinkStyle,
+  submitStyle,
+  errorStyle,
+  footerStyle,
+  footerLinkStyle,
+} from '@/src/lib/auth-theme'
 
 const learnerBullets = [
   'Join practical courses, submit work, and follow your learning progress.',
@@ -223,7 +251,7 @@ export default function StudentRegisterPage() {
 
   return (
     <div style={pageShellStyle}>
-      <div style={getLayoutStyle(isCompact)}>
+      <div style={getSplitLayoutStyle(isCompact, 'minmax(380px, 0.9fr)')}>
         <AuthShowcase
           mode="register"
           eyebrow="Learning Platform"
@@ -368,62 +396,15 @@ export default function StudentRegisterPage() {
   )
 }
 
-const pageShellStyle = { padding: '20px 12px 40px' }
-function getLayoutStyle(isCompact) {
-  return {
-    width: '100%',
-    maxWidth: '1240px',
-    margin: '0 auto',
-    display: 'grid',
-    gridTemplateColumns: isCompact ? '1fr' : 'minmax(0, 1.1fr) minmax(380px, 0.9fr)',
-    borderRadius: isCompact ? '20px' : '28px',
-    overflow: 'hidden',
-    boxShadow: '0 28px 80px rgba(2, 6, 23, 0.18)',
-    background: 'rgba(255,255,255,0.92)',
-  }
-}
-function getFormPanelStyle(isCompact) {
-  return {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    padding: isCompact ? '24px 18px 28px' : '44px clamp(20px, 3.5vw, 48px)',
-    color: '#0f172a',
-    background: 'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,243,234,0.98))',
-  }
-}
-const formHeaderStyle = { marginBottom: '20px' }
-const brandStyle = { display: 'inline-flex', alignItems: 'center', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }
-const brandMarkStyle = { width: '40px', height: '40px', display: 'grid', placeItems: 'center', borderRadius: '14px', background: 'linear-gradient(135deg, #ea580c, #0f172a)', color: '#fff', fontWeight: 800, letterSpacing: '0.06em' }
-const brandTextStyle = { fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#475569' }
-const formTitleStyle = { margin: '0 0 10px', fontSize: '34px', lineHeight: 1.08, letterSpacing: 0 }
-const formBodyStyle = { margin: 0, color: '#64748b', fontSize: '15px', lineHeight: 1.7 }
 const tabRowStyle = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }
 function getTabStyle(active) {
   return {
     borderRadius: '14px',
-    border: `1px solid ${active ? '#1d4ed8' : '#cbd5e1'}`,
-    background: active ? 'rgba(37, 99, 235, 0.1)' : '#fff',
-    color: active ? '#1d4ed8' : '#334155',
+    border: `1px solid ${active ? '#0b84df' : 'rgba(93, 125, 160, 0.28)'}`,
+    background: active ? '#eaf6ff' : '#fff',
+    color: active ? '#0669bd' : '#10233f',
     padding: '11px 14px',
-    fontWeight: 700,
+    fontWeight: 800,
     cursor: 'pointer',
   }
 }
-const formStyle = { display: 'grid', gap: '16px' }
-const fieldStyle = { display: 'grid', gap: '7px' }
-const labelStyle = { fontSize: '14px', fontWeight: 700, color: '#334155' }
-const inputStyle = { width: '100%', border: '1px solid #cbd5e1', borderRadius: '16px', background: 'rgba(255,255,255,0.85)', color: '#0f172a', padding: '13px 15px', fontSize: '15px', outline: 'none' }
-const textareaStyle = { ...inputStyle, resize: 'vertical', minHeight: '104px' }
-const dualGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }
-const passwordWrapStyle = { position: 'relative' }
-const toggleStyle = { position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)', border: 0, background: 'transparent', color: '#2563eb', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }
-const checkboxGroupStyle = { display: 'grid', gap: '12px', marginTop: '2px' }
-const checkboxLabelStyle = { display: 'flex', alignItems: 'flex-start', gap: '10px', color: '#334155', fontSize: '14px', lineHeight: 1.6 }
-const checkboxStyle = { width: '18px', height: '18px', marginTop: '2px', flexShrink: 0 }
-const inlineLinkStyle = { color: '#1d4ed8', textDecoration: 'none', fontWeight: 700 }
-const submitStyle = { justifyContent: 'center', width: '100%', marginTop: '8px', padding: '13px 18px', borderRadius: '16px' }
-const errorStyle = { borderRadius: '16px', border: '1px solid rgba(220, 38, 38, 0.18)', background: 'rgba(254, 226, 226, 0.9)', color: '#b91c1c', padding: '14px 16px', fontSize: '14px', marginBottom: '16px' }
-const footerStyle = { display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '22px', color: '#64748b', fontSize: '14px' }
-const footerLinkStyle = { color: '#1d4ed8', textDecoration: 'none', fontWeight: 700 }
-const loadingCardStyle = { minWidth: '280px', maxWidth: '420px', margin: '48px auto', padding: '22px 24px', borderRadius: '18px', background: 'rgba(255,255,255,0.92)', color: '#0f172a', boxShadow: '0 20px 60px rgba(2, 6, 23, 0.18)' }

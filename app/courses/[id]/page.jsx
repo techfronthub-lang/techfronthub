@@ -27,7 +27,7 @@ async function findCourse(payload, idOrSlug) {
 }
 
 function Badge({ children }) {
-  return <span className="rounded-sm bg-[#eceb98] px-2 py-1 text-xs font-extrabold text-[#3d3c0a]">{children}</span>
+  return <span className="rounded-sm bg-[color:var(--brand-soft)] px-2 py-1 text-xs font-extrabold text-[color:var(--brand-strong)]">{children}</span>
 }
 
 function QuickStat({ label, value }) {
@@ -53,7 +53,7 @@ function SectionCard({ eyebrow, title, body, children, action = null }) {
     <section className="rounded border border-slate-200 bg-white px-5 py-6 shadow-[0_8px_22px_rgba(15,23,42,0.06)] sm:px-8 sm:py-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
-          {eyebrow ? <p className="text-sm font-extrabold text-[#5624d0]">{eyebrow}</p> : null}
+          {eyebrow ? <p className="text-sm font-extrabold text-[color:var(--brand-strong)]">{eyebrow}</p> : null}
           <h2 className="mt-1 text-2xl font-extrabold tracking-normal text-slate-950 sm:text-3xl">{title}</h2>
           {body ? <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">{body}</p> : null}
         </div>
@@ -172,13 +172,13 @@ export default async function CoursePage({ params }) {
     <div className="bg-white">
       <div className="border-b border-slate-200 bg-white">
         <div className="site-container py-4">
-          <Link href="/courses" className="inline-flex items-center gap-2 text-sm font-extrabold text-[#5624d0] transition hover:text-[#401b9c]">
+          <Link href="/courses" className="inline-flex items-center gap-2 text-sm font-extrabold text-[color:var(--brand-strong)] transition hover:text-[color:var(--brand)]">
             <I.Chev dir="left" size={16} /> Back to courses
           </Link>
         </div>
       </div>
 
-      <section className="border-b border-slate-200 bg-[#f6f8fb]">
+      <section className="border-b border-slate-200 bg-[color:var(--bg-surface-strong)]">
         <div className="site-container grid gap-8 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.48fr)] lg:items-start lg:py-14">
           <div className="max-w-4xl">
             <div className="flex flex-wrap gap-2">
@@ -193,8 +193,8 @@ export default async function CoursePage({ params }) {
             </p>
 
             <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
-              <span className="font-extrabold text-[#b4690e]">4.7</span>
-              <span className="flex text-[#f69c08]">{Array.from({ length: 5 }).map((_, index) => <I.Star key={index} size={14} />)}</span>
+              <span className="font-extrabold text-[color:var(--brand-strong)]">4.7</span>
+              <span className="flex text-[color:var(--brand)]">{Array.from({ length: 5 }).map((_, index) => <I.Star key={index} size={14} />)}</span>
               <span className="font-semibold text-slate-600">(1,240 ratings)</span>
               <span className="font-semibold text-slate-600">12,000 learners</span>
             </div>
@@ -272,7 +272,7 @@ export default async function CoursePage({ params }) {
                   key={`${item.week}-${item.topic}`}
                   className={`grid gap-3 px-5 py-5 sm:grid-cols-[8rem_1fr] sm:gap-6 sm:px-6 ${index !== 0 ? 'border-t border-slate-200' : ''}`}
                 >
-                  <span className="text-xs font-extrabold uppercase text-[#5624d0]">{item.week}</span>
+                  <span className="text-xs font-extrabold uppercase text-[color:var(--brand-strong)]">{item.week}</span>
                   <div>
                     <div className="text-base font-extrabold text-slate-950">{item.topic}</div>
                     <div className="mt-2 text-sm leading-6 text-slate-600">{item.desc}</div>
@@ -291,7 +291,7 @@ export default async function CoursePage({ params }) {
               {whoThisIsFor.map((item) => (
                 <div key={item} className="rounded border border-slate-200 bg-white p-5">
                   <div className="flex gap-3">
-                    <span className="mt-1 text-[#5624d0]"><I.Arrow size={16} /></span>
+                    <span className="mt-1 text-[color:var(--brand-strong)]"><I.Arrow size={16} /></span>
                     <span className="text-sm leading-7 text-slate-700 sm:text-base">{item}</span>
                   </div>
                 </div>
@@ -326,10 +326,10 @@ export default async function CoursePage({ params }) {
         </div>
       </section>
 
-      <section className="bg-[#2d2f31] py-10 text-white">
+      <section className="bg-[color:var(--bg-cta)] py-10 text-white">
         <div className="site-container flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm font-extrabold text-[#cec0fc]">Ready to decide?</p>
+            <p className="text-sm font-extrabold text-[#cdeaff]">Ready to decide?</p>
             <h2 className="mt-2 text-2xl font-extrabold sm:text-3xl">Start with {course.title}</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-white/75">
               Enroll now or sign in if you already have a student account.
