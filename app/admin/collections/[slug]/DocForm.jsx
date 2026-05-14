@@ -49,6 +49,14 @@ const SCHEMA = {
     { name: 'initials', type: 'text', label: 'Initials (2 chars)' },
     { name: 'quote', type: 'textarea', required: true },
   ],
+  events: [
+    { name: 'title', type: 'text', required: true, label: 'Event Title' },
+    { name: 'eventDate', type: 'text', label: 'Event Date / Label' },
+    { name: 'location', type: 'text' },
+    { name: 'photo', type: 'file', label: 'Event Photo' },
+    { name: 'about', type: 'textarea', required: true, label: 'What the event was about' },
+    { name: 'sortOrder', type: 'number' },
+  ],
   'udemy-courses': [
     { name: 'title', type: 'text', required: true },
     { name: 'author', type: 'text' },
@@ -152,10 +160,11 @@ export default function DocForm({ slug, initialData = {}, onSubmit, submitting, 
 
   const set = (name, value) => setData(prev => ({ ...prev, [name]: value }))
   const getUploadFolder = (fieldName) => {
-    if (fieldName === 'thumbnail') {
+    if (fieldName === 'thumbnail' || fieldName === 'photo') {
       if (slug === 'udemy-courses') return 'udemy-courses'
       if (slug === 'categories') return 'categories'
       if (slug === 'courses') return 'courses'
+      if (slug === 'events') return 'events'
     }
     return slug || 'media'
   }

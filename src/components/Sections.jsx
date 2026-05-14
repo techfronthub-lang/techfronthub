@@ -260,6 +260,45 @@ export function Testimonials({ testimonials, siteConfig }) {
   )
 }
 
+export function EventsSection({ events, siteConfig }) {
+  const items = [...(Array.isArray(events) ? events : [])].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+
+  if (!items.length) return null
+
+  return (
+    <section className="border-y border-[color:var(--border-soft)] bg-[color:var(--bg-soft)] py-10 sm:py-12" id="events">
+      <div className="site-container">
+        <SectionTitle
+          eyebrow={siteConfig?.eventsEyebrow || 'Events and appearances'}
+          title={siteConfig?.eventsHeadline || 'Where TECHFRONT HUB has shown up'}
+          body={siteConfig?.eventsBody || 'Highlights from conferences, workshops, community meetups, and partner events we have participated in.'}
+        />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {items.slice(0, 6).map((item, index) => (
+            <article key={item.id ?? index} className="overflow-hidden rounded-xl border border-[color:var(--border-soft)] bg-white shadow-[var(--shadow-soft)]">
+              <div className="aspect-[16/10] overflow-hidden bg-[color:var(--bg-surface-strong)]">
+                <img
+                  src={item.photo || fallbackThumbnail(item)}
+                  alt={item.title || 'TECHFRONT HUB event'}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <div className="space-y-3 p-5">
+                <div className="flex flex-wrap gap-2 text-xs font-extrabold uppercase tracking-[0.12em] text-[color:var(--brand-strong)]">
+                  {item.eventDate ? <span>{item.eventDate}</span> : null}
+                  {item.location ? <span>{item.location}</span> : null}
+                </div>
+                <h3 className="font-[var(--font-display)] text-xl font-extrabold text-[color:var(--text-strong)]">{item.title}</h3>
+                <p className="text-sm leading-7 text-[color:var(--text-body)]">{item.about}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export function FinalCTA({ siteConfig }) {
   return (
     <section className="bg-[color:var(--bg-cta)] py-10 text-white sm:py-12">

@@ -13,6 +13,7 @@ const PUBLIC_COLLECTION_READS = new Set([
   'categories',
   'packages',
   'testimonials',
+  'events',
   'udemy-courses',
 ])
 
@@ -55,7 +56,7 @@ function sanitizeInstructorSignup(data: Record<string, any>) {
 
 function sanitizeSelfUserPatch(data: Record<string, any>) {
   const next: Record<string, any> = {}
-  const allowedFields = ['name', 'email', 'phone', 'avatar', 'password']
+  const allowedFields = ['name', 'phone', 'avatar', 'password']
 
   for (const field of allowedFields) {
     if (field in data) next[field] = data[field]
@@ -66,7 +67,7 @@ function sanitizeSelfUserPatch(data: Record<string, any>) {
 
 function sanitizeSelfInstructorPatch(data: Record<string, any>) {
   const next: Record<string, any> = {}
-  const allowedFields = ['name', 'email', 'bio', 'expertise', 'photo', 'linkedin', 'twitter', 'github', 'website', 'password']
+  const allowedFields = ['name', 'bio', 'expertise', 'photo', 'linkedin', 'twitter', 'github', 'website', 'password']
 
   for (const field of allowedFields) {
     if (field in data) next[field] = data[field]

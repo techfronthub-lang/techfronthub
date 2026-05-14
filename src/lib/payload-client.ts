@@ -16,6 +16,10 @@ export function getTestimonials() {
   return fetchJSON('/testimonials?limit=100')
 }
 
+export function getEvents() {
+  return fetchJSON('/events?limit=100')
+}
+
 export function getCategories() {
   return fetchJSON('/categories?limit=100')
 }

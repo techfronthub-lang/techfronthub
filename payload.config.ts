@@ -343,6 +343,18 @@ export default buildConfig({
       ],
     },
     {
+      slug: 'events',
+      admin: { useAsTitle: 'title' },
+      fields: [
+        { name: 'title', type: 'text', required: true },
+        { name: 'about', type: 'textarea', required: true },
+        { name: 'photo', type: 'text', required: true, admin: { description: 'Event photo URL uploaded through the admin form' } },
+        { name: 'location', type: 'text' },
+        { name: 'eventDate', type: 'text', admin: { description: 'Optional short label like May 2026 or Lagos, Nigeria' } },
+        { name: 'sortOrder', type: 'number' },
+      ],
+    },
+    {
       slug: 'categories',
       admin: { useAsTitle: 'title' },
       fields: [
@@ -605,6 +617,21 @@ export default buildConfig({
           name: 'testimonialsBody',
           type: 'textarea',
           defaultValue: 'A few alumni, in their own words.',
+        },
+        {
+          name: 'eventsEyebrow',
+          type: 'text',
+          defaultValue: 'Events and appearances',
+        },
+        {
+          name: 'eventsHeadline',
+          type: 'text',
+          defaultValue: 'Where TECHFRONT HUB has shown up',
+        },
+        {
+          name: 'eventsBody',
+          type: 'textarea',
+          defaultValue: 'Highlights from conferences, workshops, community meetups, and partner events we have participated in.',
         },
         {
           name: 'footerHeadline',

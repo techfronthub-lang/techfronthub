@@ -78,6 +78,7 @@ export interface Config {
     certificates: Certificate;
     courses: Course;
     testimonials: Testimonial;
+    events: Event;
     categories: Category;
     packages: Package;
     'udemy-courses': UdemyCourse;
@@ -100,6 +101,7 @@ export interface Config {
     certificates: CertificatesSelect<false> | CertificatesSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     packages: PackagesSelect<false> | PackagesSelect<true>;
     'udemy-courses': UdemyCoursesSelect<false> | UdemyCoursesSelect<true>;
@@ -451,6 +453,27 @@ export interface Testimonial {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  title: string;
+  about: string;
+  /**
+   * Event photo URL uploaded through the admin form
+   */
+  photo: string;
+  location?: string | null;
+  /**
+   * Optional short label like May 2026 or Lagos, Nigeria
+   */
+  eventDate?: string | null;
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "packages".
  */
 export interface Package {
@@ -590,6 +613,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'testimonials';
         value: number | Testimonial;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: number | Event;
       } | null)
     | ({
         relationTo: 'categories';
@@ -884,6 +911,20 @@ export interface TestimonialsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  title?: T;
+  about?: T;
+  photo?: T;
+  location?: T;
+  eventDate?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories_select".
  */
 export interface CategoriesSelect<T extends boolean = true> {
@@ -1067,6 +1108,9 @@ export interface SiteConfig {
   testimonialsEyebrow?: string | null;
   testimonialsHeadline?: string | null;
   testimonialsBody?: string | null;
+  eventsEyebrow?: string | null;
+  eventsHeadline?: string | null;
+  eventsBody?: string | null;
   footerHeadline?: string | null;
   footerAddress?: string | null;
   footerEmail?: string | null;
@@ -1176,6 +1220,9 @@ export interface SiteConfigSelect<T extends boolean = true> {
   testimonialsEyebrow?: T;
   testimonialsHeadline?: T;
   testimonialsBody?: T;
+  eventsEyebrow?: T;
+  eventsHeadline?: T;
+  eventsBody?: T;
   footerHeadline?: T;
   footerAddress?: T;
   footerEmail?: T;

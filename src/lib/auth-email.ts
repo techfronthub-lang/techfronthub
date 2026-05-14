@@ -231,6 +231,38 @@ export async function sendEmailVerificationOtp({
   })
 }
 
+export async function sendEmailChangeOtp({
+  record,
+  code,
+  verifyUrl,
+  nextEmail,
+}: {
+  record: AuthEmailRecord
+  code: string
+  verifyUrl?: string
+  nextEmail: string
+}) {
+  const displayName = buildDisplayName(record)
+  const subject = 'Confirm your new email address'
+  const text = `Hi ${displayName}, use code ${code} to confirm your new TECHFRONT HUB email address: ${verifyUrl || getAppUrl()}`
+  const html = buildEmailShell({
+    preheader: 'Use this code to confirm your new TECHFRONT HUB email address.',
+    title: 'Confirm your new email',
+    body: `Hi ${displayName}, we received a request to change your TECHFRONT HUB login email to ${nextEmail}. Enter the code below to finish the update.`,
+    ctaLabel: verifyUrl ? 'Open settings' : undefined,
+    ctaUrl: verifyUrl,
+    code,
+    note: 'This code expires in 15 minutes. If you did not request this email change, ignore this message and your account will stay unchanged.',
+  })
+
+  return sendResendMessage({
+    to: nextEmail,
+    subject,
+    html,
+    text,
+  })
+}
+
 export async function sendCoursePurchaseConfirmation(record: CoursePurchaseEmailRecord) {
   const displayName = buildDisplayName(record)
   const subject = `Purchase confirmed: ${record.courseTitle}`

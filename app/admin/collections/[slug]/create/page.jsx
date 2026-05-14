@@ -8,7 +8,7 @@ import DocForm from '../DocForm'
 
 const LABEL = {
   courses: 'Courses', categories: 'Categories', packages: 'Packages',
-  testimonials: 'Testimonials', 'udemy-courses': 'Udemy Courses', users: 'Users',
+  testimonials: 'Testimonials', events: 'Events', 'udemy-courses': 'Udemy Courses', users: 'Users',
 }
 
 export default function CreateDocPage() {
