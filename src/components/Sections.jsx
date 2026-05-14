@@ -158,7 +158,7 @@ export function UdemyGrid({ udemy, siteConfig }) {
                   <h3 className="line-clamp-2 min-h-[2.5rem] text-[15px] font-extrabold leading-5 text-[color:var(--text-strong)]">{item.title}</h3>
                   <p className="mt-1 truncate text-xs text-[color:var(--text-muted)]">{displayText(item.author, 'TECHFRONT HUB')}</p>
                   <StarRating value={item.rating || '4.7'} count={item.count || '1,000'} />
-                  <strong className="mt-2 block text-base font-extrabold text-[color:var(--text-strong)]">{item.price}</strong>
+                  <strong className="mt-2 block text-base font-extrabold text-[color:var(--text-strong)]">{!item.price ? '₦0' : /^₦/.test(String(item.price).trim()) ? String(item.price).trim() : /^NGN\s*/i.test(String(item.price).trim()) ? String(item.price).trim().replace(/^NGN\s*/i, '₦') : /^N\s*\d/i.test(String(item.price).trim()) ? String(item.price).trim().replace(/^N\s*/i, '₦') : /^\d[\d,]*(\.\d+)?$/.test(String(item.price).trim()) ? `₦${String(item.price).trim()}` : String(item.price).trim()}</strong>
                 </div>
               </a>
             ))}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { AuthShowcase } from '@/src/components/AuthShowcase'
+import { AuthSidePanel } from '@/src/components/AuthSidePanel'
 import { loginWithSmartRouting, resolveExistingSession } from '@/src/lib/smart-auth'
 import {
   pageShellStyle,
@@ -28,12 +28,6 @@ import {
   footerStyle,
   footerLinkStyle,
 } from '@/src/lib/auth-theme'
-
-const loginBullets = [
-  'Learn from guided programs, practical lessons, and instructor-led cohorts.',
-  'Track your coursework, manage your classes, and access certificates in one place.',
-  'The platform routes each account to the correct dashboard automatically after sign-in.',
-]
 
 export default function SmartLoginPage() {
   const router = useRouter()
@@ -109,12 +103,9 @@ export default function SmartLoginPage() {
   return (
     <div style={pageShellStyle}>
       <div style={getSplitLayoutStyle(isCompact, 'minmax(380px, 0.9fr)')}>
-        <AuthShowcase
-          mode="login"
-          eyebrow="Learning Platform"
-          title="Continue learning, teaching, or managing from one secure portal."
-          body="Access your TECHFRONT HUB workspace to watch lessons, manage cohorts, monitor progress, and retrieve course completion certificates."
-          bullets={loginBullets}
+        <AuthSidePanel
+          image="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80"
+          badge="Student access"
         />
 
         <section style={getFormPanelStyle(isCompact)}>
@@ -124,9 +115,7 @@ export default function SmartLoginPage() {
               <span style={brandTextStyle}>Platform Access</span>
             </div>
             <h2 style={formTitleStyle}>Sign in</h2>
-            <p style={formBodyStyle}>
-              Enter your details to continue to your dashboard, classes, certificates, and account tools.
-            </p>
+            <p style={formBodyStyle}>Enter your email and password to continue.</p>
           </div>
 
           <form onSubmit={handleSubmit} style={formStyle}>

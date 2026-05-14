@@ -217,7 +217,8 @@ export function Header({ siteConfig }) {
                 {link.label}
               </SmartLink>
             ))}
-            <div className="mt-3 lg:hidden">
+            <div className="mt-3 grid gap-2 lg:hidden">
+              <ActionLink href="/student/register" variant="primary" size="sm" className="w-full" onClick={close}>Sign up</ActionLink>
               <ActionLink href="/login" variant="ghost" size="sm" className="w-full" onClick={close}>Login</ActionLink>
             </div>
           </div>
@@ -237,7 +238,7 @@ export function Header({ siteConfig }) {
           {!isAuthenticated && (
             <>
               <SmartLink href="/login" className="hidden h-10 items-center rounded border border-[color:var(--border-soft)] bg-white px-4 text-sm font-extrabold text-[color:var(--text-strong)] transition hover:bg-[color:var(--brand-soft)] lg:inline-flex">Log in</SmartLink>
-              <SmartLink href="/#enroll" className="hidden h-10 items-center rounded bg-[color:var(--brand)] px-4 text-sm font-extrabold text-white transition hover:bg-[color:var(--brand-strong)] sm:inline-flex">Sign up</SmartLink>
+              <SmartLink href="/student/register" className="hidden h-10 items-center rounded bg-[color:var(--brand)] px-4 text-sm font-extrabold text-white transition hover:bg-[color:var(--brand-strong)] sm:inline-flex">Sign up</SmartLink>
             </>
           )}
           {isAuthenticated && (

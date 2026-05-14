@@ -75,21 +75,39 @@ export default function StudentDashboardPage() {
     { title: 'Settings', desc: 'Update your account and preferences.', href: '/student/dashboard/settings' },
   ]
 
+  const learnerName = user?.name || user?.email?.split?.('@')?.[0] || 'Student'
+
   return (
     <div style={{ minHeight: '100vh', background: pageBg.background }}>
       <div className="container" style={{ padding: shell.padding }}>
-        <div style={{ ...card, borderRadius: 20, padding: 28, marginBottom: 24, boxShadow: '0 8px 24px rgba(15,23,42,0.06)' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--brand-600)', marginBottom: 8 }}>Student Portal</div>
-          <h1 style={{ margin: '0 0 8px', color: 'var(--ink-900)', fontSize: 'clamp(28px, 4vw, 38px)', lineHeight: 1.1 }}>Welcome back</h1>
-          <p style={{ margin: 0, color: 'var(--ink-600)', fontSize: 16 }}>{user?.email || 'Student'}</p>
+        <div style={{ ...heroWrapStyle, marginBottom: 24 }}>
+          <div style={heroMainStyle}>
+            <div style={eyebrowStyle}>Student dashboard</div>
+            <h1 style={heroTitleStyle}>Welcome back, {learnerName}</h1>
+            <p style={heroTextStyle}>Pick up your courses, check your certificates, or continue exploring new programs.</p>
+          </div>
+
+          <div style={heroStatsStyle}>
+            <div style={heroStatCardStyle}>
+              <div style={heroStatValueStyle}>{certificateCount}</div>
+              <div style={heroStatLabelStyle}>Certificates</div>
+            </div>
+            <div style={heroStatCardStyle}>
+              <div style={heroStatValueStyle}>{cards.length}</div>
+              <div style={heroStatLabelStyle}>Quick actions</div>
+            </div>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
           {cards.map(card => (
             <Link key={card.href} href={card.href} style={{ textDecoration: 'none' }}>
-              <div style={{ background: '#fff', border: '1px solid var(--ink-200)', borderRadius: 16, padding: 20, minHeight: 150, boxShadow: '0 4px 14px rgba(15,23,42,0.04)' }}>
-                <h3 style={{ margin: '0 0 10px', color: 'var(--ink-900)', fontSize: 20 }}>{card.title}</h3>
-                <p style={{ margin: 0, color: 'var(--ink-600)', lineHeight: 1.6 }}>{card.desc}</p>
+              <div style={dashboardCardStyle}>
+                <div style={dashboardCardTopStyle}>
+                  <h3 style={{ margin: 0, color: 'var(--ink-900)', fontSize: 20 }}>{card.title}</h3>
+                  <span style={dashboardChipStyle}>Open</span>
+                </div>
+                <p style={{ margin: '10px 0 0', color: 'var(--ink-600)', lineHeight: 1.6 }}>{card.desc}</p>
               </div>
             </Link>
           ))}
@@ -97,4 +115,102 @@ export default function StudentDashboardPage() {
       </div>
     </div>
   )
+}
+
+const heroWrapStyle = {
+  ...card,
+  borderRadius: 24,
+  padding: '32px',
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+  gap: 18,
+  background: 'linear-gradient(135deg, #ffffff 0%, #edf7ff 100%)',
+  border: '1px solid rgba(11, 132, 223, 0.16)',
+  boxShadow: '0 18px 40px rgba(15,23,42,0.08)',
+}
+
+const heroMainStyle = {
+  minWidth: 0,
+}
+
+const eyebrowStyle = {
+  fontSize: 12,
+  fontWeight: 800,
+  textTransform: 'uppercase',
+  letterSpacing: '.12em',
+  color: 'var(--brand-600)',
+}
+
+const heroTitleStyle = {
+  margin: '14px 0 10px',
+  color: 'var(--ink-900)',
+  fontSize: 'clamp(30px, 4vw, 44px)',
+  lineHeight: 1.05,
+}
+
+const heroTextStyle = {
+  margin: 0,
+  color: 'var(--ink-600)',
+  fontSize: 16,
+  lineHeight: 1.75,
+  maxWidth: 520,
+}
+
+const heroStatsStyle = {
+  display: 'grid',
+  gap: 12,
+  alignContent: 'start',
+}
+
+const heroStatCardStyle = {
+  borderRadius: 18,
+  padding: '18px 18px 16px',
+  background: '#ffffff',
+  border: '1px solid rgba(15,23,42,0.08)',
+}
+
+const heroStatValueStyle = {
+  fontSize: 28,
+  fontWeight: 800,
+  color: 'var(--ink-900)',
+  lineHeight: 1,
+}
+
+const heroStatLabelStyle = {
+  marginTop: 8,
+  fontSize: 12,
+  fontWeight: 700,
+  letterSpacing: '.08em',
+  textTransform: 'uppercase',
+  color: 'var(--ink-500)',
+}
+
+const dashboardCardStyle = {
+  background: '#fff',
+  border: '1px solid rgba(15,23,42,0.08)',
+  borderRadius: 18,
+  padding: 22,
+  minHeight: 158,
+  boxShadow: '0 10px 28px rgba(15,23,42,0.05)',
+}
+
+const dashboardCardTopStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 10,
+}
+
+const dashboardChipStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '7px 10px',
+  borderRadius: 999,
+  background: 'rgba(11,132,223,0.08)',
+  color: 'var(--brand-600)',
+  fontSize: 11,
+  fontWeight: 800,
+  textTransform: 'uppercase',
+  letterSpacing: '.08em',
 }

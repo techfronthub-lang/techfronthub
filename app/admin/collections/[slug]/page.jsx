@@ -13,7 +13,7 @@ const fadeUp = {
     y: 0,
     transition: { duration: 0.3, ease: 'easeOut' },
   },
-};
+}
 
 const stagger = {
   hidden: {},
@@ -23,7 +23,7 @@ const stagger = {
       delayChildren: 0.04,
     },
   },
-};
+}
 
 const COLLECTION_META = {
   courses: { title: 'Courses', titleField: 'title', cols: ['title', 'level', 'tag', 'price', 'lessons'] },
@@ -35,7 +35,7 @@ const COLLECTION_META = {
 }
 
 function CellValue({ value, col }) {
-  if (value === null || value === undefined || value === '') return <span style={{ color: 'var(--a-muted)' }}>â€”</span>
+  if (value === null || value === undefined || value === '') return <span style={{ color: 'var(--a-muted)' }}>-</span>
   if (typeof value === 'boolean') {
     return value ? <span className="badge badge-green">Yes</span> : <span className="badge">No</span>
   }
@@ -45,7 +45,22 @@ function CellValue({ value, col }) {
     return <span className={cls}>{String(value)}</span>
   }
   if (col === 'role') return <span className="badge">{String(value)}</span>
-  if (col === 'quote') return <span style={{ color: 'var(--a-muted)', display: 'block', maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</span>
+  if (col === 'quote') {
+    return (
+      <span
+        style={{
+          color: 'var(--a-muted)',
+          display: 'block',
+          maxWidth: 260,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {value}
+      </span>
+    )
+  }
   return String(value)
 }
 
@@ -70,12 +85,17 @@ export default function CollectionListPage() {
     setLoading(true)
     setError('')
     getCollection(slug, { limit: LIMIT, page })
-      .then(d => { setDocs(d.docs || []); setTotal(d.totalDocs || 0) })
-      .catch(e => setError(e.message))
+      .then((d) => {
+        setDocs(d.docs || [])
+        setTotal(d.totalDocs || 0)
+      })
+      .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
   }, [slug, page])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    load()
+  }, [load])
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this document?')) return
@@ -94,8 +114,9 @@ export default function CollectionListPage() {
 
   const sortChoices = useMemo(() => {
     const fields = Array.from(new Set([meta.titleField, ...meta.cols]))
-    return fields.map(field => ({ value: `${field}:asc`, label: `${field} A-Z` }))
-      .concat(fields.map(field => ({ value: `${field}:desc`, label: `${field} Z-A` })))
+    return fields
+      .map((field) => ({ value: `${field}:asc`, label: `${field} A-Z` }))
+      .concat(fields.map((field) => ({ value: `${field}:desc`, label: `${field} Z-A` })))
   }, [meta.titleField, meta.cols])
 
   const visibleDocs = useMemo(() => {
@@ -103,8 +124,12 @@ export default function CollectionListPage() {
 
     if (query.trim()) {
       const needle = query.trim().toLowerCase()
-      next = next.filter(doc => {
-        const haystack = Object.values(doc).flatMap(v => Array.isArray(v) ? v : [v]).filter(Boolean).join(' ').toLowerCase()
+      next = next.filter((doc) => {
+        const haystack = Object.values(doc)
+          .flatMap((v) => (Array.isArray(v) ? v : [v]))
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase()
         return haystack.includes(needle)
       })
     }
@@ -124,8 +149,8 @@ export default function CollectionListPage() {
     return next
   }, [docs, query, sort, isUsers])
 
-  const activeCount = isUsers ? docs.filter(doc => String(doc.status || '').toLowerCase() === 'active').length : 0
-  const adminCount = isUsers ? docs.filter(doc => String(doc.role || '').toLowerCase() === 'admin').length : 0
+  const activeCount = isUsers ? docs.filter((doc) => String(doc.status || '').toLowerCase() === 'active').length : 0
+  const adminCount = isUsers ? docs.filter((doc) => String(doc.role || '').toLowerCase() === 'admin').length : 0
 
   return (
     <>
@@ -180,24 +205,24 @@ export default function CollectionListPage() {
           ) : visibleDocs.length === 0 ? (
             <div className="a-empty">
               No {meta.title.toLowerCase()} yet.{' '}
-              <Link href={`/admin/collections/${slug}/create`} style={{ color: 'var(--a-brand)' }}>Create one â†’</Link>
+              <Link href={`/admin/collections/${slug}/create`} style={{ color: 'var(--a-brand)' }}>Create one -&gt;</Link>
             </div>
           ) : (
             <motion.div className="a-table-wrap" variants={stagger} initial="hidden" animate="visible">
               <table className="a-table">
                 <thead>
                   <tr>
-                    {meta.cols.map(c => <th key={c}>{c}</th>)}
+                    {meta.cols.map((c) => <th key={c}>{c}</th>)}
                     <th className="col-actions" />
                   </tr>
                 </thead>
                 <tbody>
-                  {visibleDocs.map(doc => (
+                  {visibleDocs.map((doc) => (
                     <motion.tr key={doc.id} style={{ cursor: 'pointer' }} onClick={() => router.push(`/admin/collections/${slug}/${doc.id}`)} variants={fadeUp}>
-                      {meta.cols.map(c => (
+                      {meta.cols.map((c) => (
                         <td key={c}><CellValue value={c === 'name' && !doc[c] ? doc.email : doc[c]} col={c} /></td>
                       ))}
-                      <td className="col-actions" onClick={e => e.stopPropagation()}>
+                      <td className="col-actions" onClick={(e) => e.stopPropagation()}>
                         <button
                           className="btn btn-ghost btn-icon btn-sm"
                           title="Delete"
@@ -205,7 +230,7 @@ export default function CollectionListPage() {
                           onClick={() => handleDelete(doc.id)}
                           style={{ color: 'var(--a-danger)' }}
                         >
-                          {deleting === doc.id ? 'â€¦' : 'âœ•'}
+                          {deleting === doc.id ? '...' : '×'}
                         </button>
                       </td>
                     </motion.tr>
@@ -218,9 +243,9 @@ export default function CollectionListPage() {
 
         {pages > 1 && (
           <div className="a-pagination">
-            <button className="btn btn-ghost btn-sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>â† Prev</button>
+            <button className="btn btn-ghost btn-sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>&lt; Prev</button>
             <span>Page {page} of {pages}</span>
-            <button className="btn btn-ghost btn-sm" disabled={page >= pages} onClick={() => setPage(p => p + 1)}>Next â†’</button>
+            <button className="btn btn-ghost btn-sm" disabled={page >= pages} onClick={() => setPage((p) => p + 1)}>Next &gt;</button>
           </div>
         )}
       </div>

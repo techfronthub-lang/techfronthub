@@ -11,7 +11,12 @@ function normalizeCount(value: string) {
 }
 
 function normalizePrice(value: string) {
-  return value.replace(/\s+/g, '').trim()
+  const compact = value.replace(/\s+/g, '').trim()
+  if (!compact) return ''
+  if (compact.includes('₦')) return compact
+  if (/^NGN/i.test(compact)) return compact.replace(/^NGN/i, '₦')
+  if (/^N\d/i.test(compact)) return compact.replace(/^N/i, '₦')
+  return compact
 }
 
 function stripMarkdownLinks(value: string) {

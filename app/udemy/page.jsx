@@ -20,6 +20,16 @@ function fallbackThumbnail(course) {
   return `https://placehold.co/800x450/1f2937/ffffff?text=${title}`
 }
 
+function formatUdemyPrice(value) {
+  const raw = String(value || '').trim()
+  if (!raw) return '₦0'
+  if (raw.includes('₦')) return raw
+  if (/^NGN\s*/i.test(raw)) return raw.replace(/^NGN\s*/i, '₦')
+  if (/^N\s*\d/i.test(raw)) return raw.replace(/^N\s*/i, '₦')
+  if (/^\d[\d,]*(\.\d+)?$/.test(raw)) return `₦${raw}`
+  return raw
+}
+
 function StarRating({ value = '4.7', count = '1,000' }) {
   return (
     <div className="mt-2 flex items-center gap-1 text-sm">
@@ -101,7 +111,7 @@ export default function UdemyPage() {
                     <h3 className="line-clamp-2 min-h-[2.5rem] text-[15px] font-extrabold leading-5 text-slate-950">{course.title}</h3>
                     <div className="mt-1 truncate text-xs text-slate-500">{course.author}</div>
                     <StarRating value={course.rating || '4.7'} count={course.count || '1,000'} />
-                    <div className="mt-2 text-base font-extrabold text-slate-950">{course.price}</div>
+                    <div className="mt-2 text-base font-extrabold text-slate-950">{formatUdemyPrice(course.price)}</div>
                   </div>
                 </motion.a>
               ))}

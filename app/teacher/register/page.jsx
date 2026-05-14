@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { AuthShowcase } from '@/src/components/AuthShowcase'
+import { AuthSidePanel } from '@/src/components/AuthSidePanel'
 import { resolveExistingSession } from '@/src/lib/smart-auth'
 import {
   pageShellStyle,
@@ -31,12 +31,6 @@ import {
   footerStyle,
   footerLinkStyle,
 } from '@/src/lib/auth-theme'
-
-const teacherBullets = [
-  'Use a dedicated teacher signup route instead of the learner form.',
-  'Create your initial account first, then wait for admin approval before portal access.',
-  'Your welcome mail and internal admin alert are triggered after registration.',
-]
 
 export default function TeacherRegisterPage() {
   const [form, setForm] = useState({
@@ -162,12 +156,9 @@ export default function TeacherRegisterPage() {
   return (
     <div style={pageShellStyle}>
       <div style={getSplitLayoutStyle(isCompact, 'minmax(380px, 0.9fr)')}>
-        <AuthShowcase
-          mode="register"
-          eyebrow="Teacher Signup"
-          title="Create your teaching account first. Portal access starts after approval."
-          body="This short signup creates your instructor account in a pending state. Once an admin approves it, the same email and password will work in the instructor portal."
-          bullets={teacherBullets}
+        <AuthSidePanel
+          image="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1200&q=80"
+          badge="Teacher signup"
         />
 
         <section style={getFormPanelStyle(isCompact)}>
@@ -177,9 +168,7 @@ export default function TeacherRegisterPage() {
               <span style={brandTextStyle}>Teacher Registration</span>
             </div>
             <h2 style={formTitleStyle}>Apply as a teacher</h2>
-            <p style={formBodyStyle}>
-              Create your instructor account. Admin approval is required before you can access the teacher dashboard.
-            </p>
+            <p style={formBodyStyle}>This page is only for teachers.</p>
           </div>
 
           {error ? <div style={errorStyle}>{error}</div> : null}

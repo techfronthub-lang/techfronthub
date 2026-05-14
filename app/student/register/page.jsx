@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { AuthShowcase } from '@/src/components/AuthShowcase'
+import { AuthSidePanel } from '@/src/components/AuthSidePanel'
 import { resolveExistingSession } from '@/src/lib/smart-auth'
 import {
   pageShellStyle,
@@ -31,12 +31,6 @@ import {
   footerStyle,
   footerLinkStyle,
 } from '@/src/lib/auth-theme'
-
-const learnerBullets = [
-  'Create a learner account and enroll in public courses safely.',
-  'Track lesson progress and certificates from your student dashboard.',
-  'Complete checkout and continue studying across reloads and devices.',
-]
 
 export default function StudentRegisterPage() {
   const [form, setForm] = useState({
@@ -169,12 +163,9 @@ export default function StudentRegisterPage() {
   return (
     <div style={pageShellStyle}>
       <div style={getSplitLayoutStyle(isCompact, 'minmax(380px, 0.9fr)')}>
-        <AuthShowcase
-          mode="register"
-          eyebrow="Learner Signup"
-          title="Start learning with a student account built for checkout, study, and progress tracking."
-          body="Create your learner account to enroll in public programs, resume lessons from your dashboard, and receive issued certificates when your courses are completed."
-          bullets={learnerBullets}
+        <AuthSidePanel
+          image="https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=1200&q=80"
+          badge="Learner signup"
         />
 
         <section style={getFormPanelStyle(isCompact)}>
@@ -184,9 +175,7 @@ export default function StudentRegisterPage() {
               <span style={brandTextStyle}>Learner Registration</span>
             </div>
             <h2 style={formTitleStyle}>Create learner account</h2>
-            <p style={formBodyStyle}>
-              Register as a student to buy courses, continue lessons, and access your learning records.
-            </p>
+            <p style={formBodyStyle}>This page is only for students.</p>
           </div>
 
           {error ? <div style={errorStyle}>{error}</div> : null}

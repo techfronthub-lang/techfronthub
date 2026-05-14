@@ -92,7 +92,7 @@ function ArrayField({ label, valueKey = 'feature', value = [], onChange }) {
               onChange={e => update(i, e.target.value)}
               placeholder={`Item ${i + 1}`}
             />
-            <button type="button" className="btn btn-ghost btn-icon btn-sm" style={{ color: 'var(--a-danger)', flexShrink: 0 }} onClick={() => remove(i)}>x</button>
+            <button type="button" className="btn btn-ghost btn-icon btn-sm" style={{ color: 'var(--a-danger)', flexShrink: 0 }} onClick={() => remove(i)}>×</button>
           </div>
         ))}
         <button type="button" className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start' }} onClick={add}>+ Add item</button>
@@ -119,7 +119,7 @@ function ProgramOverviewField({ label, value = [], onChange }) {
           <div key={i} className="array-item-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--a-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Entry {i + 1}</span>
-              <button type="button" className="btn btn-ghost btn-icon btn-sm" style={{ color: 'var(--a-danger)' }} onClick={() => remove(i)}>x</button>
+              <button type="button" className="btn btn-ghost btn-icon btn-sm" style={{ color: 'var(--a-danger)' }} onClick={() => remove(i)}>×</button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 8, marginBottom: 8 }}>
               <input className="a-input" value={item?.week ?? ''} onChange={e => update(i, 'week', e.target.value)} placeholder="e.g. Week 1-2" />
