@@ -138,7 +138,7 @@ export default function DocForm({ slug, initialData = {}, onSubmit, submitting, 
   const fields = SCHEMA[slug] || []
   const [uploadingField, setUploadingField] = useState('')
   const [previewLoading, setPreviewLoading] = useState(false)
-  const [previewError, setPreviewError] = useState('')
+  const [_previewError, setPreviewError] = useState('')
   const [data, setData] = useState(() => {
     const d = { ...initialData }
     const arrayTypes = new Set(['array', 'array-simple', 'array-overview'])
