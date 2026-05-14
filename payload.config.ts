@@ -9,24 +9,43 @@ const ACTIVITY_COLLECTION = 'admin-activity'
 const payloadConnectionString = process.env.DATABASE_URL || process.env.DIRECT_URL
 
 async function sendAuthEmails(collection: 'users' | 'instructors', doc: any, operation: string) {
-  if (operation !== 'create' || !doc?.email) return
+  if (!doc?.email) return
 
   try {
-    await sendWelcomeForRecord({
-      email: doc.email,
-      name: doc.name,
-      audience: collection === 'instructors' ? 'instructor' : 'student',
-    })
+    if (operation === 'create') {
+      await sendAdminSignupAlert({
+        email: doc.email,
+        name: doc.name,
+        role: collection === 'instructors' ? 'instructor' : doc.role || 'student',
+        status: doc.status || 'active',
+      })
+      return
+    }
 
-    await sendAdminSignupAlert({
-      email: doc.email,
-      name: doc.name,
-      role: collection === 'instructors' ? 'instructor' : doc.role || 'student',
-      status: doc.status || 'active',
-    })
+    if (doc?.emailVerified) {
+      await sendWelcomeForRecord({
+        email: doc.email,
+        name: doc.name,
+        audience: collection === 'instructors' ? 'instructor' : 'student',
+      })
+    }
   } catch (error) {
     console.error('Failed to send auth email', error)
   }
+}
+
+function getLoginBlockMessage(collection: 'users' | 'instructors', user: any) {
+  if (collection === 'users') {
+    if (user?.status === 'suspended') return 'Your account has been suspended.'
+    const isPrivilegedUser = user?.role === 'admin' || user?.role === 'staff'
+    if (!user?.emailVerified && !isPrivilegedUser) return 'Verify your email before signing in. Check your inbox for the OTP code.'
+    return ''
+  }
+
+  if (!user?.emailVerified) return 'Verify your email before signing in. Check your inbox for the OTP code.'
+  if (user?.status === 'suspended') return 'Your instructor account has been suspended.'
+  if (user?.status !== 'active') return 'Your instructor account is pending approval.'
+  return ''
 }
 
 function getActorLabel(req: any) {
@@ -80,9 +99,19 @@ export default buildConfig({
         { name: 'avatar', type: 'text', admin: { description: 'Optional avatar URL or initials image link' } },
       ],
       hooks: {
+        beforeLogin: [
+          async ({ user }) => {
+            const message = getLoginBlockMessage('users', user)
+            if (message) {
+              throw new Error(message)
+            }
+          },
+        ],
         afterChange: [
           async ({ doc, previousDoc, operation, req }) => {
-            await sendAuthEmails('users', doc, operation)
+            if (operation === 'create' || previousDoc?.emailVerified !== doc?.emailVerified) {
+              await sendAuthEmails('users', doc, operation)
+            }
 
             const targetLabel = doc?.email || doc?.name || String(doc?.id || '')
             const statusChanged = previousDoc && previousDoc.status !== doc.status
@@ -136,7 +165,7 @@ export default buildConfig({
           name: 'status',
           type: 'select',
           options: ['active', 'pending', 'suspended'],
-          defaultValue: 'active',
+          defaultValue: 'pending',
         },
         { name: 'emailVerified', type: 'checkbox', defaultValue: false, admin: { hidden: true } },
         { name: 'bio',       type: 'textarea' },
@@ -148,9 +177,19 @@ export default buildConfig({
         { name: 'website',   type: 'text' },
       ],
       hooks: {
+        beforeLogin: [
+          async ({ user }) => {
+            const message = getLoginBlockMessage('instructors', user)
+            if (message) {
+              throw new Error(message)
+            }
+          },
+        ],
         afterChange: [
-          async ({ doc, operation }) => {
-            await sendAuthEmails('instructors', doc, operation)
+          async ({ doc, operation, previousDoc }) => {
+            if (operation === 'create' || previousDoc?.emailVerified !== doc?.emailVerified) {
+              await sendAuthEmails('instructors', doc, operation)
+            }
           },
         ],
       },
@@ -196,6 +235,32 @@ export default buildConfig({
         { name: 'status', type: 'select', options: ['pending', 'paid'], defaultValue: 'paid' },
         { name: 'amount', type: 'number' },
         { name: 'reference', type: 'text' },
+      ],
+    },
+    {
+      slug: 'course-progress',
+      admin: { useAsTitle: 'course' },
+      timestamps: true,
+      fields: [
+        { name: 'student', type: 'relationship', relationTo: 'users', required: true },
+        { name: 'course', type: 'relationship', relationTo: 'courses', required: true },
+        { name: 'lastOpenedLessonIndex', type: 'number', defaultValue: 0 },
+        { name: 'completedLessonIndexes', type: 'json', defaultValue: [] },
+      ],
+    },
+    {
+      slug: 'certificates',
+      admin: { useAsTitle: 'certificateCode' },
+      timestamps: true,
+      fields: [
+        { name: 'student', type: 'relationship', relationTo: 'users', required: true },
+        { name: 'course', type: 'relationship', relationTo: 'courses', required: true },
+        { name: 'instructor', type: 'relationship', relationTo: 'instructors', required: true },
+        { name: 'issuedAt', type: 'date', required: true },
+        { name: 'certificateCode', type: 'text', required: true },
+        { name: 'studentName', type: 'text' },
+        { name: 'studentEmail', type: 'text' },
+        { name: 'courseTitle', type: 'text' },
       ],
     },
     {
@@ -327,8 +392,16 @@ export default buildConfig({
         { name: 'hours', type: 'text' },
         { name: 'price', type: 'text' },
         { name: 'udemyUrl', type: 'text', admin: { description: 'Full Udemy course URL (e.g. https://www.udemy.com/course/...)' } },
-        { name: 'thumbnail', type: 'text', admin: { description: 'Udemy preview image URL' } },
-        { name: 'hue', type: 'number' },
+        {
+          name: 'thumbnail',
+          type: 'text',
+          admin: {
+            description: 'Upload from your computer to S3, or paste the Udemy preview image URL',
+            components: {
+              Field: '/src/components/payload/UdemyThumbnailField',
+            },
+          },
+        },
         { name: 'sortOrder', type: 'number' },
       ],
     },

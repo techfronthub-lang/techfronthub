@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { AuthShowcase } from '@/src/components/AuthShowcase'
 import { loginWithSmartRouting, resolveExistingSession } from '@/src/lib/smart-auth'
 import {
@@ -24,6 +24,7 @@ import {
   toggleStyle,
   submitStyle,
   errorStyle,
+  messageStyle,
   footerStyle,
   footerLinkStyle,
 } from '@/src/lib/auth-theme'
@@ -36,6 +37,7 @@ const loginBullets = [
 
 export default function SmartLoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -43,6 +45,14 @@ export default function SmartLoginPage() {
   const [checkingSession, setCheckingSession] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [isCompact, setIsCompact] = useState(false)
+  const verified = searchParams.get('verified') === '1'
+  const verifiedEmail = searchParams.get('email') || ''
+
+  useEffect(() => {
+    if (verifiedEmail) {
+      setEmail(verifiedEmail)
+    }
+  }, [verifiedEmail])
 
   useEffect(() => {
     let cancelled = false
@@ -121,6 +131,7 @@ export default function SmartLoginPage() {
 
           <form onSubmit={handleSubmit} style={formStyle}>
             {error ? <div style={errorStyle}>{error}</div> : null}
+            {verified ? <div style={messageStyle}>Email verified. You can sign in now.</div> : null}
 
             <label style={fieldStyle}>
               <span style={labelStyle}>Email</span>
@@ -161,6 +172,12 @@ export default function SmartLoginPage() {
               </div>
             </label>
 
+            <div style={{ marginTop: '-6px', display: 'flex', justifyContent: 'flex-end' }}>
+              <Link href="/forgot-password" style={footerLinkStyle}>
+                Forgot password?
+              </Link>
+            </div>
+
             <button
               type="submit"
               className="btn btn-primary"
@@ -171,9 +188,9 @@ export default function SmartLoginPage() {
             </button>
           </form>
 
-          <div style={footerStyle}>
-            <span>New to the platform?</span>
-            <Link href="/student/register" style={footerLinkStyle}>Create an account</Link>
+          <div style={{ ...footerStyle, justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            <span>New learner? <Link href="/student/register" style={footerLinkStyle}>Create student account</Link></span>
+            <Link href="/teacher/register" style={footerLinkStyle}>Apply as a teacher</Link>
           </div>
         </section>
       </div>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { AuthShowcase } from '@/src/components/AuthShowcase'
 import { resolveExistingSession } from '@/src/lib/smart-auth'
 import {
@@ -32,13 +32,13 @@ import {
   footerLinkStyle,
 } from '@/src/lib/auth-theme'
 
-const learnerBullets = [
-  'Create a learner account and enroll in public courses safely.',
-  'Track lesson progress and certificates from your student dashboard.',
-  'Complete checkout and continue studying across reloads and devices.',
+const teacherBullets = [
+  'Use a dedicated teacher signup route instead of the learner form.',
+  'Create your initial account first, then wait for admin approval before portal access.',
+  'Your welcome mail and internal admin alert are triggered after registration.',
 ]
 
-export default function StudentRegisterPage() {
+export default function TeacherRegisterPage() {
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -54,8 +54,6 @@ export default function StudentRegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isCompact, setIsCompact] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const courseId = searchParams.get('courseId')
 
   useEffect(() => {
     let cancelled = false
@@ -118,7 +116,7 @@ export default function StudentRegisterPage() {
     setLoading(true)
 
     try {
-      const registerRes = await fetch('/api/users', {
+      const res = await fetch('/api/instructors', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -127,9 +125,9 @@ export default function StudentRegisterPage() {
           password: form.password,
         }),
       })
-      const registerData = await registerRes.json()
-      if (!registerRes.ok) {
-        throw new Error(registerData?.message || 'Registration failed.')
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data?.message || 'Teacher registration failed.')
       }
 
       const otpRes = await fetch('/api/auth/send-otp', {
@@ -137,7 +135,7 @@ export default function StudentRegisterPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: form.email,
-          collection: 'users',
+          collection: 'instructors',
         }),
       })
       const otpData = await otpRes.json()
@@ -145,14 +143,9 @@ export default function StudentRegisterPage() {
         throw new Error(otpData?.message || 'Verification code could not be sent.')
       }
 
-      if (courseId) {
-        router.push(`/verify-email?email=${encodeURIComponent(form.email)}&collection=users&token=${encodeURIComponent(otpData.token)}&courseId=${encodeURIComponent(courseId)}`)
-        return
-      }
-
-      router.push(`/verify-email?email=${encodeURIComponent(form.email)}&collection=users&token=${encodeURIComponent(otpData.token)}`)
+      router.push(`/verify-email?email=${encodeURIComponent(form.email)}&collection=instructors&token=${encodeURIComponent(otpData.token)}`)
     } catch (err) {
-      setError(err.message || 'Registration failed.')
+      setError(err.message || 'Teacher registration failed.')
     } finally {
       setLoading(false)
     }
@@ -171,21 +164,21 @@ export default function StudentRegisterPage() {
       <div style={getSplitLayoutStyle(isCompact, 'minmax(380px, 0.9fr)')}>
         <AuthShowcase
           mode="register"
-          eyebrow="Learner Signup"
-          title="Start learning with a student account built for checkout, study, and progress tracking."
-          body="Create your learner account to enroll in public programs, resume lessons from your dashboard, and receive issued certificates when your courses are completed."
-          bullets={learnerBullets}
+          eyebrow="Teacher Signup"
+          title="Create your teaching account first. Portal access starts after approval."
+          body="This short signup creates your instructor account in a pending state. Once an admin approves it, the same email and password will work in the instructor portal."
+          bullets={teacherBullets}
         />
 
         <section style={getFormPanelStyle(isCompact)}>
           <div style={formHeaderStyle}>
             <div style={brandStyle}>
               <span style={brandMarkStyle}>TF</span>
-              <span style={brandTextStyle}>Learner Registration</span>
+              <span style={brandTextStyle}>Teacher Registration</span>
             </div>
-            <h2 style={formTitleStyle}>Create learner account</h2>
+            <h2 style={formTitleStyle}>Apply as a teacher</h2>
             <p style={formBodyStyle}>
-              Register as a student to buy courses, continue lessons, and access your learning records.
+              Create your instructor account. Admin approval is required before you can access the teacher dashboard.
             </p>
           </div>
 
@@ -194,7 +187,7 @@ export default function StudentRegisterPage() {
           <form onSubmit={handleSubmit} style={formStyle}>
             <label style={fieldStyle}>
               <span style={labelStyle}>Full name</span>
-              <input type="text" name="name" value={form.name} onChange={updateField} required style={inputStyle} placeholder="John Doe" disabled={loading} />
+              <input type="text" name="name" value={form.name} onChange={updateField} required style={inputStyle} placeholder="Jane Doe" disabled={loading} />
             </label>
 
             <label style={fieldStyle}>
@@ -235,13 +228,13 @@ export default function StudentRegisterPage() {
             </div>
 
             <button type="submit" disabled={loading} className="btn btn-primary" style={submitStyle}>
-              {loading ? 'Creating account...' : 'Create learner account'}
+              {loading ? 'Submitting application...' : 'Create teacher account'}
             </button>
           </form>
 
           <div style={{ ...footerStyle, justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <span>Already have an account? <Link href="/login" style={footerLinkStyle}>Sign in</Link></span>
-            <Link href="/teacher/register" style={footerLinkStyle}>Apply as a teacher</Link>
+            <Link href="/student/register" style={footerLinkStyle}>Create learner account</Link>
           </div>
         </section>
       </div>
