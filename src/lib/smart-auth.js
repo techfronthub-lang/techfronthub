@@ -49,6 +49,10 @@ async function parseJson(res) {
   return res.json().catch(() => ({}))
 }
 
+function isAccountNotFound(data) {
+  return data?.code === 'AUTH_ACCOUNT_NOT_FOUND'
+}
+
 export async function loginThroughUsers(email, password) {
   const res = await fetch('/api/users/login', {
     method: 'POST',
@@ -56,6 +60,9 @@ export async function loginThroughUsers(email, password) {
     body: JSON.stringify({ email, password }),
   })
   const data = await parseJson(res)
+  if (res.status === 404 && isAccountNotFound(data)) return null
+  if (res.status === 401 && data?.message) throw new Error(data.message)
+  if (res.status === 403 && data?.message) throw new Error(data.message)
   if (!res.ok || !data?.token) return null
   storeUserSession(data.token, email)
   return { kind: 'user', data, destination: getUserDestination(data.user) }
@@ -68,6 +75,9 @@ export async function loginThroughInstructors(email, password) {
     body: JSON.stringify({ email, password }),
   })
   const data = await parseJson(res)
+  if (res.status === 404 && isAccountNotFound(data)) return null
+  if (res.status === 401 && data?.message) throw new Error(data.message)
+  if (res.status === 403 && data?.message) throw new Error(data.message)
   if (!res.ok || !data?.token) return null
   storeInstructorSession(data.token, email)
   return { kind: 'instructor', data, destination: '/instructor/dashboard' }

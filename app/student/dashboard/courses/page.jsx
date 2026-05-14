@@ -14,6 +14,7 @@ export default function MyCoursesPage() {
   const [courses, setCourses] = useState([])
   const [enrolledIds, setEnrolledIds] = useState([])
   const [progressMap, setProgressMap] = useState({})
+  const [certificateMap, setCertificateMap] = useState({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [payingCourseId, setPayingCourseId] = useState(null)
@@ -30,15 +31,19 @@ export default function MyCoursesPage() {
           return
         }
 
-        const [coursesRes, meRes, enrollmentRes] = await Promise.all([
+        const [coursesRes, meRes, enrollmentRes, progressRes, certificatesRes] = await Promise.all([
           fetch('/api/courses?limit=100'),
           fetch('/api/users/me', { headers: authHeaders() }),
           fetch('/api/enrollments?limit=200', { headers: authHeaders() }),
+          fetch('/api/student/progress', { headers: authHeaders() }),
+          fetch('/api/student/certificates', { headers: authHeaders() }),
         ])
 
         const coursesData = await coursesRes.json()
         const meData = await meRes.json()
         const enrollmentData = await enrollmentRes.json()
+        const progressData = await progressRes.json().catch(() => ({}))
+        const certificatesData = await certificatesRes.json().catch(() => ({}))
         const student = meData?.user ?? meData
 
         const enrolled = (enrollmentData?.docs || [])
@@ -48,6 +53,8 @@ export default function MyCoursesPage() {
         if (!active) return
         setCourses(coursesData?.docs || [])
         setEnrolledIds(enrolled)
+        setProgressMap(buildProgressMap(progressData?.docs || []))
+        setCertificateMap(buildCertificateMap(certificatesData?.docs || []))
         setLoading(false)
       } catch {
         if (!active) return
@@ -59,17 +66,6 @@ export default function MyCoursesPage() {
     load()
     return () => { active = false }
   }, [router])
-
-  useEffect(() => {
-    const syncProgress = () => setProgressMap(readStoredCourseProgress())
-    syncProgress()
-    window.addEventListener('focus', syncProgress)
-    window.addEventListener('storage', syncProgress)
-    return () => {
-      window.removeEventListener('focus', syncProgress)
-      window.removeEventListener('storage', syncProgress)
-    }
-  }, [])
 
   async function handlePayAndEnroll(courseId) {
     setPayingCourseId(courseId)
@@ -150,6 +146,7 @@ export default function MyCoursesPage() {
                   course={course}
                   enrolled
                   progress={progressMap[String(course.id)]}
+                  certificate={certificateMap[String(course.id)]}
                 />
               ))}
             </div>
@@ -195,7 +192,7 @@ export default function MyCoursesPage() {
   )
 }
 
-function CourseCard({ course, enrolled, payingCourseId, onPay, progress }) {
+function CourseCard({ course, enrolled, payingCourseId, onPay, progress, certificate }) {
   const price = formatPrice(course.price)
   const oldPrice = formatPrice(course.old)
   const courseThumbnail = course.thumbnail || course.category?.thumbnail || fallbackThumbnail(course)
@@ -263,6 +260,15 @@ function CourseCard({ course, enrolled, payingCourseId, onPay, progress }) {
           </div>
         ) : null}
 
+        {enrolled && certificate ? (
+          <div style={certificateCardStyle}>
+            <strong style={{ color: '#14532d', fontSize: 14 }}>Certificate issued</strong>
+            <div style={{ marginTop: 6, color: '#166534', fontSize: 13, lineHeight: 1.6 }}>
+              Code: {certificate.certificateCode}
+            </div>
+          </div>
+        ) : null}
+
         <div style={{ marginTop: 'auto' }}>
           <div style={priceRowStyle}>
             <div>
@@ -291,15 +297,26 @@ function CourseCard({ course, enrolled, payingCourseId, onPay, progress }) {
   )
 }
 
-function readStoredCourseProgress() {
-  if (typeof window === 'undefined') return {}
-  try {
-    const raw = localStorage.getItem('student-course-progress')
-    const parsed = raw ? JSON.parse(raw) : {}
-    return parsed && typeof parsed === 'object' ? parsed : {}
-  } catch {
-    return {}
-  }
+function buildProgressMap(docs) {
+  return docs.reduce((acc, doc) => {
+    const courseId = String(doc?.course?.id ?? doc?.course ?? '')
+    if (!courseId) return acc
+    acc[courseId] = {
+      lastLessonIndex: Number(doc?.lastOpenedLessonIndex || 0),
+      completedLessons: Array.isArray(doc?.completedLessonIndexes) ? doc.completedLessonIndexes.length : 0,
+      completedLessonIndexes: Array.isArray(doc?.completedLessonIndexes) ? doc.completedLessonIndexes : [],
+    }
+    return acc
+  }, {})
+}
+
+function buildCertificateMap(docs) {
+  return docs.reduce((acc, doc) => {
+    const courseId = String(doc?.course?.id ?? doc?.course ?? '')
+    if (!courseId) return acc
+    acc[courseId] = doc
+    return acc
+  }, {})
 }
 
 function formatPrice(value) {
@@ -308,38 +325,23 @@ function formatPrice(value) {
 }
 
 function fallbackThumbnail(course) {
-  const hue = Number(course?.id || 0) * 37 % 360
-  const bg = hslToHex(hue, 60, 40)
-  const fg = hslToHex(hue, 75, 96)
   const title = escapeSvg(course?.title || 'Course')
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
       <defs>
         <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stop-color="${bg}"/>
+          <stop offset="0%" stop-color="#163b72"/>
           <stop offset="100%" stop-color="#0f172a"/>
         </linearGradient>
       </defs>
       <rect width="800" height="500" fill="url(#g)"/>
       <circle cx="640" cy="120" r="90" fill="rgba(255,255,255,0.10)"/>
       <circle cx="130" cy="410" r="120" fill="rgba(255,255,255,0.08)"/>
-      <text x="56" y="220" fill="${fg}" font-family="Arial, sans-serif" font-size="28" font-weight="700">TECHFRONT HUB</text>
+      <text x="56" y="220" fill="#eff6ff" font-family="Arial, sans-serif" font-size="28" font-weight="700">TECHFRONT HUB</text>
       <text x="56" y="272" fill="white" font-family="Arial, sans-serif" font-size="42" font-weight="700">${title}</text>
     </svg>
   `
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
-}
-
-function hslToHex(h, s, l) {
-  s /= 100
-  l /= 100
-  const k = n => (n + h / 30) % 12
-  const a = s * Math.min(l, 1 - l)
-  const f = n => {
-    const color = l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
-    return Math.round(255 * color).toString(16).padStart(2, '0')
-  }
-  return `#${f(0)}${f(8)}${f(4)}`
 }
 
 function escapeSvg(value) {
@@ -472,6 +474,13 @@ const progressCardStyle = {
   padding: 14,
   background: 'linear-gradient(135deg, rgba(239,246,255,0.92), rgba(248,250,252,0.98))',
   border: '1px solid rgba(37,99,235,0.12)',
+}
+
+const certificateCardStyle = {
+  borderRadius: 18,
+  padding: 14,
+  background: '#ecfdf5',
+  border: '1px solid rgba(34,197,94,0.18)',
 }
 
 const progressHeaderStyle = {

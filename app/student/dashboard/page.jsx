@@ -7,6 +7,7 @@ import { pageBg, shell, card } from './_components/ui'
 
 export default function StudentDashboardPage() {
   const [user, setUser] = useState(null)
+  const [certificateCount, setCertificateCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -22,17 +23,23 @@ export default function StudentDashboardPage() {
           return
         }
 
-        const res = await fetch('/api/users/me', { headers: { Authorization: `JWT ${token}` } })
-        const data = await res.json()
+        const [meRes, certificatesRes] = await Promise.all([
+          fetch('/api/users/me', { headers: { Authorization: `JWT ${token}` } }),
+          fetch('/api/student/certificates', { headers: { Authorization: `JWT ${token}` } }),
+        ])
+
+        const data = await meRes.json()
+        const certificatesData = await certificatesRes.json().catch(() => ({}))
         if (!active) return
 
-        if (!res.ok) {
+        if (!meRes.ok) {
           setError('Session expired. Please login again.')
           router.push('/login')
           return
         }
 
         setUser(data?.user ?? data)
+        setCertificateCount(Array.isArray(certificatesData?.docs) ? certificatesData.docs.length : 0)
         setLoading(false)
       } catch {
         if (!active) return
@@ -63,6 +70,7 @@ export default function StudentDashboardPage() {
 
   const cards = [
     { title: 'My Courses', desc: 'Continue your enrolled courses and lessons.', href: '/student/dashboard/courses' },
+    { title: 'Certificates', desc: `${certificateCount} issued certificate${certificateCount === 1 ? '' : 's'} saved to your account.`, href: '/student/dashboard/courses' },
     { title: 'Explore Courses', desc: 'Browse available courses and enroll.', href: '/courses' },
     { title: 'Settings', desc: 'Update your account and preferences.', href: '/student/dashboard/settings' },
   ]

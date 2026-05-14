@@ -149,7 +149,6 @@ function courseToForm(data) {
     lessons:         data.lessons         != null ? String(data.lessons) : '',
     price:           data.price           != null ? String(data.price)   : '',
     old:             data.old             ?? '',
-    hue:             data.hue             != null ? Number(data.hue)     : 214,
     format:          data.format          ?? '',
     certificate:     data.certificate     ?? '',
     guarantee:       data.guarantee       ?? '',

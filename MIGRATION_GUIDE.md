@@ -92,7 +92,7 @@ Open http://localhost:3000/admin and:
 
 1. **Go to Courses** → Click "Create"
 2. Copy each course from `src/constants/data.js` COURSES array:
-   - tag, tagHot, code, title, desc, duration, lessons, level, price, old, hue
+- tag, tagHot, code, title, desc, duration, lessons, level, price, old
 
 3. **Repeat for** Testimonials, Categories, Packages, UdemyCourses
 

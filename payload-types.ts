@@ -74,6 +74,8 @@ export interface Config {
     submissions: Submission;
     announcements: Announcement;
     enrollments: Enrollment;
+    'course-progress': CourseProgress;
+    certificates: Certificate;
     courses: Course;
     testimonials: Testimonial;
     categories: Category;
@@ -94,6 +96,8 @@ export interface Config {
     submissions: SubmissionsSelect<false> | SubmissionsSelect<true>;
     announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     enrollments: EnrollmentsSelect<false> | EnrollmentsSelect<true>;
+    'course-progress': CourseProgressSelect<false> | CourseProgressSelect<true>;
+    certificates: CertificatesSelect<false> | CertificatesSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
@@ -396,6 +400,44 @@ export interface Enrollment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "course-progress".
+ */
+export interface CourseProgress {
+  id: number;
+  student: number | User;
+  course: number | Course;
+  lastOpenedLessonIndex?: number | null;
+  completedLessonIndexes?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "certificates".
+ */
+export interface Certificate {
+  id: number;
+  student: number | User;
+  course: number | Course;
+  instructor: number | Instructor;
+  issuedAt: string;
+  certificateCode: string;
+  studentName?: string | null;
+  studentEmail?: string | null;
+  courseTitle?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "testimonials".
  */
 export interface Testimonial {
@@ -447,10 +489,9 @@ export interface UdemyCourse {
    */
   udemyUrl?: string | null;
   /**
-   * Udemy preview image URL
+   * Upload from your computer to S3, or paste the Udemy preview image URL
    */
   thumbnail?: string | null;
-  hue?: number | null;
   sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -533,6 +574,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'enrollments';
         value: number | Enrollment;
+      } | null)
+    | ({
+        relationTo: 'course-progress';
+        value: number | CourseProgress;
+      } | null)
+    | ({
+        relationTo: 'certificates';
+        value: number | Certificate;
       } | null)
     | ({
         relationTo: 'courses';
@@ -727,6 +776,34 @@ export interface EnrollmentsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "course-progress_select".
+ */
+export interface CourseProgressSelect<T extends boolean = true> {
+  student?: T;
+  course?: T;
+  lastOpenedLessonIndex?: T;
+  completedLessonIndexes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "certificates_select".
+ */
+export interface CertificatesSelect<T extends boolean = true> {
+  student?: T;
+  course?: T;
+  instructor?: T;
+  issuedAt?: T;
+  certificateCode?: T;
+  studentName?: T;
+  studentEmail?: T;
+  courseTitle?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "courses_select".
  */
 export interface CoursesSelect<T extends boolean = true> {
@@ -854,7 +931,6 @@ export interface UdemyCoursesSelect<T extends boolean = true> {
   price?: T;
   udemyUrl?: T;
   thumbnail?: T;
-  hue?: T;
   sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;

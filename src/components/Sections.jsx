@@ -19,6 +19,22 @@ function fallbackThumbnail(course) {
   return `https://placehold.co/800x450/0b84df/ffffff?text=${title}`
 }
 
+function displayText(value, fallback = '') {
+  if (value == null) return fallback
+  if (typeof value === 'string' || typeof value === 'number') return String(value)
+  if (typeof value === 'object') {
+    return (
+      value.name ||
+      value.title ||
+      value.label ||
+      value.fullName ||
+      value.email ||
+      fallback
+    )
+  }
+  return fallback
+}
+
 function StarRating({ value = '4.7', count = '1,240' }) {
   return (
     <div className="mt-2 flex items-center gap-1 text-sm">
@@ -59,7 +75,9 @@ export function CourseCard({ c }) {
       </div>
       <div className="p-3">
         <h3 className="line-clamp-2 min-h-[2.5rem] text-[15px] font-extrabold leading-5 text-[color:var(--text-strong)]">{c.title || 'Untitled Course'}</h3>
-        <p className="mt-1 truncate text-xs text-[color:var(--text-muted)]">{c.author || c.instructor || c.category?.title || 'TECHFRONT HUB'}</p>
+        <p className="mt-1 truncate text-xs text-[color:var(--text-muted)]">
+          {displayText(c.author) || displayText(c.instructor) || displayText(c.category?.title) || 'TECHFRONT HUB'}
+        </p>
         <StarRating value={c.rating || '4.7'} count={c.count || c.reviews || '1,240'} />
         <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-semibold text-[color:var(--text-body)]">
           <span>{c.duration || 'Flexible'}</span><span>·</span><span>{c.lessons || 0} lessons</span><span>·</span><span>{c.level || 'All levels'}</span>
@@ -138,7 +156,7 @@ export function UdemyGrid({ udemy, siteConfig }) {
                 </div>
                 <div className="p-3">
                   <h3 className="line-clamp-2 min-h-[2.5rem] text-[15px] font-extrabold leading-5 text-[color:var(--text-strong)]">{item.title}</h3>
-                  <p className="mt-1 truncate text-xs text-[color:var(--text-muted)]">{item.author}</p>
+                  <p className="mt-1 truncate text-xs text-[color:var(--text-muted)]">{displayText(item.author, 'TECHFRONT HUB')}</p>
                   <StarRating value={item.rating || '4.7'} count={item.count || '1,000'} />
                   <strong className="mt-2 block text-base font-extrabold text-[color:var(--text-strong)]">{item.price}</strong>
                 </div>
@@ -233,7 +251,6 @@ export function Testimonials({ testimonials, siteConfig }) {
               <blockquote className="mt-4 text-sm leading-7 text-[color:var(--text-body)]">"{item.quote}"</blockquote>
               <figcaption className="mt-5 border-t border-[color:var(--border-soft)] pt-4">
                 <strong className="block text-[color:var(--text-strong)]">{item.name}</strong>
-                <span className="text-sm text-[color:var(--text-muted)]">{item.role}</span>
               </figcaption>
             </figure>
           ))}

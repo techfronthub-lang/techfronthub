@@ -10,7 +10,7 @@ Use this example to craft high-impact course content for TECHFRONT HUB.
 - Tag Hot: Yes (Displays the fire icon)
 
 ## 2. Branding & Pricing
-- Color Hue: 225 (Deep Blue/Purple - looks premium)
+- Primary Color: Deep Blue
 - Price: 250,000
 - Old Price: 350,000 (Shows a 100k discount)
 - Level: Advanced

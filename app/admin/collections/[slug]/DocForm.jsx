@@ -57,8 +57,7 @@ const SCHEMA = {
     { name: 'hours', type: 'text' },
     { name: 'price', type: 'text' },
     { name: 'udemyUrl', type: 'text', label: 'Udemy URL' },
-    { name: 'thumbnail', type: 'text', label: 'Thumbnail URL' },
-    { name: 'hue', type: 'number', label: 'Card Hue (0-360)' },
+    { name: 'thumbnail', type: 'file', label: 'Thumbnail' },
     { name: 'sortOrder', type: 'number' },
   ],
   users: [
@@ -152,6 +151,14 @@ export default function DocForm({ slug, initialData = {}, onSubmit, submitting, 
   })
 
   const set = (name, value) => setData(prev => ({ ...prev, [name]: value }))
+  const getUploadFolder = (fieldName) => {
+    if (fieldName === 'thumbnail') {
+      if (slug === 'udemy-courses') return 'udemy-courses'
+      if (slug === 'categories') return 'categories'
+      if (slug === 'courses') return 'courses'
+    }
+    return slug || 'media'
+  }
 
   useEffect(() => {
     if (slug !== 'udemy-courses') return
@@ -165,7 +172,10 @@ export default function DocForm({ slug, initialData = {}, onSubmit, submitting, 
       try {
         const res = await fetch(`/api/udemy/preview?url=${encodeURIComponent(url)}`)
         const json = await res.json().catch(() => ({}))
-        if (!res.ok || cancelled) {
+        if (cancelled) {
+          return
+        }
+        if (!res.ok) {
           setPreviewError(json?.message || 'Could not load Udemy preview')
           return
         }
@@ -184,11 +194,14 @@ export default function DocForm({ slug, initialData = {}, onSubmit, submitting, 
           autoFill('rating', json.rating)
           autoFill('count', json.count)
           autoFill('hours', json.hours)
+          autoFill('price', json.price)
           autoFill('thumbnail', json.thumbnail)
           return next
         })
         if (!filled && !String(json.title || '').trim() && !String(json.thumbnail || '').trim()) {
-          setPreviewError('No preview metadata was returned from Udemy.')
+          setPreviewError(json?.message || 'No preview metadata was returned from Udemy.')
+        } else if (json?.message) {
+          setPreviewError(json.message)
         }
       } catch {
         setPreviewError('Could not load Udemy preview.')
@@ -219,7 +232,7 @@ export default function DocForm({ slug, initialData = {}, onSubmit, submitting, 
         return
       }
       if (!title || !thumbnail) {
-        setPreviewError('Udemy preview did not populate title and thumbnail. Paste a valid Udemy course URL or fill them manually.')
+        setPreviewError('Add a title and thumbnail before saving. You can type them manually or upload the image from your computer.')
         return
       }
     }
@@ -263,7 +276,7 @@ export default function DocForm({ slug, initialData = {}, onSubmit, submitting, 
             try {
               const formData = new FormData()
               formData.append('file', file)
-              formData.append('folder', 'courses')
+              formData.append('folder', getUploadFolder(f.name))
               const res = await fetch('/api/storage/upload', { method: 'POST', body: formData })
               const json = await res.json().catch(() => ({}))
               if (!res.ok) throw new Error(json.message || 'Upload failed')
@@ -286,11 +299,14 @@ export default function DocForm({ slug, initialData = {}, onSubmit, submitting, 
         {uploadingField === f.name ? (
           <div style={{ marginTop: 8, fontSize: 12, color: 'var(--a-muted)' }}>Uploading...</div>
         ) : null}
+        {slug === 'udemy-courses' && previewLoading ? (
+          <div style={{ marginTop: 8, fontSize: 12, color: 'var(--a-muted)' }}>Fetching preview...</div>
+        ) : null}
         <input
           className="a-input"
           value={data[f.name] || ''}
           onChange={e => set(f.name, e.target.value)}
-          placeholder="Upload an image or paste an image URL"
+          placeholder={slug === 'udemy-courses' ? 'Upload to S3, auto-fill from the Udemy URL, or paste an image URL' : 'Upload an image or paste an image URL'}
           style={{ marginTop: 10 }}
         />
         {data[f.name] ? (
@@ -309,33 +325,6 @@ export default function DocForm({ slug, initialData = {}, onSubmit, submitting, 
         <textarea className="a-textarea" value={data[f.name] || ''} onChange={e => set(f.name, e.target.value)} required={f.required} />
       </div>
     )
-
-    if (f.name === 'thumbnail' && slug === 'udemy-courses') {
-      return (
-        <div key={f.name} className="a-field" style={{ gridColumn: '1 / -1' }}>
-          <label className="a-label">{label}</label>
-          <input
-            className="a-input"
-            value={data[f.name] || ''}
-            onChange={e => set(f.name, e.target.value)}
-            placeholder="Auto-filled from the Udemy URL, or paste a thumbnail URL"
-          />
-          {previewLoading ? (
-            <div style={{ marginTop: 8, fontSize: 12, color: 'var(--a-muted)' }}>Fetching preview...</div>
-          ) : null}
-          {previewError ? (
-            <div style={{ marginTop: 8, fontSize: 12, color: 'var(--a-danger)' }}>{previewError}</div>
-          ) : null}
-          {data[f.name] ? (
-            <img
-              src={data[f.name]}
-              alt="Udemy thumbnail preview"
-              style={{ marginTop: 12, width: 320, maxWidth: '100%', aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: 12, border: '1px solid var(--a-border)' }}
-            />
-          ) : null}
-        </div>
-      )
-    }
 
     if (f.type === 'select') return (
       <div key={f.name} className="a-field">

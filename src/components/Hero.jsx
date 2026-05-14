@@ -5,10 +5,10 @@ import { SearchBox } from './SearchBox'
 const quickSearches = ['Python', 'Excel', 'Data analysis', 'Web development', 'AI automation']
 
 export function Hero({ siteConfig }) {
-  const headline = siteConfig?.heroHeadline || 'Learn essential career and tech skills'
+  const headline = siteConfig?.heroHeadline || 'Learn practical tech skills'
   const lede =
     siteConfig?.heroLede ||
-    'Build in-demand skills with practical courses, cohort programs, certificates, and self-paced lessons taught by working instructors.'
+    'Practical courses, cohort programs, certificates, and self-paced lessons in one place.'
 
   return (
     <section className="market-hero border-b border-[color:var(--border-soft)] bg-[radial-gradient(circle_at_top_left,#dff0ff_0%,transparent_36%),linear-gradient(180deg,#ffffff_0%,#eef7ff_100%)]">
@@ -46,7 +46,7 @@ export function Hero({ siteConfig }) {
               Popular now
             </div>
             <h2 className="max-w-md text-2xl font-extrabold leading-tight">
-              AI, development, design, data, and business skills in one place.
+              AI, development, design, and data skills in one place.
             </h2>
             <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
               <HeroMetric value={siteConfig?.statCourses || '120+'} label="Courses" />

@@ -97,19 +97,28 @@ export default function SettingsPage() {
       setSaveMessage('Password must be at least 8 characters.')
       return
     }
+    if (!formData.currentPassword) {
+      setSaveMessage('Enter your current password before setting a new one.')
+      return
+    }
 
     try {
       const res = await fetch(`/api/users/${user.id}`, {
         method: 'PATCH',
         headers: authHeaders(),
-        body: JSON.stringify({ password: formData.newPassword }),
+        body: JSON.stringify({
+          currentPassword: formData.currentPassword,
+          password: formData.newPassword,
+        }),
       })
+
+      const data = await res.json().catch(() => ({}))
 
       if (res.ok) {
         setSaveMessage('Password changed successfully.')
         setFormData(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }))
       } else {
-        setSaveMessage('Failed to change password.')
+        setSaveMessage(data?.message || 'Failed to change password.')
       }
     } catch {
       setSaveMessage('An error occurred.')

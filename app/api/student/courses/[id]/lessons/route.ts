@@ -1,51 +1,58 @@
-import { getPayload } from 'payload'
-import config from '@/payload.config'
+import { getCachedPayload } from '@/app/api/[...rest]/payload'
+import {
+  ApiError,
+  requirePaidEnrollment,
+  requireUserActor,
+  resolveRequestActor,
+} from '@/app/api/_lib/auth'
 
-function getToken(req) {
-  const auth = req.headers.get('authorization') || ''
-  return auth.startsWith('JWT ') ? auth.slice(4) : ''
-}
-
-function decodeToken(token) {
-  try {
-    return JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString())
-  } catch {
-    return null
+function jsonError(error: unknown) {
+  if (error instanceof ApiError) {
+    return Response.json({ message: error.message }, { status: error.status })
   }
+
+  const message = error instanceof Error ? error.message : 'Failed to load lessons.'
+  return Response.json({ message }, { status: 400 })
 }
 
-export async function GET(req, context) {
+export async function GET(req: Request, context: any) {
   try {
-    const token = getToken(req)
-    if (!token) return Response.json({ message: 'Unauthorized.' }, { status: 401 })
-
-    const decoded = decodeToken(token)
-    const studentId = decoded?.id
-    if (!studentId) return Response.json({ message: 'Invalid token.' }, { status: 401 })
-
+    const payload = await getCachedPayload()
+    const actor = requireUserActor(await resolveRequestActor(req, payload))
     const params = await context?.params
     const courseId = String(params?.id || '')
-    if (!courseId) return Response.json({ message: 'Course ID is required.' }, { status: 400 })
 
-    const payload = await getPayload({ config })
-
-    const enrollment = await payload.find({
-      collection: 'enrollments',
-      where: {
-        and: [
-          { student: { equals: studentId } },
-          { course: { equals: courseId } },
-          { status: { equals: 'paid' } },
-        ],
-      },
-      limit: 1,
-    })
-
-    if (!enrollment?.docs?.length) {
-      return Response.json({ message: 'You are not enrolled in this course.' }, { status: 403 })
+    if (!courseId) {
+      throw new ApiError(400, 'Course ID is required.')
     }
 
-    const course = await payload.findByID({ collection: 'courses', id: courseId })
+    await requirePaidEnrollment(payload, String(actor.record.id), courseId)
+
+    const [course, progressResult, certificateResult] = await Promise.all([
+      payload.findByID({ collection: 'courses', id: courseId }),
+      payload.find({
+        collection: 'course-progress',
+        where: {
+          and: [
+            { student: { equals: actor.record.id } },
+            { course: { equals: courseId } },
+          ],
+        },
+        limit: 1,
+        depth: 0,
+      }),
+      payload.find({
+        collection: 'certificates',
+        where: {
+          and: [
+            { student: { equals: actor.record.id } },
+            { course: { equals: courseId } },
+          ],
+        },
+        limit: 1,
+        depth: 1,
+      }),
+    ])
 
     return Response.json({
       id: course.id,
@@ -53,8 +60,10 @@ export async function GET(req, context) {
       desc: course.desc,
       duration: course.duration,
       courseContent: course.courseContent || [],
+      progress: progressResult?.docs?.[0] || null,
+      certificate: certificateResult?.docs?.[0] || null,
     })
-  } catch (err) {
-    return Response.json({ message: err?.message || 'Failed to load lessons.' }, { status: 400 })
+  } catch (error) {
+    return jsonError(error)
   }
 }

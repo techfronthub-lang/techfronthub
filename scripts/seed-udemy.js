@@ -10,7 +10,7 @@ async function api(method, path, data) {
   })
   const json = await res.json().catch(() => ({}))
   if (!res.ok) {
-    const msg = json.message || json.error || `${method} ${path} → ${res.status}`
+    const msg = json.message || json.error || `${method} ${path} -> ${res.status}`
     throw new Error(msg)
   }
   return json
@@ -42,10 +42,9 @@ const UDEMY = [
     rating: 4.4,
     count: '18,110',
     hours: '45h 55m',
-    price: '₦7,500',
+    price: 'N7,500',
     udemyUrl: 'https://www.udemy.com/course/business-data-analysis-using-microsoft-power-bi/',
     thumbnail: 'https://img-c.udemycdn.com/course/480x270/2135486_856b_2.jpg?q=75&w=3840',
-    hue: 214,
     sortOrder: 1,
   },
   {
@@ -54,10 +53,9 @@ const UDEMY = [
     rating: 4.6,
     count: '367',
     hours: '8h 32m',
-    price: '₦5,000',
+    price: 'N5,000',
     udemyUrl: 'https://www.udemy.com/course/sql-for-absolute-beginners/',
     thumbnail: 'https://img-c.udemycdn.com/course/480x270/4426742_6e45_7.jpg?q=75&w=3840',
-    hue: 208,
     sortOrder: 2,
   },
   {
@@ -66,10 +64,9 @@ const UDEMY = [
     rating: 3.8,
     count: '399',
     hours: '7h 25m',
-    price: '₦5,500',
+    price: 'N5,500',
     udemyUrl: 'https://www.udemy.com/course/learn-digital-marketing-from-scratch/',
     thumbnail: 'https://img-c.udemycdn.com/course/240x135/4456588_6d71_4.jpg',
-    hue: 230,
     sortOrder: 3,
   },
   {
@@ -78,10 +75,9 @@ const UDEMY = [
     rating: 4.5,
     count: '93',
     hours: '10h 8m',
-    price: '₦9,000',
+    price: 'N9,000',
     udemyUrl: 'https://www.udemy.com/course/aws-certified-solutions-architect-associate-saa-c03-m/',
     thumbnail: 'https://img-c.udemycdn.com/course/480x270/6151897_0462_2.jpg?q=75&w=3840',
-    hue: 225,
     sortOrder: 4,
   },
   {
@@ -90,10 +86,9 @@ const UDEMY = [
     rating: 4.6,
     count: '5,692',
     hours: '2h 57m',
-    price: '₦5,500',
+    price: 'N5,500',
     udemyUrl: 'https://www.udemy.com/course/excel-data-analysis/',
     thumbnail: 'https://img-c.udemycdn.com/course/480x270/3001112_d6f4_2.jpg?q=75&w=3840',
-    hue: 218,
     sortOrder: 5,
   },
   {
@@ -102,22 +97,20 @@ const UDEMY = [
     rating: 4.7,
     count: '1,243',
     hours: '17h 27m',
-    price: '₦7,500',
+    price: 'N7,500',
     udemyUrl: 'https://www.udemy.com/course/python-science/',
     thumbnail: 'https://img-c.udemycdn.com/course/480x270/4713798_d43a.jpg?q=75&w=3840',
-    hue: 217,
     sortOrder: 6,
   },
   {
     title: 'Docker and Kubernetes: The Complete Course from Zero to Hero',
-    author: 'Lauro Fialho Müller',
+    author: 'Lauro Fialho Muller',
     rating: 4.6,
     count: '1,717',
     hours: '33h 39m',
-    price: '₦8,000',
+    price: 'N8,000',
     udemyUrl: 'https://www.udemy.com/course/complete-docker-kubernetes/',
     thumbnail: 'https://img-c.udemycdn.com/course/480x270/5967966_849d.jpg?q=75&w=3840',
-    hue: 202,
     sortOrder: 7,
   },
   {
@@ -126,10 +119,9 @@ const UDEMY = [
     rating: 4.2,
     count: '17',
     hours: '7h 48m',
-    price: '₦7,500',
+    price: 'N7,500',
     udemyUrl: 'https://www.udemy.com/course/react-nextjs-formation-web-fullstack/',
     thumbnail: 'https://img-c.udemycdn.com/course/480x270/6551163_d804.jpg?q=75&w=3840',
-    hue: 215,
     sortOrder: 8,
   },
   {
@@ -138,10 +130,9 @@ const UDEMY = [
     rating: 4.1,
     count: '106',
     hours: '1h 22m',
-    price: '₦6,500',
+    price: 'N6,500',
     udemyUrl: 'https://www.udemy.com/course/cybersecurity-essentials/',
     thumbnail: 'https://img-c.udemycdn.com/course/240x135/3530614_5f97.jpg',
-    hue: 210,
     sortOrder: 9,
   },
   {
@@ -150,10 +141,9 @@ const UDEMY = [
     rating: 4.2,
     count: '119',
     hours: '1h 18m',
-    price: '₦6,000',
+    price: 'N6,000',
     udemyUrl: 'https://www.udemy.com/course/chatgpt-ai-chatbot/',
     thumbnail: 'https://img-c.udemycdn.com/course/480x270/5943830_8dd4_2.jpg?q=75&w=3840',
-    hue: 220,
     sortOrder: 10,
   },
 ]
@@ -176,7 +166,7 @@ async function seedCollection() {
       await api('POST', '/udemy-courses', payload)
       created++
     } catch (error) {
-      console.warn(`  warning: ${error.message}`)
+      console.warn(`warning: ${error.message}`)
       skipped++
     }
   }

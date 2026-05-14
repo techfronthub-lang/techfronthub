@@ -24,6 +24,8 @@ export default function CourseLessonViewPage() {
   const [error, setError] = useState('')
   const [course, setCourse] = useState(null)
   const [activeLesson, setActiveLesson] = useState(0)
+  const [completedLessonIndexes, setCompletedLessonIndexes] = useState([])
+  const [certificate, setCertificate] = useState(null)
   const [accessDenied, setAccessDenied] = useState(false)
   const [isCompact, setIsCompact] = useState(false)
 
@@ -60,6 +62,10 @@ export default function CourseLessonViewPage() {
         if (!res.ok) throw new Error(data?.message || `HTTP ${res.status}`)
 
         setCourse(data)
+        setCertificate(data?.certificate || null)
+        const persistedIndex = Math.max(0, Number(data?.progress?.lastOpenedLessonIndex || 0))
+        setActiveLesson(persistedIndex)
+        setCompletedLessonIndexes(Array.isArray(data?.progress?.completedLessonIndexes) ? data.progress.completedLessonIndexes : [])
         setLoading(false)
       } catch (e) {
         if (!active) return
@@ -89,18 +95,44 @@ export default function CourseLessonViewPage() {
   }, [course])
 
   const activeContent = lessons[activeLesson] || null
-  const completionCount = Math.min(lessons.length, activeLesson + 1)
+  const completionCount = Math.min(lessons.length, completedLessonIndexes.length || (lessons.length ? 1 : 0))
   const progressPercent = lessons.length ? Math.round((completionCount / lessons.length) * 100) : 0
 
   useEffect(() => {
+    if (lessons.length === 0) return
+    setActiveLesson((current) => Math.min(current, lessons.length - 1))
+  }, [lessons.length])
+
+  useEffect(() => {
     if (!courseId || lessons.length === 0) return
-    persistCourseProgress(courseId, {
-      lastLessonIndex: activeLesson,
-      completedLessons: completionCount,
-      totalLessons: lessons.length,
-      updatedAt: new Date().toISOString(),
-    })
-  }, [activeLesson, completionCount, courseId, lessons.length])
+    const nextCompletedIndexes = Array.from(
+      new Set([...completedLessonIndexes, activeLesson].filter((index) => index >= 0 && index < lessons.length)),
+    ).sort((left, right) => left - right)
+
+    if (nextCompletedIndexes.length !== completedLessonIndexes.length) {
+      setCompletedLessonIndexes(nextCompletedIndexes)
+    }
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('payload-token') : ''
+    if (!token) return
+
+    const controller = new AbortController()
+    fetch('/api/student/progress', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `JWT ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        courseId,
+        lastOpenedLessonIndex: activeLesson,
+        completedLessonIndexes: nextCompletedIndexes,
+      }),
+      signal: controller.signal,
+    }).catch(() => {})
+
+    return () => controller.abort()
+  }, [activeLesson, completedLessonIndexes, courseId, lessons.length])
 
   if (loading) {
     return <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', color: 'var(--ink-400)' }}>Loading lessons...</div>
@@ -193,12 +225,24 @@ export default function CourseLessonViewPage() {
                   <div style={lessonProgressBannerStyle}>
                     <div>
                       <strong style={lessonProgressTitleStyle}>You are on lesson {activeLesson + 1} of {lessons.length}</strong>
-                      <div style={lessonProgressMetaStyle}>Your last opened lesson is saved on this device so you can continue where you stopped.</div>
+                      <div style={lessonProgressMetaStyle}>Your last opened lesson and completion progress are saved to your account so you can continue on any signed-in session.</div>
                     </div>
                     <div style={lessonProgressTrackStyle}>
                       <div style={{ ...lessonProgressFillStyle, width: `${progressPercent}%` }} />
                     </div>
                   </div>
+
+                  {certificate ? (
+                    <div style={certificateBannerStyle}>
+                      <strong style={{ color: '#14532d' }}>Certificate issued</strong>
+                      <div style={{ marginTop: 6, color: '#166534', lineHeight: 1.7 }}>
+                        Your completion certificate for this course has been issued and saved to your student account.
+                      </div>
+                      <div style={{ marginTop: 8, color: '#14532d', fontWeight: 700 }}>
+                        Code: {certificate.certificateCode}
+                      </div>
+                    </div>
+                  ) : null}
 
                   {activeContent.summary ? (
                     <div style={summaryCardStyle}>
@@ -282,18 +326,6 @@ export default function CourseLessonViewPage() {
       </div>
     </div>
   )
-}
-
-function persistCourseProgress(courseId, progress) {
-  if (typeof window === 'undefined' || !courseId) return
-  try {
-    const raw = localStorage.getItem('student-course-progress')
-    const current = raw ? JSON.parse(raw) : {}
-    current[String(courseId)] = progress
-    localStorage.setItem('student-course-progress', JSON.stringify(current))
-  } catch {
-    // Ignore local storage write errors and keep the lesson view usable.
-  }
 }
 
 const heroStyle = {
@@ -592,6 +624,13 @@ const lessonProgressBannerStyle = {
   border: '1px solid var(--ink-200)',
   display: 'grid',
   gap: 12,
+}
+
+const certificateBannerStyle = {
+  borderRadius: 20,
+  padding: 18,
+  background: '#ecfdf5',
+  border: '1px solid rgba(34,197,94,0.18)',
 }
 
 const lessonProgressTitleStyle = {

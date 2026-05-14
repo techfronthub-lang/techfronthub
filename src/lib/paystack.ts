@@ -1,5 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
+import { sendCoursePurchaseConfirmation } from './auth-email'
 
 export function getPaystackBaseUrl() {
   return process.env.PAYSTACK_BASE_URL || 'https://api.paystack.co'
@@ -42,6 +43,20 @@ export function getPaystackMetadata(data: any) {
   }
 }
 
+export function getPromotionMetadata(data: any) {
+  return {
+    campaign: String(data?.metadata?.campaign || ''),
+    fullName: String(data?.metadata?.fullName || ''),
+    email: String(data?.metadata?.email || ''),
+    phone: String(data?.metadata?.phone || ''),
+    school: String(data?.metadata?.school || ''),
+    role: String(data?.metadata?.role || ''),
+    cohort: String(data?.metadata?.cohort || ''),
+    plan: String(data?.metadata?.plan || ''),
+    planLabel: String(data?.metadata?.planLabel || ''),
+  }
+}
+
 export async function ensurePaidEnrollment({
   studentId,
   courseId,
@@ -71,9 +86,16 @@ export async function ensurePaidEnrollment({
     limit: 1,
   })
 
-  if (existing?.docs?.length) return existing.docs[0]
+  if (existing?.docs?.length) {
+    return { enrollment: existing.docs[0], created: false }
+  }
 
-  return payload.create({
+  const [student, course] = await Promise.all([
+    payload.findByID({ collection: 'users', id: studentId }).catch(() => null),
+    payload.findByID({ collection: 'courses', id: courseId }).catch(() => null),
+  ])
+
+  const enrollment = await payload.create({
     collection: 'enrollments',
     data: {
       student: Number(studentId) as any,
@@ -83,6 +105,20 @@ export async function ensurePaidEnrollment({
       reference,
     },
   })
+
+  if (student?.email && course) {
+    await sendCoursePurchaseConfirmation({
+      email: student.email,
+      name: student.name,
+      courseTitle: course.title || course.slug || `Course #${courseId}`,
+      amountNaira: amountKobo / 100,
+      reference,
+    }).catch((error) => {
+      console.error('Failed to send course purchase confirmation email', error)
+    })
+  }
+
+  return { enrollment, created: true }
 }
 
 export function logPaystack(event: string, data?: unknown) {

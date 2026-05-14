@@ -15,6 +15,15 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.06, delayChildren: 0.03 } },
 }
 
+function displayText(value, fallback = '') {
+  if (value == null) return fallback
+  if (typeof value === 'string' || typeof value === 'number') return String(value)
+  if (typeof value === 'object') {
+    return value.name || value.title || value.label || value.fullName || value.email || fallback
+  }
+  return fallback
+}
+
 export default function ReviewsPage() {
   const [loading, setLoading] = useState(true)
   const [testimonials, setTestimonials] = useState([])
@@ -77,11 +86,10 @@ export default function ReviewsPage() {
                   <blockquote className="mt-4 text-sm leading-7 text-slate-700">"{testimonial.quote}"</blockquote>
                   <figcaption className="mt-5 flex items-center gap-3 border-t border-slate-200 pt-4">
                     <div className="grid h-11 w-11 place-items-center rounded bg-slate-950 text-sm font-extrabold text-white">
-                      {testimonial.initials}
+                      {displayText(testimonial.initials, displayText(testimonial.name, 'TF').slice(0, 2).toUpperCase())}
                     </div>
                     <div>
-                      <b className="block text-slate-950">{testimonial.name}</b>
-                      <span className="text-sm text-slate-500">{testimonial.role}</span>
+                      <b className="block text-slate-950">{displayText(testimonial.name, 'Anonymous')}</b>
                     </div>
                   </figcaption>
                 </motion.figure>

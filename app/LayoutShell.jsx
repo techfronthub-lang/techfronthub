@@ -3,7 +3,7 @@
 import React from 'react'
 import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
-import { TopBar, Header, Footer, DEFAULT_SITE_CONFIG, loadSiteConfig } from '@/src/components/Layout'
+import { Header, Footer, DEFAULT_SITE_CONFIG, loadSiteConfig } from '@/src/components/Layout'
 
 export function LayoutShell({ children }) {
   const pathname = usePathname()
@@ -27,7 +27,14 @@ export function LayoutShell({ children }) {
 
   return (
     <>
-      {isShell && <TopBar siteConfig={siteConfig} />}
+      {isShell && (
+        <>
+          {/*
+            Top announcement bar disabled for now.
+          */}
+          {/* <TopBar siteConfig={siteConfig} /> */}
+        </>
+      )}
       {isShell && <Header siteConfig={siteConfig} />}
       <AnimatePresence mode="wait" initial={false}>
         <motion.div

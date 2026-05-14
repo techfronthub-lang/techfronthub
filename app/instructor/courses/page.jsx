@@ -75,7 +75,6 @@ function IconSearch() {
 
 /* ── Course card ──────────────────────────────────────────────────────────── */
 function CourseCard({ course, onDelete }) {
-  const hue = course.hue ?? 214
   const bannerStyle = course.thumbnail
     ? {
         backgroundImage: `linear-gradient(135deg, rgba(7, 10, 20, 0.18), rgba(7, 10, 20, 0.18)), url(${course.thumbnail})`,
@@ -83,7 +82,7 @@ function CourseCard({ course, onDelete }) {
         backgroundPosition: 'center',
       }
     : {
-        background: `linear-gradient(135deg, oklch(0.35 0.08 ${hue}), oklch(0.18 0.06 ${hue}))`,
+        background: 'linear-gradient(135deg, #163b72, #0f1f3d)',
       }
 
   const metaParts = [
