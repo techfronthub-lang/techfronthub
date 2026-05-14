@@ -1,8 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import type { TextFieldClientComponent } from 'payload'
-import { FieldLabel, useField } from '@payloadcms/ui'
 
 const previewStyle: React.CSSProperties = {
   marginTop: 12,
@@ -47,11 +46,18 @@ const hiddenInputStyle: React.CSSProperties = {
 
 const sanitizeFolder = 'udemy-courses'
 
-const UdemyThumbnailField: TextFieldClientComponent = ({ field, path: pathFromProps, readOnly }) => {
-  const { path, setValue, value } = useField<string>({ path: pathFromProps })
+const UdemyThumbnailField: TextFieldClientComponent = (props) => {
+  const { field, path: pathFromProps, readOnly } = props
+  const initialValue = useMemo(() => {
+    const nextValue = (props as { value?: unknown })?.value
+    return typeof nextValue === 'string' ? nextValue : ''
+  }, [props])
+  const [value, setValue] = useState(initialValue)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
 
+  const path = pathFromProps || field.name || 'thumbnail'
+  const inputId = `field-${path.replace(/[^a-zA-Z0-9_-]/g, '-')}`
   const label = typeof field.label === 'string' ? field.label : 'Thumbnail'
   const description = typeof field.admin?.description === 'string' ? field.admin.description : ''
 
@@ -77,7 +83,7 @@ const UdemyThumbnailField: TextFieldClientComponent = ({ field, path: pathFromPr
         throw new Error(json?.message || 'Upload failed')
       }
 
-      setValue(json?.url || '')
+      setValue(typeof json?.url === 'string' ? json.url : '')
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : 'Upload failed')
     } finally {
@@ -88,7 +94,10 @@ const UdemyThumbnailField: TextFieldClientComponent = ({ field, path: pathFromPr
 
   return (
     <div className="field-type text">
-      <FieldLabel label={label} path={path} required={field.required} />
+      <label htmlFor={inputId} style={{ display: 'block', fontWeight: 600, marginBottom: 8 }}>
+        {label}
+        {field.required ? ' *' : ''}
+      </label>
 
       <label className="btn" style={{ ...buttonStyle, opacity: readOnly ? 0.6 : 1, pointerEvents: readOnly ? 'none' : 'auto' }}>
         {uploading ? 'Uploading...' : 'Upload image'}
@@ -102,8 +111,17 @@ const UdemyThumbnailField: TextFieldClientComponent = ({ field, path: pathFromPr
       </label>
 
       <input
+        type="hidden"
+        name={path}
+        value={value}
+        readOnly
+      />
+
+      <input
+        id={inputId}
+        name={path}
         type="text"
-        value={String(value || '')}
+        value={value}
         onChange={(event) => setValue(event.target.value)}
         readOnly={readOnly}
         placeholder="Upload to S3 or paste an image URL"
@@ -115,7 +133,7 @@ const UdemyThumbnailField: TextFieldClientComponent = ({ field, path: pathFromPr
 
       {value ? (
         <img
-          src={String(value)}
+          src={value}
           alt="Udemy thumbnail preview"
           style={previewStyle}
         />
