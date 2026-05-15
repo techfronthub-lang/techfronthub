@@ -51,10 +51,7 @@ const SCHEMA = {
   ],
   events: [
     { name: 'title', type: 'text', required: true, label: 'Event Title' },
-    { name: 'eventDate', type: 'text', label: 'Event Date / Label' },
-    { name: 'location', type: 'text' },
     { name: 'photo', type: 'file', label: 'Event Photo' },
-    { name: 'about', type: 'textarea', required: true, label: 'What the event was about' },
     { name: 'sortOrder', type: 'number' },
   ],
   'udemy-courses': [

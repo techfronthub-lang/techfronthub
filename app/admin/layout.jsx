@@ -14,7 +14,6 @@ const COLLECTIONS = [
   { slug: 'courses',      label: 'Courses' },
   { slug: 'categories',   label: 'Categories' },
   { slug: 'packages',     label: 'Packages' },
-  { slug: 'events',       label: 'Events' },
   { slug: 'testimonials', label: 'Testimonials' },
   { slug: 'udemy-courses', label: 'Udemy Courses' },
 ]

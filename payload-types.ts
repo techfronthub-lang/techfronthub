@@ -458,16 +458,10 @@ export interface Testimonial {
 export interface Event {
   id: number;
   title: string;
-  about: string;
   /**
    * Event photo URL uploaded through the admin form
    */
   photo: string;
-  location?: string | null;
-  /**
-   * Optional short label like May 2026 or Lagos, Nigeria
-   */
-  eventDate?: string | null;
   sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -915,10 +909,7 @@ export interface TestimonialsSelect<T extends boolean = true> {
  */
 export interface EventsSelect<T extends boolean = true> {
   title?: T;
-  about?: T;
   photo?: T;
-  location?: T;
-  eventDate?: T;
   sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1111,6 +1102,14 @@ export interface SiteConfig {
   eventsEyebrow?: string | null;
   eventsHeadline?: string | null;
   eventsBody?: string | null;
+  events?:
+    | {
+        title: string;
+        photo: string;
+        sortOrder?: number | null;
+        id?: string | null;
+      }[]
+    | null;
   footerHeadline?: string | null;
   footerAddress?: string | null;
   footerEmail?: string | null;
@@ -1223,6 +1222,14 @@ export interface SiteConfigSelect<T extends boolean = true> {
   eventsEyebrow?: T;
   eventsHeadline?: T;
   eventsBody?: T;
+  events?:
+    | T
+    | {
+        title?: T;
+        photo?: T;
+        sortOrder?: T;
+        id?: T;
+      };
   footerHeadline?: T;
   footerAddress?: T;
   footerEmail?: T;

@@ -8,6 +8,19 @@ import { sendAdminSignupAlert, sendWelcomeForRecord } from './src/lib/auth-email
 const ACTIVITY_COLLECTION = 'admin-activity'
 const payloadConnectionString = process.env.DATABASE_URL || process.env.DIRECT_URL
 
+function getPoolSize() {
+  const raw = process.env.DATABASE_POOL_MAX
+  const parsed = raw ? Number(raw) : Number.NaN
+  if (Number.isFinite(parsed) && parsed > 0) return parsed
+  return process.env.NODE_ENV === 'production' ? 5 : 10
+}
+
+function getPoolTimeout(name: string, fallback: number) {
+  const raw = process.env[name]
+  const parsed = raw ? Number(raw) : Number.NaN
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback
+}
+
 async function sendAuthEmails(collection: 'users' | 'instructors', doc: any, operation: string) {
   if (!doc?.email) return
 
@@ -347,10 +360,7 @@ export default buildConfig({
       admin: { useAsTitle: 'title' },
       fields: [
         { name: 'title', type: 'text', required: true },
-        { name: 'about', type: 'textarea', required: true },
         { name: 'photo', type: 'text', required: true, admin: { description: 'Event photo URL uploaded through the admin form' } },
-        { name: 'location', type: 'text' },
-        { name: 'eventDate', type: 'text', admin: { description: 'Optional short label like May 2026 or Lagos, Nigeria' } },
         { name: 'sortOrder', type: 'number' },
       ],
     },
@@ -634,6 +644,15 @@ export default buildConfig({
           defaultValue: 'Highlights from conferences, workshops, community meetups, and partner events we have participated in.',
         },
         {
+          name: 'events',
+          type: 'array',
+          fields: [
+            { name: 'title', type: 'text', required: true },
+            { name: 'photo', type: 'text', required: true },
+            { name: 'sortOrder', type: 'number' },
+          ],
+        },
+        {
           name: 'footerHeadline',
           type: 'textarea',
           defaultValue:
@@ -768,9 +787,11 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: payloadConnectionString,
-      max: 10,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 15000,
+      max: getPoolSize(),
+      idleTimeoutMillis: getPoolTimeout('DATABASE_POOL_IDLE_TIMEOUT_MS', process.env.NODE_ENV === 'production' ? 10000 : 30000),
+      connectionTimeoutMillis: getPoolTimeout('DATABASE_POOL_CONNECTION_TIMEOUT_MS', 10000),
+      maxUses: getPoolTimeout('DATABASE_POOL_MAX_USES', process.env.NODE_ENV === 'production' ? 750 : 0) || undefined,
+      allowExitOnIdle: process.env.NODE_ENV !== 'production',
     },
   }),
   secret: process.env.PAYLOAD_SECRET,

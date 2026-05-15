@@ -261,7 +261,7 @@ export function Testimonials({ testimonials, siteConfig }) {
 }
 
 export function EventsSection({ events, siteConfig }) {
-  const items = [...(Array.isArray(events) ? events : [])].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+  const items = [...(Array.isArray(events) ? events : Array.isArray(siteConfig?.events) ? siteConfig.events : [])].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
 
   if (!items.length) return null
 
@@ -284,12 +284,7 @@ export function EventsSection({ events, siteConfig }) {
                 />
               </div>
               <div className="space-y-3 p-5">
-                <div className="flex flex-wrap gap-2 text-xs font-extrabold uppercase tracking-[0.12em] text-[color:var(--brand-strong)]">
-                  {item.eventDate ? <span>{item.eventDate}</span> : null}
-                  {item.location ? <span>{item.location}</span> : null}
-                </div>
                 <h3 className="font-[var(--font-display)] text-xl font-extrabold text-[color:var(--text-strong)]">{item.title}</h3>
-                <p className="text-sm leading-7 text-[color:var(--text-body)]">{item.about}</p>
               </div>
             </article>
           ))}

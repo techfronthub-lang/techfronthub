@@ -89,6 +89,16 @@ const GLOBALS_SCHEMA = {
         { name: 'eventsEyebrow', type: 'text', label: 'Events Eyebrow' },
         { name: 'eventsHeadline', type: 'text', label: 'Events Headline' },
         { name: 'eventsBody', type: 'textarea', label: 'Events Body' },
+        {
+          name: 'events',
+          type: 'array',
+          label: 'Events List',
+          itemFields: [
+            { name: 'title', label: 'Title', placeholder: 'Event title' },
+            { name: 'photo', label: 'Photo', placeholder: 'Paste image URL', type: 'file' },
+            { name: 'sortOrder', label: 'Sort Order', placeholder: '0' },
+          ],
+        },
         { name: 'finalCtaEyebrow', type: 'text', label: 'Final CTA Eyebrow' },
         { name: 'finalCtaSecondaryLabel', type: 'text', label: 'Final CTA Secondary Label' },
         { name: 'finalCtaSecondaryHref', type: 'text', label: 'Final CTA Secondary Link' },
@@ -177,6 +187,7 @@ const GLOBALS_SCHEMA = {
 
 function ArrayField({ label, value = [], onChange, itemFields = [{ name: 'name', label: 'Value', placeholder: 'Item' }] }) {
   const items = Array.isArray(value) ? value : []
+  const [uploadingKey, setUploadingKey] = useState('')
 
   const template = () =>
     itemFields.reduce((acc, field) => {
@@ -198,6 +209,20 @@ function ArrayField({ label, value = [], onChange, itemFields = [{ name: 'name',
 
   const add = () => onChange([...items, template()])
   const remove = (i) => onChange(items.filter((_, idx) => idx !== i))
+  const uploadImage = async (file, itemIndex, fieldName) => {
+    setUploadingKey(`${itemIndex}:${fieldName}`)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'site-config-events')
+      const res = await fetch('/api/storage/upload', { method: 'POST', body: formData })
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(json.message || 'Upload failed')
+      update(itemIndex, fieldName, json.url || '')
+    } finally {
+      setUploadingKey('')
+    }
+  }
 
   return (
     <div className="a-field" style={{ gridColumn: '1 / -1' }}>
@@ -210,11 +235,33 @@ function ArrayField({ label, value = [], onChange, itemFields = [{ name: 'name',
               {itemFields.map((field) => (
                 <div key={field.name} style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
                   <span className="a-label" style={{ marginBottom: 0 }}>{field.label}</span>
-                  <input
-                    value={row?.[field.name] ?? ''}
-                    onChange={(e) => update(i, field.name, e.target.value)}
-                    placeholder={field.placeholder || field.label}
-                  />
+                  {field.type === 'file' ? (
+                    <>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0]
+                          if (file) await uploadImage(file, i, field.name)
+                          e.target.value = ''
+                        }}
+                      />
+                      <input
+                        value={row?.[field.name] ?? ''}
+                        onChange={(e) => update(i, field.name, e.target.value)}
+                        placeholder={field.placeholder || field.label}
+                      />
+                      {uploadingKey === `${i}:${field.name}` ? (
+                        <div style={{ fontSize: 12, color: 'var(--a-muted)' }}>Uploading...</div>
+                      ) : null}
+                    </>
+                  ) : (
+                    <input
+                      value={row?.[field.name] ?? ''}
+                      onChange={(e) => update(i, field.name, e.target.value)}
+                      placeholder={field.placeholder || field.label}
+                    />
+                  )}
                 </div>
               ))}
               <button

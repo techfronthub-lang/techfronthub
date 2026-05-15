@@ -83,7 +83,6 @@ export default function Page() {
   const [data, setData] = useState({
     courses:      null,
     categories:   null,
-    events:       null,
     testimonials: null,
     packages:     null,
     udemy:        null,
@@ -105,10 +104,9 @@ export default function Page() {
     };
 
     const load = async () => {
-      const [courses, cats, events, testimonials, packages, udemy, siteConfig] = await Promise.all([
+      const [courses, cats, testimonials, packages, udemy, siteConfig] = await Promise.all([
         get('/courses?limit=50'),
         get('/categories?limit=50'),
-        get('/events?limit=50'),
         get('/testimonials?limit=50'),
         get('/packages?limit=50'),
         get('/udemy-courses?limit=50'),
@@ -117,7 +115,7 @@ export default function Page() {
 
       if (cancelled) return;
 
-      const hadError = [courses, cats, events, testimonials, packages, udemy, siteConfig].some((item) => item?.__error);
+      const hadError = [courses, cats, testimonials, packages, udemy, siteConfig].some((item) => item?.__error);
       if (hadError) {
         retryTimer = setTimeout(load, 1800);
         return;
@@ -126,7 +124,6 @@ export default function Page() {
       setData({
         courses:      courses?.docs?.length      ? courses.docs      : null,
         categories:   cats?.docs?.length         ? cats.docs         : null,
-        events:       events?.docs?.length       ? events.docs       : null,
         testimonials: testimonials?.docs?.length ? testimonials.docs : null,
         packages:     packages?.docs?.length     ? packages.docs     : null,
         udemy:        udemy?.docs?.length        ? udemy.docs        : null,
@@ -164,7 +161,7 @@ export default function Page() {
         <WhyUs siteConfig={data.siteConfig}/>
         <Categories    categories={data.categories} courses={data.courses} siteConfig={data.siteConfig}/>
         <Packages      packages={data.packages} siteConfig={data.siteConfig}/>
-        <EventsSection events={data.events} siteConfig={data.siteConfig}/>
+        <EventsSection siteConfig={data.siteConfig}/>
         <Testimonials  testimonials={data.testimonials} siteConfig={data.siteConfig}/>
         <FinalCTA siteConfig={data.siteConfig}/>
       </main>

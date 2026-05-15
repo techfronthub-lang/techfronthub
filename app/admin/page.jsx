@@ -8,7 +8,6 @@ const TILES = [
   { slug: 'courses',       label: 'Courses',       href: '/admin/collections/courses' },
   { slug: 'categories',    label: 'Categories',    href: '/admin/collections/categories' },
   { slug: 'packages',      label: 'Packages',      href: '/admin/collections/packages' },
-  { slug: 'events',        label: 'Events',        href: '/admin/collections/events' },
   { slug: 'testimonials',  label: 'Testimonials',  href: '/admin/collections/testimonials' },
   { slug: 'udemy-courses', label: 'Udemy Courses', href: '/admin/collections/udemy-courses' },
   { slug: 'users',         label: 'Users',          href: '/admin/collections/users' },
@@ -74,7 +73,6 @@ export default function Dashboard() {
               </Link>
               {[
                 { label: '+ New Course',      href: '/admin/collections/courses/create' },
-                { label: '+ New Event',       href: '/admin/collections/events/create' },
                 { label: '+ New Testimonial', href: '/admin/collections/testimonials/create' },
                 { label: '+ New Category',    href: '/admin/collections/categories/create' },
                 { label: '+ New Package',     href: '/admin/collections/packages/create' },

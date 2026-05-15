@@ -73,6 +73,7 @@ export function Trusted({ siteConfig }) {
   const companies = siteConfig?.trustedCompanies?.length
     ? siteConfig.trustedCompanies.map((c) => c?.name).filter(Boolean)
     : ['Nasdaq', 'Volkswagen', 'Samsung', 'Cisco', 'Eventbrite', 'NetApp']
+  const loopedCompanies = [...companies, ...companies]
   const label =
     siteConfig?.trustedLabel ||
     DEFAULT_SITE_CONFIG.trustedLabel ||
@@ -82,15 +83,17 @@ export function Trusted({ siteConfig }) {
     <section className="border-b border-[color:var(--border-soft)] bg-[color:var(--bg-surface-strong)] py-8">
       <div className="site-container">
         <p className="text-center text-sm font-bold text-[color:var(--text-body)]">{label}</p>
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {companies.slice(0, 6).map((company) => (
-            <div
-              key={company}
-              className="grid h-14 place-items-center rounded border border-[color:var(--border-soft)] bg-white px-4 text-sm font-extrabold text-[color:var(--text-muted)]"
-            >
-              {company}
-            </div>
-          ))}
+        <div className="trusted-marquee mt-6">
+          <div className="trusted-marquee__track">
+            {loopedCompanies.map((company, index) => (
+              <div
+                key={`${company}-${index}`}
+                className="trusted-marquee__item grid place-items-center rounded border border-[color:var(--border-soft)] bg-white px-5 py-4 text-center text-sm font-extrabold text-[color:var(--text-muted)] shadow-[var(--shadow-soft)]"
+              >
+                <span className="trusted-marquee__text">{company}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

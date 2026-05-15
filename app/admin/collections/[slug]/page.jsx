@@ -30,7 +30,7 @@ const COLLECTION_META = {
   categories: { title: 'Categories', titleField: 'title', cols: ['title', 'icon', 'desc'] },
   packages: { title: 'Packages', titleField: 'name', cols: ['name', 'price', 'per', 'featured'] },
   testimonials: { title: 'Testimonials', titleField: 'name', cols: ['name', 'role', 'quote'] },
-  events: { title: 'Events', titleField: 'title', cols: ['title', 'eventDate', 'location', 'about'] },
+  events: { title: 'Events', titleField: 'title', cols: ['title', 'photo'] },
   'udemy-courses': { title: 'Udemy Courses', titleField: 'title', cols: ['title', 'author', 'rating', 'price'] },
   users: { title: 'Users', titleField: 'email', cols: ['name', 'email', 'role', 'status', 'phone'] },
 }
