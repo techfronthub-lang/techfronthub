@@ -83,6 +83,83 @@ async function logActivity(req: any, data: Record<string, unknown>) {
   }
 }
 
+async function deleteCollectionRecords(
+  payload: any,
+  collection: string,
+  where: Record<string, unknown>,
+) {
+  const result = await payload.find({
+    collection: collection as any,
+    where,
+    depth: 0,
+    limit: 1000,
+    pagination: false,
+  })
+
+  for (const doc of result?.docs || []) {
+    await payload.delete({
+      collection: collection as any,
+      id: String(doc.id),
+      overrideAccess: true,
+    })
+  }
+}
+
+async function cleanupCourseDependents(req: any, courseId: string) {
+  const payload = req?.payload
+  if (!payload || !courseId) return
+
+  const assignmentDocs = await payload.find({
+    collection: 'assignments',
+    where: {
+      course: {
+        equals: courseId,
+      },
+    },
+    depth: 0,
+    limit: 1000,
+    pagination: false,
+  })
+
+  for (const assignment of assignmentDocs?.docs || []) {
+    await deleteCollectionRecords(payload, 'submissions', {
+      assignment: {
+        equals: String(assignment.id),
+      },
+    })
+  }
+
+  await deleteCollectionRecords(payload, 'assignments', {
+    course: {
+      equals: courseId,
+    },
+  })
+
+  await deleteCollectionRecords(payload, 'announcements', {
+    course: {
+      equals: courseId,
+    },
+  })
+
+  await deleteCollectionRecords(payload, 'enrollments', {
+    course: {
+      equals: courseId,
+    },
+  })
+
+  await deleteCollectionRecords(payload, 'course-progress', {
+    course: {
+      equals: courseId,
+    },
+  })
+
+  await deleteCollectionRecords(payload, 'certificates', {
+    course: {
+      equals: courseId,
+    },
+  })
+}
+
 export default buildConfig({
   admin: {
     user: 'users',
@@ -344,6 +421,13 @@ export default buildConfig({
           hasMany: true,
         },
       ],
+      hooks: {
+        beforeDelete: [
+          async ({ id, req }) => {
+            await cleanupCourseDependents(req, String(id))
+          },
+        ],
+      },
     },
     {
       slug: 'testimonials',
