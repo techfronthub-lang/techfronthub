@@ -266,7 +266,7 @@ export function EventsSection({ events, siteConfig }) {
   if (!items.length) return null
 
   return (
-    <section className="border-y border-[color:var(--border-soft)] bg-[color:var(--bg-soft)] py-10 sm:py-12" id="events">
+    <section className="border-y border-[color:var(--border-soft)] bg-[linear-gradient(180deg,#ffffff_0%,#f4f9ff_44%,#eef7ff_100%)] py-10 sm:py-12" id="events">
       <div className="site-container">
         <SectionTitle
           eyebrow={siteConfig?.eventsEyebrow || 'Events and appearances'}
@@ -275,16 +275,25 @@ export function EventsSection({ events, siteConfig }) {
         />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {items.slice(0, 6).map((item, index) => (
-            <article key={item.id ?? index} className="overflow-hidden rounded-xl border border-[color:var(--border-soft)] bg-white shadow-[var(--shadow-soft)]">
-              <div className="aspect-[16/10] overflow-hidden bg-[color:var(--bg-surface-strong)]">
+            <article
+              key={item.id ?? index}
+              className={`group overflow-hidden rounded-[24px] border border-[color:var(--border-soft)] bg-white shadow-[var(--shadow-soft)] transition duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-card)] ${index === 0 ? 'sm:col-span-2 xl:row-span-2' : ''}`}
+            >
+              <div className={`relative overflow-hidden bg-[color:var(--bg-surface-strong)] ${index === 0 ? 'aspect-[16/9] xl:aspect-[16/11]' : 'aspect-[16/10]'}`}>
                 <img
                   src={item.photo || fallbackThumbnail(item)}
                   alt={item.title || 'TECHFRONT HUB event'}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />
-              </div>
-              <div className="space-y-3 p-5">
-                <h3 className="font-[var(--font-display)] text-xl font-extrabold text-[color:var(--text-strong)]">{item.title}</h3>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#081c3d]/88 via-[#081c3d]/35 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                  <span className="inline-flex rounded-full border border-white/18 bg-white/10 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.14em] text-white/86 backdrop-blur">
+                    TECHFRONT HUB
+                  </span>
+                  <h3 className={`mt-3 font-[var(--font-display)] font-extrabold leading-tight text-white ${index === 0 ? 'text-2xl sm:text-3xl' : 'text-xl'}`}>
+                    {item.title}
+                  </h3>
+                </div>
               </div>
             </article>
           ))}
