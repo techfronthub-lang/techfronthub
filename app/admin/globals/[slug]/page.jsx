@@ -202,9 +202,9 @@ const GLOBALS_SCHEMA = {
           itemFields: [
             { name: 'badge', label: 'Badge', placeholder: 'Now enrolling' },
             { name: 'title', label: 'Course Title', placeholder: 'AI Automation Bootcamp for Schools' },
-            { name: 'description', label: 'Description', placeholder: 'Explain the course and who it is for', type: 'textarea' },
-            { name: 'flyer', label: 'Flyer Image', placeholder: 'Paste image URL', type: 'file', uploadFolder: 'sales-page-flyers' },
-            { name: 'paystackUrl', label: 'Paystack Link', placeholder: 'https://paystack.com/pay/...' },
+            { name: 'description', label: 'Description', placeholder: 'Explain the course and who it is for', type: 'textarea', layout: 'full' },
+            { name: 'flyer', label: 'Flyer Image', placeholder: 'Paste image URL', type: 'file', uploadFolder: 'sales-page-flyers', layout: 'full' },
+            { name: 'paystackUrl', label: 'Paystack Link', placeholder: 'https://paystack.com/pay/...', layout: 'full' },
             { name: 'buttonLabel', label: 'Button Label', placeholder: 'Pay now' },
             { name: 'priceLabel', label: 'Price Label', placeholder: 'N75,000 per student' },
             { name: 'sortOrder', label: 'Sort Order', placeholder: '0' },
@@ -218,6 +218,7 @@ const GLOBALS_SCHEMA = {
 function ArrayField({ label, value = [], onChange, itemFields = [{ name: 'name', label: 'Value', placeholder: 'Item' }] }) {
   const items = Array.isArray(value) ? value : []
   const [uploadingKey, setUploadingKey] = useState('')
+  const isCardLayout = itemFields.length > 4
 
   const template = () =>
     itemFields.reduce((acc, field) => {
@@ -261,9 +262,13 @@ function ArrayField({ label, value = [], onChange, itemFields = [{ name: 'name',
         {items.map((item, i) => {
           const row = normalize(item)
           return (
-            <div key={i} className="array-item">
+            <div key={i} className={`array-item${isCardLayout ? ' array-item-card' : ''}`}>
               {itemFields.map((field) => (
-                <div key={field.name} style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+                <div
+                  key={field.name}
+                  className={field.layout === 'full' ? 'array-field-full' : ''}
+                  style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}
+                >
                   <span className="a-label" style={{ marginBottom: 0 }}>{field.label}</span>
                   {field.type === 'file' ? (
                     <>
@@ -304,11 +309,11 @@ function ArrayField({ label, value = [], onChange, itemFields = [{ name: 'name',
               ))}
               <button
                 type="button"
-                className="btn btn-ghost btn-icon btn-sm"
+                className={`btn btn-ghost btn-sm${isCardLayout ? ' array-remove' : ' btn-icon'}`}
                 style={{ color: 'var(--a-danger)', flexShrink: 0 }}
                 onClick={() => remove(i)}
               >
-                ×
+                Remove
               </button>
             </div>
           )

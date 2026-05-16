@@ -12,8 +12,7 @@ async function loadSalesPage() {
   try {
     const payload = await getCachedPayload()
     return await payload.findGlobal({ slug: 'sales-page' })
-  } catch (error) {
-    console.error('Failed to load sales page global', error)
+  } catch {
     return {}
   }
 }
