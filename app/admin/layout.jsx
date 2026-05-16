@@ -20,6 +20,7 @@ const COLLECTIONS = [
 
 const GLOBALS = [
   { slug: 'site-config', label: 'Site Config' },
+  { slug: 'sales-page', label: 'Sales Page' },
 ]
 
 function NavLink({ href, children }) {

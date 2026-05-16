@@ -183,6 +183,36 @@ const GLOBALS_SCHEMA = {
       ],
     },
   ],
+  'sales-page': [
+    {
+      section: 'Page Header',
+      fields: [
+        { name: 'eyebrow', type: 'text', label: 'Eyebrow' },
+        { name: 'headline', type: 'text', label: 'Headline' },
+        { name: 'body', type: 'textarea', label: 'Intro Copy' },
+      ],
+    },
+    {
+      section: 'Sales Offers',
+      fields: [
+        {
+          name: 'offers',
+          type: 'array',
+          label: 'Offer Cards',
+          itemFields: [
+            { name: 'badge', label: 'Badge', placeholder: 'Now enrolling' },
+            { name: 'title', label: 'Course Title', placeholder: 'AI Automation Bootcamp for Schools' },
+            { name: 'description', label: 'Description', placeholder: 'Explain the course and who it is for', type: 'textarea' },
+            { name: 'flyer', label: 'Flyer Image', placeholder: 'Paste image URL', type: 'file', uploadFolder: 'sales-page-flyers' },
+            { name: 'paystackUrl', label: 'Paystack Link', placeholder: 'https://paystack.com/pay/...' },
+            { name: 'buttonLabel', label: 'Button Label', placeholder: 'Pay now' },
+            { name: 'priceLabel', label: 'Price Label', placeholder: 'N75,000 per student' },
+            { name: 'sortOrder', label: 'Sort Order', placeholder: '0' },
+          ],
+        },
+      ],
+    },
+  ],
 }
 
 function ArrayField({ label, value = [], onChange, itemFields = [{ name: 'name', label: 'Value', placeholder: 'Item' }] }) {
@@ -209,16 +239,16 @@ function ArrayField({ label, value = [], onChange, itemFields = [{ name: 'name',
 
   const add = () => onChange([...items, template()])
   const remove = (i) => onChange(items.filter((_, idx) => idx !== i))
-  const uploadImage = async (file, itemIndex, fieldName) => {
-    setUploadingKey(`${itemIndex}:${fieldName}`)
+  const uploadImage = async (file, itemIndex, field) => {
+    setUploadingKey(`${itemIndex}:${field.name}`)
     try {
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('folder', 'site-config-events')
+      formData.append('folder', field.uploadFolder || 'global-assets')
       const res = await fetch('/api/storage/upload', { method: 'POST', body: formData })
       const json = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(json.message || 'Upload failed')
-      update(itemIndex, fieldName, json.url || '')
+      update(itemIndex, field.name, json.url || '')
     } finally {
       setUploadingKey('')
     }
@@ -242,7 +272,7 @@ function ArrayField({ label, value = [], onChange, itemFields = [{ name: 'name',
                         accept="image/*"
                         onChange={async (e) => {
                           const file = e.target.files?.[0]
-                          if (file) await uploadImage(file, i, field.name)
+                          if (file) await uploadImage(file, i, field)
                           e.target.value = ''
                         }}
                       />
@@ -255,6 +285,14 @@ function ArrayField({ label, value = [], onChange, itemFields = [{ name: 'name',
                         <div style={{ fontSize: 12, color: 'var(--a-muted)' }}>Uploading...</div>
                       ) : null}
                     </>
+                  ) : field.type === 'textarea' ? (
+                    <textarea
+                      className="a-textarea"
+                      value={row?.[field.name] ?? ''}
+                      onChange={(e) => update(i, field.name, e.target.value)}
+                      placeholder={field.placeholder || field.label}
+                      style={{ minHeight: 96 }}
+                    />
                   ) : (
                     <input
                       value={row?.[field.name] ?? ''}

@@ -73,16 +73,16 @@ export default function ProgramsPage() {
       <section id="programs" className="py-10 sm:py-12">
         <div className="site-container">
           <div className="mb-6 rounded-2xl border border-[color:var(--border-soft)] bg-[color:var(--bg-surface-strong)] p-5">
-            <p className="text-sm font-extrabold text-[color:var(--brand-strong)]">Featured promotion</p>
+            <p className="text-sm font-extrabold text-[color:var(--brand-strong)]">School solutions</p>
             <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <h2 className="text-2xl font-extrabold text-slate-950">TSI College AI & Automation Skills Program</h2>
+                <h2 className="text-2xl font-extrabold text-slate-950">AI and automation programs for schools</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                  A dedicated sales page for the TSI College promotion, with a basic info form and Paystack checkout for termly enrollment.
+                  A general page for schools that want to subscribe to AI and automation learning solutions for students, clubs, bootcamps, or term-based programs.
                 </p>
               </div>
-              <ActionLink href="/programs/tsi-college-ai-automation" variant="primary" size="lg">
-                Open sales page <I.Arrow size={16} />
+              <ActionLink href="/schools" variant="primary" size="lg">
+                Explore school page <I.Arrow size={16} />
               </ActionLink>
             </div>
           </div>

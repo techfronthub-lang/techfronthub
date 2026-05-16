@@ -866,6 +866,41 @@ export default buildConfig({
         { name: 'ctaBody', type: 'textarea' },
       ],
     },
+    {
+      slug: 'sales-page',
+      fields: [
+        {
+          name: 'eyebrow',
+          type: 'text',
+          defaultValue: 'Sales page',
+        },
+        {
+          name: 'headline',
+          type: 'text',
+          defaultValue: 'Promote a course with a page that can close directly.',
+        },
+        {
+          name: 'body',
+          type: 'textarea',
+          defaultValue:
+            'Use this hidden page for adverts, campaign links, and direct enrollments. Add flyer images, explain the offer, and attach the Paystack checkout link for each course.',
+        },
+        {
+          name: 'offers',
+          type: 'array',
+          fields: [
+            { name: 'badge', type: 'text' },
+            { name: 'title', type: 'text', required: true },
+            { name: 'description', type: 'textarea', required: true },
+            { name: 'flyer', type: 'text', required: true },
+            { name: 'paystackUrl', type: 'text', required: true },
+            { name: 'buttonLabel', type: 'text' },
+            { name: 'priceLabel', type: 'text' },
+            { name: 'sortOrder', type: 'number' },
+          ],
+        },
+      ],
+    },
   ],
   editor: lexicalEditor(),
   db: postgresAdapter({

@@ -92,6 +92,9 @@ export default function Dashboard() {
               <Link href="/admin/globals/site-config" className="btn btn-ghost btn-sm" style={{ justifyContent: 'flex-start' }}>
                 ⚙ Site Config (hero, stats, CTA)
               </Link>
+              <Link href="/admin/globals/sales-page" className="btn btn-ghost btn-sm" style={{ justifyContent: 'flex-start' }}>
+                Sales Page (flyers, copy, Paystack links)
+              </Link>
             </div>
           </div>
         </div>

@@ -18,6 +18,7 @@ const PUBLIC_COLLECTION_READS = new Set([
 ])
 
 const OWNED_INSTRUCTOR_COLLECTIONS = new Set(['courses', 'assignments', 'announcements'])
+const PUBLIC_GLOBAL_READS = new Set(['site-config', 'sales-page'])
 function jsonError(error: unknown) {
   if (error instanceof ApiError) {
     return Response.json(
@@ -247,7 +248,7 @@ async function handle(req: Request) {
       }
 
       if (req.method === 'GET') {
-        if (slug !== 'site-config') {
+        if (!PUBLIC_GLOBAL_READS.has(slug)) {
           const actor = await resolveRequestActor(req, payload)
           requireActor(actor)
         }

@@ -22,7 +22,6 @@ export const DEFAULT_SITE_CONFIG = {
     { label: 'Courses', href: '/courses' },
     { label: 'Programs', href: '/programs' },
     { label: 'Udemy', href: '/udemy' },
-    { label: 'Reviews', href: '/reviews' },
   ],
   footerHeadline:
     "Nigeria's career-focused tech academy - cohort bootcamps, 1-on-1 coaching and corporate training for the next wave of builders.",
@@ -99,6 +98,8 @@ export const DEFAULT_SITE_CONFIG = {
   finalCtaSecondaryHref: '/contact',
 }
 
+const HIDDEN_NAV_HREFS = new Set(['/reviews', '/review', '/sales'])
+
 function isExternalHref(href = '') {
   return /^(https?:|mailto:|tel:)/i.test(href)
 }
@@ -116,10 +117,12 @@ function SmartLink({ href, children, ...props }) {
 }
 
 function normalizeConfig(siteConfig) {
+  const headerLinks = siteConfig?.headerLinks?.length ? siteConfig.headerLinks : DEFAULT_SITE_CONFIG.headerLinks
+
   return {
     ...DEFAULT_SITE_CONFIG,
     ...(siteConfig || {}),
-    headerLinks: siteConfig?.headerLinks?.length ? siteConfig.headerLinks : DEFAULT_SITE_CONFIG.headerLinks,
+    headerLinks: headerLinks.filter((item) => !HIDDEN_NAV_HREFS.has(item?.href)),
     footerLearnLinks: siteConfig?.footerLearnLinks?.length ? siteConfig.footerLearnLinks : DEFAULT_SITE_CONFIG.footerLearnLinks,
     footerBusinessLinks: siteConfig?.footerBusinessLinks?.length ? siteConfig.footerBusinessLinks : DEFAULT_SITE_CONFIG.footerBusinessLinks,
     footerResourcesLinks: siteConfig?.footerResourcesLinks?.length ? siteConfig.footerResourcesLinks : DEFAULT_SITE_CONFIG.footerResourcesLinks,
