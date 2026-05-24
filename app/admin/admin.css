@@ -234,7 +234,30 @@
 
 .a-textarea { resize: vertical; min-height: 80px; }
 
-.a-select option { background: var(--a-surface2); }
+.a-select option,
+.a-select optgroup {
+  background: var(--a-surface2);
+  color: var(--a-text);
+}
+
+.a-select option:checked {
+  background: rgba(37, 99, 235, 0.22);
+}
+
+.admin-root select,
+.admin-root option,
+.admin-root optgroup {
+  color: var(--a-text);
+}
+
+.admin-root option,
+.admin-root optgroup {
+  background: var(--a-surface2);
+}
+
+.admin-root select option:checked {
+  background: rgba(37, 99, 235, 0.22);
+}
 
 .a-checkbox-row {
   display: flex;
