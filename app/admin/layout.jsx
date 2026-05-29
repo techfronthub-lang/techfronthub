@@ -12,6 +12,7 @@ import { AdminAuthProvider } from '@/src/components/AdminAuth'
 
 const COLLECTIONS = [
   { slug: 'courses',      label: 'Courses' },
+  { slug: 'blog-posts',   label: 'Blog Posts' },
   { slug: 'categories',   label: 'Categories' },
   { slug: 'packages',     label: 'Packages' },
   { slug: 'testimonials', label: 'Testimonials' },
