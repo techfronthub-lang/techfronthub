@@ -78,6 +78,7 @@ export interface Config {
     certificates: Certificate;
     courses: Course;
     testimonials: Testimonial;
+    'blog-posts': BlogPost;
     events: Event;
     categories: Category;
     packages: Package;
@@ -101,6 +102,7 @@ export interface Config {
     certificates: CertificatesSelect<false> | CertificatesSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
+    'blog-posts': BlogPostsSelect<false> | BlogPostsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     packages: PackagesSelect<false> | PackagesSelect<true>;
@@ -118,9 +120,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-config': SiteConfig;
+    'sales-page': SalesPage;
   };
   globalsSelect: {
     'site-config': SiteConfigSelect<false> | SiteConfigSelect<true>;
+    'sales-page': SalesPageSelect<false> | SalesPageSelect<true>;
   };
   locale: null;
   widgets: {
@@ -453,6 +457,52 @@ export interface Testimonial {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-posts".
+ */
+export interface BlogPost {
+  id: number;
+  title: string;
+  /**
+   * Used in the article URL. Leave a clean lowercase slug such as ai-automation-for-beginners.
+   */
+  slug: string;
+  status: 'draft' | 'published';
+  featured?: boolean | null;
+  excerpt: string;
+  /**
+   * Paste an uploaded image URL for the article cover.
+   */
+  coverImage?: string | null;
+  author?: string | null;
+  category?: string | null;
+  readTime?: string | null;
+  publishedAt?: string | null;
+  tags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  bodySections?:
+    | {
+        type: 'paragraph' | 'heading' | 'quote' | 'bullet-list' | 'image' | 'callout';
+        heading?: string | null;
+        body?: string | null;
+        image?: string | null;
+        imageAlt?: string | null;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional plain-text fallback body. Use this if you do not build the article from sections.
+   */
+  content?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "events".
  */
 export interface Event {
@@ -607,6 +657,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'testimonials';
         value: number | Testimonial;
+      } | null)
+    | ({
+        relationTo: 'blog-posts';
+        value: number | BlogPost;
       } | null)
     | ({
         relationTo: 'events';
@@ -905,6 +959,42 @@ export interface TestimonialsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-posts_select".
+ */
+export interface BlogPostsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  status?: T;
+  featured?: T;
+  excerpt?: T;
+  coverImage?: T;
+  author?: T;
+  category?: T;
+  readTime?: T;
+  publishedAt?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  bodySections?:
+    | T
+    | {
+        type?: T;
+        heading?: T;
+        body?: T;
+        image?: T;
+        imageAlt?: T;
+        caption?: T;
+        id?: T;
+      };
+  content?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "events_select".
  */
 export interface EventsSelect<T extends boolean = true> {
@@ -1168,6 +1258,31 @@ export interface SiteConfig {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sales-page".
+ */
+export interface SalesPage {
+  id: number;
+  eyebrow?: string | null;
+  headline?: string | null;
+  body?: string | null;
+  offers?:
+    | {
+        badge?: string | null;
+        title: string;
+        description: string;
+        flyer: string;
+        paystackUrl: string;
+        buttonLabel?: string | null;
+        priceLabel?: string | null;
+        sortOrder?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-config_select".
  */
 export interface SiteConfigSelect<T extends boolean = true> {
@@ -1283,6 +1398,31 @@ export interface SiteConfigSelect<T extends boolean = true> {
   finalCtaSecondaryHref?: T;
   ctaHeadline?: T;
   ctaBody?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sales-page_select".
+ */
+export interface SalesPageSelect<T extends boolean = true> {
+  eyebrow?: T;
+  headline?: T;
+  body?: T;
+  offers?:
+    | T
+    | {
+        badge?: T;
+        title?: T;
+        description?: T;
+        flyer?: T;
+        paystackUrl?: T;
+        buttonLabel?: T;
+        priceLabel?: T;
+        sortOrder?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

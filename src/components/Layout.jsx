@@ -117,7 +117,12 @@ function SmartLink({ href, children, ...props }) {
 }
 
 function normalizeConfig(siteConfig) {
-  const headerLinks = siteConfig?.headerLinks?.length ? siteConfig.headerLinks : DEFAULT_SITE_CONFIG.headerLinks
+  const headerLinksSource = siteConfig?.headerLinks?.length ? siteConfig.headerLinks : DEFAULT_SITE_CONFIG.headerLinks
+  const headerLinks = Array.isArray(headerLinksSource) ? [...headerLinksSource] : []
+
+  if (!headerLinks.some((item) => item?.href === '/blog')) {
+    headerLinks.push({ label: 'Blog', href: '/blog' })
+  }
 
   return {
     ...DEFAULT_SITE_CONFIG,

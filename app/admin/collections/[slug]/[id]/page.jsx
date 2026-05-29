@@ -8,7 +8,7 @@ import DocForm from '../DocForm'
 
 const LABEL = {
   courses: 'Courses', categories: 'Categories', packages: 'Packages',
-  testimonials: 'Testimonials', 'udemy-courses': 'Udemy Courses', users: 'Users',
+  testimonials: 'Testimonials', 'udemy-courses': 'Udemy Courses', 'blog-posts': 'Blog Posts', users: 'Users',
 }
 
 export default function EditDocPage() {
@@ -71,7 +71,12 @@ export default function EditDocPage() {
         {error && <div className="a-error" style={{ marginBottom: 16 }}>{error}</div>}
         {saved && <div className="a-success-msg" style={{ marginBottom: 16 }}>Saved successfully.</div>}
 
-        <div className="a-card" style={{ maxWidth: 720 }}>
+        <div
+          className="a-card"
+          style={slug === 'blog-posts'
+            ? { maxWidth: 1320, padding: 0, background: 'transparent', border: 0 }
+            : { maxWidth: 720 }}
+        >
           {loading ? (
             <div className="a-spinner" />
           ) : doc ? (

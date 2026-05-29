@@ -234,6 +234,100 @@
 
 .a-textarea { resize: vertical; min-height: 80px; }
 
+.blog-editor-form {
+  gap: 16px;
+}
+
+.blog-editor-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px;
+  background: var(--a-surface);
+  border: 1px solid var(--a-border);
+  border-radius: var(--a-r);
+}
+
+.blog-editor-kicker,
+.blog-side-title {
+  color: var(--a-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.blog-editor-head h2 {
+  margin: 6px 0 0;
+  color: var(--a-text);
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.blog-editor-head p {
+  margin: 8px 0 0;
+  max-width: 620px;
+  color: var(--a-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.blog-editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+.blog-editor-main,
+.blog-editor-side {
+  background: var(--a-surface);
+  border: 1px solid var(--a-border);
+  border-radius: var(--a-r);
+}
+
+.blog-editor-main {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+}
+
+.blog-editor-side {
+  position: sticky;
+  top: 68px;
+  display: grid;
+  gap: 18px;
+  padding: 18px;
+}
+
+.blog-side-section {
+  display: grid;
+  gap: 14px;
+}
+
+.blog-side-section + .blog-side-section {
+  padding-top: 18px;
+  border-top: 1px solid var(--a-border);
+}
+
+.blog-block-card {
+  padding: 16px;
+  border-radius: var(--a-r);
+  border: 1px solid var(--a-border);
+  background: var(--a-surface2);
+}
+
+.blog-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 20px;
+  background: var(--a-surface);
+  border: 1px solid var(--a-border);
+  border-radius: var(--a-r);
+}
+
 .a-select option,
 .a-select optgroup {
   background: var(--a-surface2);
@@ -576,6 +670,12 @@
 
 @media (max-width: 600px) {
   .form-grid-2 { grid-template-columns: 1fr; }
+  .blog-editor-head { flex-direction: column; }
+  .blog-editor-grid { grid-template-columns: 1fr; }
+  .blog-editor-side { position: static; }
+  .blog-editor-actions { justify-content: stretch; }
+  .blog-editor-actions .btn,
+  .blog-editor-head .btn { width: 100%; justify-content: center; }
   .array-item-card { grid-template-columns: 1fr; }
   .admin-sidebar { transform: translateX(-100%); }
   .admin-main { margin-left: 0; }

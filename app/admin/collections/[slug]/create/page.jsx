@@ -8,7 +8,7 @@ import DocForm from '../DocForm'
 
 const LABEL = {
   courses: 'Courses', categories: 'Categories', packages: 'Packages',
-  testimonials: 'Testimonials', events: 'Events', 'udemy-courses': 'Udemy Courses', users: 'Users',
+  testimonials: 'Testimonials', events: 'Events', 'udemy-courses': 'Udemy Courses', 'blog-posts': 'Blog Posts', users: 'Users',
 }
 
 export default function CreateDocPage() {
@@ -45,7 +45,12 @@ export default function CreateDocPage() {
       <div className="admin-content">
         {error && <div className="a-error" style={{ marginBottom: 16 }}>{error}</div>}
 
-        <div className="a-card" style={{ maxWidth: 720 }}>
+        <div
+          className="a-card"
+          style={slug === 'blog-posts'
+            ? { maxWidth: 1320, padding: 0, background: 'transparent', border: 0 }
+            : { maxWidth: 720 }}
+        >
           <DocForm slug={slug} onSubmit={handleCreate} submitting={submitting} submitLabel="Create" />
         </div>
       </div>

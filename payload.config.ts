@@ -21,6 +21,15 @@ function getPoolTimeout(name: string, fallback: number) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback
 }
 
+function slugifyText(value: unknown) {
+  return String(value || '')
+    .toLowerCase()
+    .trim()
+    .replace(/['"]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
 async function sendAuthEmails(collection: 'users' | 'instructors', doc: any, operation: string) {
   if (!doc?.email) return
 
@@ -438,6 +447,104 @@ export default buildConfig({
         { name: 'initials', type: 'text', maxLength: 2 },
         { name: 'quote', type: 'textarea', required: true },
       ],
+    },
+    {
+      slug: 'blog-posts',
+      admin: { useAsTitle: 'title' },
+      fields: [
+        { name: 'title', type: 'text', required: true },
+        {
+          name: 'slug',
+          type: 'text',
+          required: true,
+          unique: true,
+          index: true,
+          admin: {
+            description: 'Used in the article URL. Leave a clean lowercase slug such as ai-automation-for-beginners.',
+          },
+        },
+        {
+          name: 'status',
+          type: 'select',
+          options: ['draft', 'published'],
+          defaultValue: 'draft',
+          required: true,
+        },
+        { name: 'featured', type: 'checkbox', defaultValue: false },
+        { name: 'excerpt', type: 'textarea', required: true },
+        {
+          name: 'coverImage',
+          type: 'text',
+          admin: { description: 'Paste an uploaded image URL for the article cover.' },
+        },
+        { name: 'author', type: 'text', defaultValue: 'TECHFRONT HUB' },
+        { name: 'category', type: 'text', defaultValue: 'Insights' },
+        { name: 'readTime', type: 'text', defaultValue: '5 min read' },
+        { name: 'publishedAt', type: 'date' },
+        {
+          name: 'tags',
+          type: 'array',
+          fields: [{ name: 'tag', type: 'text', required: true }],
+        },
+        {
+          name: 'bodySections',
+          type: 'array',
+          fields: [
+            {
+              name: 'type',
+              type: 'select',
+              options: ['paragraph', 'heading', 'quote', 'bullet-list', 'image', 'callout'],
+              required: true,
+            },
+            { name: 'heading', type: 'text' },
+            { name: 'body', type: 'textarea' },
+            { name: 'image', type: 'text' },
+            { name: 'imageAlt', type: 'text' },
+            { name: 'caption', type: 'text' },
+          ],
+        },
+        {
+          name: 'content',
+          type: 'textarea',
+          admin: {
+            description: 'Optional plain-text fallback body. Use this if you do not build the article from sections.',
+          },
+        },
+      ],
+      hooks: {
+        beforeValidate: [
+          async ({ data, operation }) => {
+            if (!data) return data
+
+            const next = { ...data }
+            const nextSlug = slugifyText(next.slug || next.title)
+            if (nextSlug) next.slug = nextSlug
+
+            if (next.status === 'published' && !next.publishedAt) {
+              next.publishedAt = new Date().toISOString()
+            }
+
+            if (operation === 'create' && !next.author) {
+              next.author = 'TECHFRONT HUB'
+            }
+
+            const hasStructuredBody = Array.isArray(next.bodySections) && next.bodySections.some((item: any) => {
+              const type = String(item?.type || '')
+              return Boolean(
+                type === 'image'
+                  ? item?.image
+                  : item?.heading || item?.body || item?.caption,
+              )
+            })
+
+            if (!hasStructuredBody && !String(next.content || '').trim()) {
+              throw new Error('Add article content or at least one body section before saving.')
+            }
+
+            return next
+          },
+        ],
+      },
     },
     {
       slug: 'events',

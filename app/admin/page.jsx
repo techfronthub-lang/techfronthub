@@ -6,6 +6,7 @@ import { getCollection } from '@/src/lib/payload-api'
 
 const TILES = [
   { slug: 'courses',       label: 'Courses',       href: '/admin/collections/courses' },
+  { slug: 'blog-posts',    label: 'Blog Posts',    href: '/admin/collections/blog-posts' },
   { slug: 'categories',    label: 'Categories',    href: '/admin/collections/categories' },
   { slug: 'packages',      label: 'Packages',      href: '/admin/collections/packages' },
   { slug: 'testimonials',  label: 'Testimonials',  href: '/admin/collections/testimonials' },
@@ -46,6 +47,9 @@ export default function Dashboard() {
           <Link href="/admin/collections/courses/create" className="btn btn-primary btn-sm">
             + New Course
           </Link>
+          <Link href="/admin/collections/blog-posts/create" className="btn btn-ghost btn-sm">
+            + New Article
+          </Link>
         </div>
       </div>
 
@@ -73,6 +77,7 @@ export default function Dashboard() {
               </Link>
               {[
                 { label: '+ New Course',      href: '/admin/collections/courses/create' },
+                { label: '+ New Article',     href: '/admin/collections/blog-posts/create' },
                 { label: '+ New Testimonial', href: '/admin/collections/testimonials/create' },
                 { label: '+ New Category',    href: '/admin/collections/categories/create' },
                 { label: '+ New Package',     href: '/admin/collections/packages/create' },
