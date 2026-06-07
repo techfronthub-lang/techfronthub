@@ -178,6 +178,7 @@ export function TopBar({ siteConfig }) {
 export function Header({ siteConfig }) {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false)
   const [isAuthenticated, setIsAuthenticated] = React.useState(false)
+  const [theme, setTheme] = React.useState('light')
   const pathname = usePathname()
   const config = normalizeConfig(siteConfig)
 
@@ -195,7 +196,20 @@ export function Header({ siteConfig }) {
     return () => document.body.classList.remove('menu-open')
   }, [isMenuOpen])
 
+  React.useEffect(() => {
+    const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+    setTheme(currentTheme)
+  }, [])
+
   const close = () => setIsMenuOpen(false)
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark'
+    document.documentElement.classList.toggle('dark', nextTheme === 'dark')
+    document.documentElement.dataset.theme = nextTheme
+    localStorage.setItem('techfront-theme', nextTheme)
+    setTheme(nextTheme)
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('payload-token')
@@ -206,7 +220,7 @@ export function Header({ siteConfig }) {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[color:var(--border-soft)] bg-white/92 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-[color:var(--border-soft)] bg-[color:var(--header-bg)] backdrop-blur">
       <div className="site-container flex min-h-[64px] items-center gap-3 py-2 lg:gap-4 lg:py-0">
         <Link href="/" className="inline-flex items-center gap-2 text-[color:var(--text-strong)]" aria-label="TECHFRONT HUB">
           <span className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded bg-[color:var(--brand)] text-sm font-extrabold text-white shadow-[0_10px_22px_rgba(11,132,223,0.22)]">
@@ -252,6 +266,9 @@ export function Header({ siteConfig }) {
           {isAuthenticated && (
             <button onClick={handleLogout} className="hidden h-10 rounded border border-[color:var(--border-soft)] bg-white px-4 text-sm font-extrabold text-[color:var(--text-strong)] transition hover:bg-[color:var(--brand-soft)] lg:inline-flex lg:items-center lg:justify-center">Logout</button>
           )}
+          <button className="inline-flex h-10 w-10 items-center justify-center rounded border border-[color:var(--border-soft)] bg-[color:var(--bg-surface)] text-[color:var(--text-strong)] transition hover:bg-[color:var(--brand-soft)]" onClick={toggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+            {theme === 'dark' ? <I.Sun size={18} /> : <I.Moon size={18} />}
+          </button>
           <button className="inline-flex h-10 w-10 items-center justify-center rounded border border-[color:var(--border-soft)] bg-white text-[color:var(--text-strong)] transition hover:bg-[color:var(--brand-soft)] lg:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle Menu">
             {isMenuOpen ? <I.X size={24} /> : <I.Menu size={24} />}
           </button>
