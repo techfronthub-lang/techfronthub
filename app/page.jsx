@@ -155,13 +155,13 @@ export default function Page() {
       <main>
         <Hero siteConfig={data.siteConfig}/>
         <Trusted siteConfig={data.siteConfig}/>
+        <Packages      packages={data.packages} siteConfig={data.siteConfig}/>
+        <CourseSlider  courses={data.courses} loading={loading} siteConfig={data.siteConfig}/>
+        <Categories    categories={data.categories} courses={data.courses} siteConfig={data.siteConfig}/>
         <UdemyGrid     udemy={data.udemy} siteConfig={data.siteConfig}/>
         <EventsSection siteConfig={data.siteConfig}/>
-        <CourseSlider  courses={data.courses} loading={loading} siteConfig={data.siteConfig}/>
         <Catalog courses={data.courses} categories={data.categories}/>
         <WhyUs siteConfig={data.siteConfig}/>
-        <Categories    categories={data.categories} courses={data.courses} siteConfig={data.siteConfig}/>
-        <Packages      packages={data.packages} siteConfig={data.siteConfig}/>
         <Testimonials  testimonials={data.testimonials} siteConfig={data.siteConfig}/>
         <FinalCTA siteConfig={data.siteConfig}/>
       </main>
