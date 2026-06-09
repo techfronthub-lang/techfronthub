@@ -30,6 +30,9 @@
   --bg-page:
     radial-gradient(circle at 12% 0%, rgba(219, 239, 255, 0.78), transparent 26%),
     linear-gradient(180deg, #ffffff 0%, #f7fbff 44%, #ffffff 100%);
+  --bg-hero:
+    radial-gradient(circle at top left, #dff0ff 0%, transparent 36%),
+    linear-gradient(180deg, #ffffff 0%, #eef7ff 100%);
   --bg-surface: #ffffff;
   --bg-surface-strong: #f8fbff;
   --bg-soft: #eef7ff;
@@ -60,6 +63,9 @@
   --bg-page:
     radial-gradient(circle at 12% 0%, rgba(11, 132, 223, 0.2), transparent 28%),
     linear-gradient(180deg, #07111f 0%, #0b1728 48%, #07111f 100%);
+  --bg-hero:
+    radial-gradient(circle at top left, rgba(56, 169, 245, 0.18) 0%, transparent 36%),
+    linear-gradient(180deg, #081423 0%, #0d1b2d 100%);
   --bg-surface: #0f1d31;
   --bg-surface-strong: #0b1728;
   --bg-soft: #12243a;

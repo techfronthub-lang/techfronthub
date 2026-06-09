@@ -11,7 +11,10 @@ export function Hero({ siteConfig }) {
     'Practical courses, cohort programs, certificates, and self-paced lessons in one place.'
 
   return (
-    <section className="market-hero border-b border-[color:var(--border-soft)] bg-[radial-gradient(circle_at_top_left,#dff0ff_0%,transparent_36%),linear-gradient(180deg,#ffffff_0%,#eef7ff_100%)]">
+    <section
+      className="market-hero border-b border-[color:var(--border-soft)]"
+      style={{ background: 'var(--bg-hero)' }}
+    >
       <div className="site-container grid min-h-[520px] gap-8 py-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(420px,1.08fr)] lg:items-center lg:py-14">
         <div className="max-w-2xl">
           <p className="text-sm font-bold text-[color:var(--brand-strong)]">TECHFRONT HUB marketplace</p>
@@ -27,7 +30,7 @@ export function Hero({ siteConfig }) {
               <a
                 key={term}
                 href={`/courses?q=${encodeURIComponent(term)}`}
-                className="rounded-full border border-[color:var(--border-soft)] bg-white px-4 py-2 text-sm font-bold text-[color:var(--text-body)] transition hover:border-[color:var(--border-strong)] hover:bg-[color:var(--brand-soft)] hover:text-[color:var(--text-strong)]"
+                className="rounded-full border border-[color:var(--border-soft)] bg-[color:var(--bg-surface)] px-4 py-2 text-sm font-bold text-[color:var(--text-body)] transition hover:border-[color:var(--border-strong)] hover:bg-[color:var(--brand-soft)] hover:text-[color:var(--text-strong)]"
               >
                 {term}
               </a>
@@ -42,7 +45,7 @@ export function Hero({ siteConfig }) {
             className="absolute inset-0 h-full w-full object-cover opacity-80"
           />
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a2347] via-[#0a2347]/72 to-transparent p-6 text-white sm:p-8">
-            <div className="mb-4 inline-flex rounded-sm bg-white px-3 py-1 text-xs font-extrabold uppercase text-[color:var(--brand-strong)]">
+            <div className="mb-4 inline-flex rounded-sm bg-[color:rgba(255,255,255,0.9)] px-3 py-1 text-xs font-extrabold uppercase text-[color:var(--brand-strong)] dark:bg-white/12 dark:text-white">
               Popular now
             </div>
             <h2 className="max-w-md text-2xl font-extrabold leading-tight">
